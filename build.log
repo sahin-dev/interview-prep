@@ -1,0 +1,15 @@
+﻿   ▲ Next.js 15.5.29
+
+   Creating an optimized production build ...
+npx : uncaughtException [Error: EPERM: operation not permitted, open 'D:\interview-faang\.next\trace'] {
+At line:1 char:514
++ ... build'; $env:NEXT_TELEMETRY_DISABLED='1'; npx next build 2>&1 | Out-F ...
++                                               ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (uncaughtExcepti....next\trace'] {:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'open',
+  path: 'D:\\interview-faang\\.next\\trace'
+}
