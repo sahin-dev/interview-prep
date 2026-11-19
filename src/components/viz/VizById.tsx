@@ -11,6 +11,8 @@ import { FibTreeViz, CallStackViz, DPTableViz } from "./lazy";
 import { NQueensViz, SubsetsTreeViz, IntervalsViz } from "./lazy";
 import { AddressTranslationViz, BankersViz, CPUSchedulerViz, CacheSimViz, CongestionViz, DiffieHellmanViz, ECBDemo, EncapsulationViz, EventLoopViz, HashPlayground, IndexScanViz, InstructionCycleViz, IsolationViz, JWTDecoder, LoadBalancerViz, NumberConverter, PageReplacementViz, PascalViz, ProbabilityViz, RSAToy, RaceConditionViz, SQLPlayground, ShardingViz, SieveViz, SubnetCalculator } from "./lazy";
 
+import { ConsistentHashViz, RateLimiterViz, RaftViz, PartitionViz, BloomFilterViz, LSMViz, BitPlayground, UnionFindViz, TrieViz, MonotonicStackViz, KMPViz, SegmentTreeViz, FenwickViz, MSTViz, BellmanFordViz, FloydViz, StarBuilder, CipherPlayground, BlockchainViz, ConvexHullViz, NimViz, PipelineViz, EndianViz, MESIViz } from "./lazy";
+
 const MAP: Record<string, () => ReactNode> = {
   "big-o-chart": () => <BigOChart />,
   sorting: () => <SortingViz />,
@@ -62,6 +64,30 @@ const MAP: Record<string, () => ReactNode> = {
   "sieve": () => <SieveViz />,
   "probability": () => <ProbabilityViz />,
   "pascal": () => <PascalViz />,
+  "consistent-hashing": () => <ConsistentHashViz />,
+  "rate-limiter": () => <RateLimiterViz />,
+  "raft": () => <RaftViz />,
+  "kafka-partitions": () => <PartitionViz />,
+  "bloom-filter": () => <BloomFilterViz />,
+  "lsm-tree": () => <LSMViz />,
+  "bits": () => <BitPlayground />,
+  "union-find": () => <UnionFindViz />,
+  "trie": () => <TrieViz />,
+  "monotonic-stack": () => <MonotonicStackViz />,
+  "kmp": () => <KMPViz />,
+  "segment-tree": () => <SegmentTreeViz />,
+  "fenwick": () => <FenwickViz />,
+  "mst": () => <MSTViz />,
+  "bellman-ford": () => <BellmanFordViz />,
+  "floyd-warshall": () => <FloydViz />,
+  "star-builder": () => <StarBuilder />,
+  "ciphers": () => <CipherPlayground />,
+  "blockchain": () => <BlockchainViz />,
+  "convex-hull": () => <ConvexHullViz />,
+  "nim": () => <NimViz />,
+  "pipeline": () => <PipelineViz />,
+  "endianness": () => <EndianViz />,
+  "mesi": () => <MESIViz />,
 };
 
 export function VizById({ id }: { id: string }) {
