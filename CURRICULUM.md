@@ -284,10 +284,15 @@ Next.js (App Router) + TypeScript · Tailwind CSS · MDX for topic content · Fr
 Monaco Editor for the playground · Pyodide (Python in the browser) · KaTeX for math · Shiki for code highlighting ·
 sql.js for the SQL playground. Static export so it can be hosted anywhere (Vercel, Netlify, GitHub Pages).
 
-## Build order (proposed)
+> As built: lessons are TSX components rather than MDX, the playground uses CodeMirror rather than Monaco, and
+> formulas are typeset as text rather than with KaTeX. Everything else matches the plan above.
 
-1. **Phase 1:** Site shell, navigation, filters, progress tracking, topic page template, visualizer framework.
-2. **Phase 2:** All 🔴 P0 DSA topics (sections 1–6) with visualizers and problems.
-3. **Phase 3:** CS fundamentals P0/P1 (networking, OS, architecture, databases, crypto).
-4. **Phase 4:** System design, LLD, behavioral.
-5. **Phase 5:** All 🟢 P2 / advanced topics (segment trees, flows, string algorithms, advanced math).
+## Build order (complete)
+
+1. ✅ **Phase 1:** Site shell, navigation, filters, progress tracking, topic page template, visualizer framework.
+2. ✅ **Phase 2:** All 🔴 P0 DSA topics (sections 1–6) with visualizers and problems.
+3. ✅ **Phase 3:** CS fundamentals P0/P1 (networking, OS, architecture, databases, crypto).
+4. ✅ **Phase 4:** System design, LLD, behavioral.
+5. ✅ **Phase 5:** All remaining 🟡 P1 and 🟢 P2 / advanced topics (segment trees, flows, string algorithms, advanced math).
+
+All 159 topics have full lessons, backed by 74 interactive visualizers and 60 runnable practice problems.

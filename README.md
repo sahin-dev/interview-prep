@@ -4,6 +4,16 @@ A complete interview-preparation website: data structures, algorithms, CS fundam
 behavioral topics, explained simply, with interactive visualizers, an in-browser coding playground and practice
 problems ordered from easy to hard. The full topic plan lives in [CURRICULUM.md](CURRICULUM.md).
 
+What's included:
+
+- **159 lessons** across 17 sections, from strategy and Big-O to system design, OOD and behavioral interviews, each
+  tagged P0 / P1 / P2 and by difficulty.
+- **74 interactive visualizers** (sorting, graphs, DP tables, CPU scheduling, TCP, crypto demos, consistent hashing,
+  Raft, rate limiters, LSM trees and more), also browsable at `/visualizers`.
+- **60 runnable practice problems** in JavaScript and Python, with tests, hints and solutions.
+- Prerequisites, key takeaways, real-world uses and related topics on every lesson; a 4/8/12-week roadmap; cheat
+  sheets; progress tracking.
+
 ## Run it
 
 ```bash

@@ -38,8 +38,8 @@ export function ArchDiagram({
   nodes,
   edges,
   flows = [],
-  width = 760,
-  height = 400,
+  width: minWidth = 760,
+  height: minHeight = 400,
 }: {
   title: string;
   subtitle?: string;
@@ -56,6 +56,9 @@ export function ArchDiagram({
   const player = usePlayer(frames, 1500);
   const f = player.frame;
   const byId = new Map(nodes.map((n) => [n.id, n]));
+  // Grow the canvas so nodes placed near the edges are never clipped.
+  const width = Math.max(minWidth, ...nodes.map((n) => n.x + (n.w ?? 118) / 2 + 8));
+  const height = Math.max(minHeight, ...nodes.map((n) => n.y + NH / 2 + 8));
   const sel = selected ? byId.get(selected) : null;
   const allEdges = useMemo(() => {
     const list = [...edges];

@@ -37,6 +37,13 @@ function Row({ k, v, mono = true }: { k: string; v: string; mono?: boolean }) {
   );
 }
 
+/** Web Crypto exists only in the browser; check after mount so server and client render the same markup. */
+function useCryptoAvailable() {
+  const [ok, setOk] = useState(true);
+  useEffect(() => setOk(!!subtle()), []);
+  return ok;
+}
+
 const NoCrypto = () => <p className="text-[13px] text-rose-500">Web Crypto isn&apos;t available here (it needs HTTPS or localhost).</p>;
 
 /* --------------------------------- Encoding ------------------------------- */
@@ -72,6 +79,7 @@ function bitsOf(hex: string) {
 }
 
 export function HashPlayground() {
+  const cryptoOk = useCryptoAvailable();
   const [mode, setMode] = useState<"hash" | "hmac">("hash");
   const [algo, setAlgo] = useState("SHA-256");
   const [a, setA] = useState("hello world");
@@ -97,7 +105,7 @@ export function HashPlayground() {
   }, [a, b, algo, mode, key]);
   const ba = bitsOf(ha), bb = bitsOf(hb);
   const diff = ba.length && ba.length === bb.length ? ba.split("").filter((c, i) => c !== bb[i]).length : 0;
-  if (!subtle()) return <VizCard title="Hash playground"><NoCrypto /></VizCard>;
+  if (!cryptoOk) return <VizCard title="Hash playground"><NoCrypto /></VizCard>;
   return (
     <VizCard
       title={mode === "hash" ? "Hash playground: the avalanche effect" : "HMAC: hashing with a secret key"}
@@ -307,6 +315,7 @@ export function DiffieHellmanViz() {
 /* ---------------------------- Password hashing ---------------------------- */
 
 export function PasswordHashViz() {
+  const cryptoOk = useCryptoAvailable();
   const [pw, setPw] = useState("password123");
   const [iters, setIters] = useState(100000);
   const [rows, setRows] = useState<{ label: string; out: string; ms?: number }[]>([]);
@@ -329,7 +338,7 @@ export function PasswordHashViz() {
     ]);
   }
   useEffect(() => { run(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!subtle()) return <VizCard title="Password hashing"><NoCrypto /></VizCard>;
+  if (!cryptoOk) return <VizCard title="Password hashing"><NoCrypto /></VizCard>;
   return (
     <VizCard title="Storing passwords: hash, salt, stretch" subtitle="Two users with the same password, stored three ways.">
       <div className="flex flex-wrap items-center gap-2">
@@ -353,6 +362,7 @@ export function PasswordHashViz() {
 /* --------------------------------- JWT ------------------------------------ */
 
 export function JWTDecoder() {
+  const cryptoOk = useCryptoAvailable();
   const [secret, setSecret] = useState("super-secret");
   const [token, setToken] = useState("");
   const [valid, setValid] = useState<boolean | null>(null);
@@ -380,7 +390,7 @@ export function JWTDecoder() {
     })();
     return () => { live = false; };
   }, [token, secret]);
-  if (!subtle()) return <VizCard title="JWT decoder"><NoCrypto /></VizCard>;
+  if (!cryptoOk) return <VizCard title="JWT decoder"><NoCrypto /></VizCard>;
   const [h, p, sg] = token.split(".");
   function tamper() {
     const payload = JSON.parse(b64urlDecode(p));

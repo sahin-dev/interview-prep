@@ -81,7 +81,7 @@ export function ConsistentHashViz() {
           <circle cx={C} cy={C} r={R} fill="none" stroke="var(--border-strong)" strokeWidth={2} />
           {ring.map((p, i) => {
             const [x, y] = xy(p.pos);
-            return <circle key={i} cx={x} cy={y} r={vnodes > 10 ? 3 : 7} fill={color(p.server)} stroke="var(--surface)" strokeWidth={1.5}><title>{p.server} vnode</title></circle>;
+            return <circle key={i} cx={x} cy={y} r={vnodes > 10 ? 3 : 7} fill={color(p.server)} stroke="var(--surface)" strokeWidth={1.5}><title>{`${p.server} vnode`}</title></circle>;
           })}
           {vnodes <= 10 && ring.map((p, i) => {
             const [x, y] = xy(p.pos, R + 18);
@@ -90,7 +90,7 @@ export function ConsistentHashViz() {
           {keys.map((k) => {
             const [x, y] = xy(fnv1a(k), R - 16);
             const wasMoved = prev && prev[k] !== assign[k];
-            return <rect key={k} x={x - 4} y={y - 4} width={8} height={8} rx={1.5} fill={color(assign[k])} opacity={0.85} stroke={wasMoved ? "var(--fg)" : "none"} strokeWidth={2}><title>{k} → {assign[k]}</title></rect>;
+            return <rect key={k} x={x - 4} y={y - 4} width={8} height={8} rx={1.5} fill={color(assign[k])} opacity={0.85} stroke={wasMoved ? "var(--fg)" : "none"} strokeWidth={2}><title>{`${k} → ${assign[k]}`}</title></rect>;
           })}
           <text x={C} y={C - 6} textAnchor="middle" fontSize={12} fill="var(--muted)">0 … 2³²</text>
           <text x={C} y={C + 12} textAnchor="middle" fontSize={11} fill="var(--subtle)">squares = keys</text>
@@ -144,7 +144,7 @@ const ALGOS: { id: Algo; name: string }[] = [
 const PATTERNS: Record<string, number[]> = {
   steady: Array.from({ length: 20 }, (_, i) => i * 1.0 + 0.2),
   burst: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 5, 5.1, 9, 9.1, 9.2, 9.3, 9.4, 9.5, 15, 18, 19],
-  boundary: [4.6, 4.7, 4.8, 4.9, 4.95, 5.05, 5.1, 5.2, 5.3, 5.4, 12, 13, 14, 19.5, 19.6, 19.7],
+  boundary: [3.0, 3.4, 3.8, 4.2, 4.6, 5.0, 5.4, 5.8, 6.2, 6.6, 12, 13, 14, 18.6, 19.2, 19.8],
 };
 
 /** Returns, per request time, whether it was allowed (leaky: whether it fit the queue). */
@@ -224,7 +224,7 @@ export function RateLimiterViz() {
               <text x={10} y={13} fontSize={11.5} fontWeight={600} fill="var(--fg)">{r.name}: {r.ok.filter(Boolean).length}/{times.length} allowed</text>
               <line x1={10} x2={W - 10} y1={30} y2={30} stroke="var(--border-strong)" />
               {times.map((t, i) => (
-                <circle key={i} cx={x(t)} cy={30} r={5} fill={r.ok[i] ? stateColor.done : stateColor.swap} stroke="var(--surface)" strokeWidth={1} />
+                <circle key={i} cx={x(t)} cy={30} r={4.5} fill={r.ok[i] ? stateColor.done : stateColor.swap} stroke="var(--surface)" strokeWidth={1} />
               ))}
             </g>
           ))}
