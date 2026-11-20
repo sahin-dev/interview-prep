@@ -8,6 +8,7 @@ import { SearchButton } from "./SearchPalette";
 import { cn } from "@/lib/utils";
 
 export const NAV = [
+  { href: "/curriculum/", label: "Curriculum" },
   { href: "/topics/", label: "Topics" },
   { href: "/roadmap/", label: "Roadmap" },
   { href: "/visualizers/", label: "Visualizers" },

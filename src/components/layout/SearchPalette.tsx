@@ -7,6 +7,7 @@ import { PriorityBadge } from "@/components/badges";
 import { cn } from "@/lib/utils";
 
 const pages = [
+  { title: "Master curriculum", href: "/curriculum/", hint: "Fourteen-part knowledge map" },
   { title: "All topics", href: "/topics/", hint: "Browse & filter" },
   { title: "Roadmap", href: "/roadmap/", hint: "Study plans" },
   { title: "Visualizers", href: "/visualizers/", hint: "Interactive animations" },

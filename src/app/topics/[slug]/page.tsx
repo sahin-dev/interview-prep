@@ -8,6 +8,7 @@ import { DocsShell } from "@/components/layout/DocsShell";
 import { DifficultyBadge, PriorityBadge, Tag } from "@/components/badges";
 import { TopicStatus } from "@/components/content/TopicStatus";
 import { Prerequisites, LessonWrapUp } from "@/components/content/LessonConnections";
+import { textbookReadySet } from "@/content/textbook-ready";
 
 export const dynamicParams = false;
 
@@ -54,6 +55,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
             <span className="font-mono text-[12px] text-subtle">#{topic.id}</span>
             <PriorityBadge p={topic.priority} />
             <DifficultyBadge d={topic.difficulty} />
+            {textbookReadySet.has(slug) && <Tag>Textbook chapter</Tag>}
             {topic.interactive.map((i) => (
               <Tag key={i}>{interactiveLabel[i] ?? i}</Tag>
             ))}

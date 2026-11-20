@@ -977,13 +977,15 @@ export const lessonMeta: Record<string, LessonMeta> = {
   },
   transactions: {
     prereqs: ["sql"],
-    related: ["synchronization", "deadlocks", "distributed-data", "distributed-systems", "indexing"],
-    uses: ["Payments and inventory", "Any multi-step update that must be all-or-nothing", "Preventing double booking and overselling"],
+    related: ["indexing", "storage-engines", "synchronization", "deadlocks", "distributed-data", "distributed-systems"],
+    uses: ["Payments, wallets and ledgers", "Inventory and booking systems that must not oversell or double-book", "Work queues built on SELECT … FOR UPDATE SKIP LOCKED"],
     takeaways: [
-      "ACID: atomicity, consistency, isolation, durability.",
-      "Isolation levels trade anomalies (dirty, non-repeatable, phantom reads) for concurrency.",
-      "MVCC lets readers and writers proceed without blocking each other.",
-      "Fix lost updates with atomic updates, SELECT … FOR UPDATE, or optimistic versioning.",
+      "Atomicity and durability handle failure (write-ahead logging and recovery); isolation handles concurrency; consistency is mostly the application's invariants.",
+      "Serializability is the reference point: a schedule is conflict-serializable exactly when its precedence graph has no cycle.",
+      "Isolation levels are defined by the anomalies they allow (dirty reads, read skew, phantoms, lost updates, write skew), and their names differ between engines.",
+      "MVCC stops readers and writers blocking each other but needs version cleanup; long-running transactions cause bloat.",
+      "Pick the fix for the anomaly: atomic conditional updates, FOR UPDATE, version columns, constraints, or serializable with whole-transaction retries.",
+      "Keep transactions short, free of external calls, and idempotent so an unknown commit outcome can be retried safely.",
     ],
   },
   nosql: {
@@ -1762,13 +1764,15 @@ export const lessonMeta: Record<string, LessonMeta> = {
   },
   "storage-engines": {
     prereqs: ["indexing", "transactions", "file-systems"],
-    related: ["nosql", "probabilistic-structures", "balanced-bst", "distributed-data"],
-    uses: ["Choosing a database for write-heavy vs read-heavy workloads", "Tuning RocksDB/Cassandra compaction", "Understanding replication via the WAL"],
+    related: ["memory-hierarchy", "probabilistic-structures", "heaps", "nosql", "distributed-data", "hash-tables"],
+    uses: ["Choosing between B-tree and LSM databases for a workload", "Tuning compaction, buffer pools and checkpoints", "Diagnosing write stalls, bloat and tombstone-heavy reads"],
     takeaways: [
-      "The WAL makes changes durable before data structures are updated.",
-      "B-trees update pages in place: fast reads and range scans.",
-      "LSM trees buffer writes in a memtable, flush SSTables and compact: fast writes.",
-      "Bloom filters let LSM reads skip files; compaction strategy trades read vs write amplification.",
+      "Engines trade read cost, write cost and space; no design minimizes all three (the RUM conjecture).",
+      "Page engines use slotted pages, a buffer pool with scan-resistant eviction, and torn-page protection on top of the WAL.",
+      "B-trees stay shallow through high fan-out; B-link trees let readers proceed during concurrent splits.",
+      "LSM writes go to the WAL and memtable, flush as immutable SSTables, and are merged by compaction; Bloom filters keep point reads cheap.",
+      "Leveled compaction lowers read and space amplification; tiered lowers write amplification; time-window suits TTL data.",
+      "Deletes in an LSM are tombstones that cost space and read time until compaction drops them at the bottom level.",
     ],
   },
 };

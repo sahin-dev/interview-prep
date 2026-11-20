@@ -4,6 +4,11 @@ A complete interview-preparation website: data structures, algorithms, CS fundam
 behavioral topics, explained simply, with interactive visualizers, an in-browser coding playground and practice
 problems ordered from easy to hard. The full topic plan lives in [CURRICULUM.md](CURRICULUM.md).
 
+The `/curriculum` route is the broader source of truth for the long-term engineering library: 14 parts and 187
+modules spanning foundations, language runtimes, DSA, databases, system design, distributed systems, software
+engineering, backend, cloud/DevOps, security, LLD, theory, behavioral skills and company-specific preparation.
+It distinguishes published lessons, planned chapters and chapters that have passed the stricter textbook standard.
+
 What's included:
 
 - **159 lessons** across 17 sections, from strategy and Big-O to system design, OOD and behavioral interviews, each
@@ -24,6 +29,7 @@ What's included:
 npm install
 npm run dev          # http://localhost:3000
 npm run build        # static export to ./out (host anywhere: Vercel, Netlify, GitHub Pages)
+npm run verify:textbook # enforce the long-form quality gate for textbook-ready chapters
 ```
 
 Don't run `npm run build` while `npm run dev` is running: both use the `.next` folder.
@@ -33,8 +39,10 @@ Don't run `npm run build` while `npm run dev` is running: both use the `.next` f
 | Path | What it is |
 |------|------------|
 | `src/data/curriculum.ts` | Every section and topic, with priority (P0/P1/P2), difficulty and subtopics. Drives navigation, filters and search. |
+| `src/data/knowledge-map.ts` | The complete 14-part knowledge map, including planned modules and links to published lessons. |
 | `src/content/topics/*.tsx` | One file per lesson. |
 | `src/content/registry.ts` + `ready.ts` | Register a new lesson in **both** (the build fails if they disagree). |
+| `src/content/textbook-ready.ts` | Conservative list of chapters that satisfy the long-form textbook quality contract. |
 | `src/components/content/` | Lesson building blocks: `H2`, `Callout`, `Code` (multi-language tabs), `Complexity`, `Problems`, `Quiz`, `Practice`. |
 | `src/components/viz/` | Interactive visualizers. Lessons import them from `viz/lazy.tsx` so each page only loads what it uses. |
 | `src/data/problems.ts` + `problems-*.ts` | Runnable problems (JS + Python starters, tests, hints, solutions). |
@@ -52,6 +60,11 @@ Don't run `npm run build` while `npm run dev` is running: both use the `.next` f
    to an unknown slug.
 4. Optional: add an entry to `src/data/lesson-extras.ts` (mistakes, interview Q&A, resources).
 5. Optional: add runnable problems and show them with `<Practice ids={[...]} />`.
+
+Do not add a slug to `textbook-ready.ts` merely because the lesson builds. A textbook-ready chapter must cover the
+concept's context and motivation, internal mechanics, progressive examples, alternatives and trade-offs, production
+behavior, misconceptions, interview reasoning, assessment and authoritative references. Keep planned work visible in
+the knowledge map instead of presenting an outline or short note as a completed chapter.
 
 ## Adding a practice problem
 

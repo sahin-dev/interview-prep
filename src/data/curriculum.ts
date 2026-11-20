@@ -237,10 +237,10 @@ export const topics: Topic[] = [
   t("13.1", "sql", "SQL Essentials", EM, "P0", ["SELECT & WHERE", "JOINs", "GROUP BY & HAVING", "Subqueries", "Window functions"], ["playground"], "The query language every engineer is expected to know."),
   t("13.2", "indexing", "Database Indexing", M, "P0", ["B-tree / B+ tree", "Hash indexes", "Composite & covering indexes"], ["animation"], "How databases find rows without scanning everything."),
   t("13.3", "normalization", "Normalization", M, "P1", ["1NF to BCNF", "Denormalization trade-offs"], ["diagram"], "Organize tables to avoid duplicated, inconsistent data."),
-  t("13.4", "transactions", "Transactions & Isolation", MA, "P0", ["ACID", "Isolation levels", "Anomalies", "Locking", "MVCC"], ["animation"], "Keep data correct under concurrent access."),
+  t("13.4", "transactions", "Transactions & Isolation", MA, "P0", ["ACID", "Write-ahead logging", "Serializability", "Anomalies", "Isolation levels", "Two-phase locking", "MVCC", "Snapshot isolation & SSI", "Application patterns"], ["animation"], "Keep data correct under concurrent access."),
   t("13.5", "nosql", "NoSQL Databases", M, "P1", ["Key-value", "Document", "Wide-column", "Graph"], ["diagram"], "Non-relational databases and when to choose them."),
   t("13.6", "distributed-data", "Replication, Sharding & CAP", A, "P0", ["Replication", "Sharding", "CAP & PACELC", "Consistency models"], ["animation"], "Scaling data across many machines."),
-  t("13.7", "storage-engines", "Storage Engines (LSM vs B-Tree)", A, "P2", ["LSM trees", "B-trees", "Write-ahead log"], ["animation"], "How databases lay data out on disk."),
+  t("13.7", "storage-engines", "Storage Engines (LSM vs B-Tree)", A, "P2", ["Pages & buffer pools", "B-tree engines", "Torn pages", "LSM write & read paths", "Bloom filters", "Compaction strategies", "Amplification (RUM)", "Column stores"], ["animation"], "How databases lay data out on disk."),
 
   // 14. System Design
   t("14.1", "system-design-framework", "System Design Interview Framework", M, "P0", ["Requirements", "Estimation", "API", "Data model", "High-level design", "Deep dives"], ["diagram"], "A step-by-step plan for any design question."),

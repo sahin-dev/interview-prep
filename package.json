@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "npx serve out",
     "typecheck": "tsc --noEmit",
-    "verify:problems": "node scripts/verify-problems.cjs"
+    "verify:problems": "node scripts/verify-problems.cjs",
+    "verify:textbook": "node scripts/verify-textbook.cjs"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.5",
