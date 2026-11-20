@@ -345,7 +345,7 @@ function rotateMatrix(m) {
       />
 
       <H2>Practice</H2>
-      <Practice ids={["best-time-stock", "product-except-self", "max-subarray"]} />
+      <Practice ids={["best-time-stock", "product-except-self", "max-subarray", "move-zeroes", "merge-sorted-array", "rotate-array"]} />
       <Problems
         items={[
           { title: "Remove Duplicates from Sorted Array", level: "Easy", lc: "remove-duplicates-from-sorted-array", pattern: "Read/write pointer", idea: "Keep a write index; copy nums[read] only when it differs from the last written value.", complexity: "O(n) time, O(1) space" },

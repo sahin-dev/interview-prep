@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { NimViz } from "@/components/viz/lazy";
 
 export default function GameTheory() {
@@ -142,6 +142,9 @@ def stone_game_ii(piles):                     # LeetCode 1140
           { q: "mex({0, 1, 3}) =", options: ["0", "2", "3", "4"], answer: 1, explain: "The smallest non-negative integer not in the set." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["nim-game", "can-i-win"]} />
 
       <H2>Practice</H2>
       <Problems

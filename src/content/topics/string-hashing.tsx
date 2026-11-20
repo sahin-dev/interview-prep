@@ -133,6 +133,25 @@ def longest_dup_substring(s):
         to hash it costs O(length). Rolling hashes give O(1) per window.
       </Callout>
 
+      <H2>Choosing a string algorithm</H2>
+      <P>
+        This section covers several linear-time string tools. In interviews, start with the simplest one that meets the
+        constraints:
+      </P>
+      <Table
+        head={["You need to…", "Reach for", "Cost"]}
+        rows={[
+          ["Find one pattern in a text", "Built-in find / indexOf; KMP if asked to implement", "O(n + m)"],
+          ["Compare many substrings for equality", "Prefix hashes (this lesson)", "O(n) build, O(1) per comparison"],
+          ["Find the longest repeated / common substring", "Binary search on length + rolling hash, or a suffix array", "O(n log n)"],
+          ["Periods, borders, 'is s a repetition?'", "Prefix function (KMP) or Z-function", "O(n)"],
+          ["Longest palindromic substring", "Expand around center (O(n²)); Manacher for O(n)", "O(n²) / O(n)"],
+          ["Search for many patterns at once", "Aho-Corasick (or a trie when patterns are short)", "O(n + Σm + matches)"],
+          ["Count distinct substrings, k-th substring", "Suffix array + LCP", "O(n log n)"],
+          ["Prefix queries over a dictionary", "Trie", "O(length) per query"],
+        ]}
+      />
+
       <H3>Other uses</H3>
       <ul className="my-4 list-disc space-y-1.5 pl-6">
         <li><strong>Palindrome checks</strong>: compare the hash of s[l:r] with the hash of the same range in the reversed string.</li>
@@ -156,7 +175,7 @@ def longest_dup_substring(s):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["str-str"]} />
+      <Practice ids={["str-str", "repeated-dna-sequences", "longest-duplicate-substring"]} />
       <Problems
         items={[
           { title: "Find the Index of the First Occurrence in a String", level: "Easy", lc: "find-the-index-of-the-first-occurrence-in-a-string", pattern: "Rabin-Karp or KMP", idea: "Rolling hash with verification.", complexity: "O(n + m) expected" },

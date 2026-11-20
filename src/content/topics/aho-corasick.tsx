@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { TrieViz } from "@/components/viz/lazy";
 
 export default function AhoCorasick() {
@@ -114,6 +114,9 @@ print(sorted(ac.search("ushers")))            # [(1, 'she'), (2, 'he'), (2, 'her
           { q: "Failure links are computed in which order?", options: ["DFS", "BFS by depth", "Random", "Reverse insertion"], answer: 1, explain: "A node's link depends on shallower nodes." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["multi-pattern-search"]} />
 
       <H2>Practice</H2>
       <Problems

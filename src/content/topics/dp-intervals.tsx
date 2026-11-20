@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula, Practice } from "@/components/content";
 
 export default function DPIntervals() {
   return (
@@ -162,6 +162,9 @@ def predict_the_winner(nums):
           { q: "In which order must intervals be computed?", options: ["Any order", "Increasing length", "Decreasing length", "Random"], answer: 1, explain: "Each interval depends on shorter ones." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["predict-the-winner", "burst-balloons"]} />
 
       <H2>Practice</H2>
       <Problems

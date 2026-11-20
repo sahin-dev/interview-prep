@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity, Practice } from "@/components/content";
 import { FenwickViz } from "@/components/viz/lazy";
 
 export default function FenwickTree() {
@@ -136,6 +136,9 @@ def count_smaller_after_self(nums):
           { q: "prefix(7) visits which indices?", options: ["7, 6, 4", "7, 8", "7, 3, 1", "7 only"], answer: 0, explain: "7 → 7 − 1 = 6 → 6 − 2 = 4 → 0." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["count-smaller-after-self"]} />
 
       <H2>Practice</H2>
       <Problems

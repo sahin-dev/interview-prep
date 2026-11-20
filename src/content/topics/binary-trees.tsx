@@ -361,6 +361,9 @@ function evaluate(node) {
         ]}
       />
 
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["max-depth-binary-tree", "same-tree", "balanced-binary-tree"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

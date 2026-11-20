@@ -171,17 +171,17 @@ export const topics: Topic[] = [
   t("7.6", "aho-corasick", "Aho-Corasick", A, "P2", ["Trie + failure links", "Multi-pattern matching"], ["animation"], "Search for many patterns at once."),
 
   // 8. Math
-  t("8.1", "number-basics", "Number Basics", E, "P0", ["Divisibility", "Digit manipulation", "Overflow", "Integer division pitfalls"], ["playground"], "The arithmetic details that cause silent bugs."),
-  t("8.2", "gcd-lcm", "GCD & LCM", EM, "P1", ["Euclidean algorithm", "Extended Euclid"], ["animation"], "Greatest common divisor in O(log n)."),
-  t("8.3", "primes", "Primes & Sieves", EM, "P1", ["Trial division", "Sieve of Eratosthenes", "Segmented sieve", "Prime factorization"], ["animation"], "Test, generate and factor primes."),
-  t("8.4", "modular-arithmetic", "Modular Arithmetic", M, "P1", ["Mod rules", "Fast exponentiation", "Modular inverse", "Why 1e9+7"], ["playground"], "Keep huge numbers small without losing the answer."),
-  t("8.5", "combinatorics", "Combinatorics", M, "P1", ["Permutations", "nCr", "Pascal's triangle", "Catalan numbers", "Stars & bars", "Inclusion-exclusion"], ["animation"], "Count arrangements without listing them."),
+  t("8.1", "number-basics", "Number Basics", E, "P0", ["Divisibility", "Digit manipulation", "Overflow", "Integer division pitfalls", "Number bases", "Floating-point pitfalls"], ["playground"], "The arithmetic details that cause silent bugs."),
+  t("8.2", "gcd-lcm", "GCD & LCM", EM, "P1", ["Euclidean algorithm", "Extended Euclid", "Linear Diophantine equations", "GCD tricks on arrays"], ["animation"], "Greatest common divisor in O(log n)."),
+  t("8.3", "primes", "Primes & Sieves", EM, "P1", ["Trial division", "Sieve of Eratosthenes", "Segmented sieve", "Prime factorization", "Divisor & totient sieves"], ["animation"], "Test, generate and factor primes."),
+  t("8.4", "modular-arithmetic", "Modular Arithmetic", M, "P1", ["Mod rules", "Fast exponentiation", "Modular inverse", "Why 1e9+7", "Inverses of 1..n", "Reducing huge exponents"], ["playground"], "Keep huge numbers small without losing the answer."),
+  t("8.5", "combinatorics", "Combinatorics", M, "P1", ["Permutations", "nCr", "Pascal's triangle", "Catalan numbers", "Stars & bars", "Inclusion-exclusion", "Derangements", "Next permutation"], ["animation"], "Count arrangements without listing them."),
   t("8.6", "probability", "Probability & Expected Value", M, "P1", ["Basic probability", "Linearity of expectation", "Classic puzzles"], ["playground"], "Reason about chance, and the puzzles interviewers love."),
   t("8.7", "matrix-exponentiation", "Matrix Exponentiation", A, "P2", ["Fibonacci in O(log n)", "Linear recurrences"], ["diagram"], "Jump ahead in a recurrence with fast matrix powers."),
   t("8.8", "geometry", "Computational Geometry", A, "P2", ["Cross product & orientation", "Segment intersection", "Convex hull", "Point in polygon"], ["playground"], "Points, lines and polygons in code."),
   t("8.9", "game-theory", "Game Theory", A, "P2", ["Nim", "Sprague-Grundy", "Minimax"], ["playground"], "Who wins when both players play perfectly?"),
   t("8.10", "advanced-number-theory", "CRT & Advanced Number Theory", A, "P2", ["Chinese Remainder Theorem", "Euler's totient", "Miller-Rabin"], ["diagram"], "Deeper number theory for competitive programming."),
-  t("8.11", "estimation-math", "Estimation & Back-of-Envelope Math", E, "P1", ["Logarithms", "Powers of two", "Capacity estimation"], ["quiz"], "Quick math for complexity and system design estimates."),
+  t("8.11", "estimation-math", "Estimation & Back-of-Envelope Math", E, "P1", ["Logarithms", "Powers of two", "Capacity estimation", "Little's law", "Latency numbers", "Constraints → complexity"], ["quiz"], "Quick math for complexity and system design estimates."),
 
   // 9. Crypto
   t("9.1", "encoding-encryption-hashing", "Encoding vs Encryption vs Hashing", E, "P0", ["Base64", "URL encoding", "Reversible vs one-way"], ["playground"], "Three things people constantly confuse, made clear."),

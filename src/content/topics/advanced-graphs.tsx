@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 
 export default function AdvancedGraphs() {
   return (
@@ -135,6 +135,9 @@ def greedy_coloring(adj, order=None):
           { q: "Deciding whether a graph is 3-colorable is…", options: ["O(V + E)", "O(V log V)", "NP-complete", "Always yes"], answer: 2, explain: "Only 2-coloring is easy." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["m-coloring"]} />
 
       <H2>Practice</H2>
       <Problems

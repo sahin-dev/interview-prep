@@ -163,7 +163,7 @@ def articulation_points(n, edges):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["critical-connections"]} />
+      <Practice ids={["critical-connections", "articulation-points"]} />
       <Problems
         items={[
           { title: "Critical Connections in a Network", level: "Hard", lc: "critical-connections-in-a-network", pattern: "Tarjan bridges", idea: "low[v] > tin[u].", complexity: "O(V + E)" },

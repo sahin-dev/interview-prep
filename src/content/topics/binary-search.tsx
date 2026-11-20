@@ -362,7 +362,7 @@ def search_matrix(m, target):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["binary-search", "search-insert", "koko-bananas"]} />
+      <Practice ids={["binary-search", "search-insert", "koko-bananas", "search-rotated-array", "first-last-position", "ship-within-days"]} />
       <Problems
         items={[
           { title: "Binary Search", level: "Easy", lc: "binary-search", pattern: "Template 1", idea: "Classic inclusive search.", complexity: "O(log n)" },

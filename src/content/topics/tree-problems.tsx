@@ -290,6 +290,9 @@ def find_duplicate_subtrees(root):
         ]}
       />
 
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["invert-binary-tree", "diameter-binary-tree", "symmetric-tree", "path-sum", "subtree-of-another-tree"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

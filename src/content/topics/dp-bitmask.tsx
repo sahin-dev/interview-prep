@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { BitPlayground } from "@/components/viz/lazy";
 
 export default function DPBitmask() {
@@ -169,6 +169,9 @@ def shortest_path_length(graph):                         # unweighted, may revis
           { q: "Enumerating all submasks of every mask costs in total…", options: ["O(2ⁿ)", "O(4ⁿ)", "O(3ⁿ)", "O(n · 2ⁿ)"], answer: 2, explain: "Each element is in neither, the submask, or only the mask: 3 choices." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["partition-k-equal-subsets", "shortest-hamiltonian-cycle"]} />
 
       <H2>Practice</H2>
       <Problems

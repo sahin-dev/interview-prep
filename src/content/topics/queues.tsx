@@ -321,6 +321,9 @@ pq.poll();   // {1, 102}
         ]}
       />
 
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["queue-using-stacks", "recent-counter", "design-circular-queue"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

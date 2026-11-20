@@ -151,7 +151,7 @@ def min_cost_connect_points(points):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["min-cost-connect-points"]} />
+      <Practice ids={["min-cost-connect-points", "connecting-cities-min-cost"]} />
       <Problems
         items={[
           { title: "Min Cost to Connect All Points", level: "Medium", lc: "min-cost-to-connect-all-points", pattern: "Dense Prim", idea: "O(n²) array Prim with Manhattan distances.", complexity: "O(n²)" },

@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity, Practice } from "@/components/content";
 import { BSTViz } from "@/components/viz/lazy";
 
 export default function LCA() {
@@ -161,6 +161,9 @@ class LCA:
           { q: "Binary lifting stores…", options: ["Subtree sizes", "The 2ᵏ-th ancestor of every node", "Depth only", "In-order positions"], answer: 1, explain: "up[k][v] allows jumps of any length by binary decomposition." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["lca-binary-tree", "lca-bst"]} />
 
       <H2>Practice</H2>
       <Problems

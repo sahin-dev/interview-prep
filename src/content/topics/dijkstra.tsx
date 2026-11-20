@@ -260,7 +260,7 @@ def cheapest_with_k_stops(n, flights, src, dst, k):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["network-delay"]} />
+      <Practice ids={["network-delay", "path-with-min-effort", "path-max-probability"]} />
       <Problems
         items={[
           { title: "Network Delay Time", level: "Medium", lc: "network-delay-time", pattern: "Classic Dijkstra", idea: "Max over all shortest distances.", complexity: "O(E log V)" },

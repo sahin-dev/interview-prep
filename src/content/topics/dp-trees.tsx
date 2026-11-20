@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { TreeTraversalViz } from "@/components/viz/lazy";
 
 export default function DPTrees() {
@@ -204,6 +204,9 @@ def sum_of_distances(n, edges):
           { q: "Rerooting computes answers for all roots in…", options: ["O(n²)", "O(n log n)", "O(n)", "O(2ⁿ)"], answer: 2, explain: "Two DFS passes with O(1) adjustments per edge." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["house-robber-iii", "binary-tree-max-path-sum"]} />
 
       <H2>Practice</H2>
       <Problems

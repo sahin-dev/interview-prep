@@ -345,6 +345,9 @@ def sorted_array_to_bst(nums):
         ]}
       />
 
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["build-tree-pre-in", "build-tree-in-post", "serialize-deserialize-tree"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

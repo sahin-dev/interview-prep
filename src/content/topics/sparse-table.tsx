@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity, Practice } from "@/components/content";
 
 export default function SparseTable() {
   return (
@@ -142,6 +142,9 @@ class SqrtDecomp:
           { q: "Sqrt decomposition gives queries in…", options: ["O(1)", "O(log n)", "O(√n)", "O(n)"], answer: 2, explain: "Partial blocks plus full blocks." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["range-min-queries"]} />
 
       <H2>Practice</H2>
       <Problems

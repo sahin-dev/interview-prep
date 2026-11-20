@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { StockStateViz } from "@/components/viz/lazy";
 
 export default function DPStateMachine() {
@@ -150,6 +150,9 @@ def max_product(nums):
           { q: "In the cooldown version, after selling you must go to state…", options: ["hold", "sold, then rest before buying again", "buy immediately", "none"], answer: 1, explain: "The rest state enforces the 1-day cooldown." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["stock-with-cooldown", "stock-with-fee", "stock-k-transactions"]} />
 
       <H2>Practice</H2>
       <Problems

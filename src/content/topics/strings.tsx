@@ -322,7 +322,7 @@ s.includes("x"); s.indexOf("x"); s.startsWith("ab"); s.toLowerCase();
       />
 
       <H2>Practice</H2>
-      <Practice ids={["valid-anagram", "valid-palindrome", "longest-unique-substring"]} />
+      <Practice ids={["valid-anagram", "valid-palindrome", "longest-unique-substring", "longest-common-prefix", "group-anagrams", "reverse-words"]} />
       <Problems
         items={[
           { title: "Valid Anagram", level: "Easy", lc: "valid-anagram", pattern: "Counting", idea: "Count letters of s, decrement for t; all counts must end at zero.", complexity: "O(n)" },

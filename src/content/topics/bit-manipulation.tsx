@@ -195,7 +195,7 @@ def add(a, b):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["single-number", "power-of-two", "counting-bits", "missing-number"]} />
+      <Practice ids={["single-number", "power-of-two", "counting-bits", "missing-number", "hamming-weight", "single-number-iii"]} />
       <Problems
         items={[
           { title: "Single Number", level: "Easy", lc: "single-number", pattern: "XOR cancel", idea: "XOR everything; pairs cancel.", complexity: "O(n), O(1)" },

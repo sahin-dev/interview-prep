@@ -232,6 +232,9 @@ function* neighbors(r, c, R, C) {
         ]}
       />
 
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["find-center-star", "find-town-judge", "find-if-path-exists"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

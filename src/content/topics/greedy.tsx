@@ -222,7 +222,7 @@ def fractional_knapsack(items, capacity):      # items: (value, weight)
       />
 
       <H2>Practice</H2>
-      <Practice ids={["jump-game", "best-time-stock"]} />
+      <Practice ids={["jump-game", "best-time-stock", "gas-station", "jump-game-ii", "partition-labels"]} />
       <Problems
         items={[
           { title: "Assign Cookies", level: "Easy", lc: "assign-cookies", pattern: "Sort both", idea: "Give the smallest sufficient cookie to the least greedy child.", complexity: "O(n log n)" },

@@ -222,7 +222,7 @@ def kth_smallest(matrix, k):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["top-k-frequent", "kth-largest"]} />
+      <Practice ids={["top-k-frequent", "kth-largest", "top-k-frequent-words", "merge-k-sorted-lists"]} />
       <Problems
         items={[
           { title: "Kth Largest Element in a Stream", level: "Easy", lc: "kth-largest-element-in-a-stream", pattern: "Size-k min-heap", idea: "Maintain the k largest; the root is the answer.", complexity: "O(log k) per add" },

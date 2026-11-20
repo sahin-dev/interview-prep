@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { GraphAlgoViz } from "@/components/viz/lazy";
 
 export default function DPDigitDAG() {
@@ -192,6 +192,9 @@ def longest_increasing_path(m):
           { q: "Longest path in a DAG with V nodes and E edges costs…", options: ["O(2ⁿ)", "O(V + E)", "O(V³)", "NP-hard"], answer: 1, explain: "Topological order + one relaxation per edge." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["count-numbers-unique-digits", "longest-increasing-path-matrix"]} />
 
       <H2>Practice</H2>
       <Problems

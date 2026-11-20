@@ -336,7 +336,7 @@ def solve_sudoku(board):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["subsets", "permutations"]} />
+      <Practice ids={["subsets", "permutations", "combination-sum", "generate-parentheses", "word-search", "n-queens-ii"]} />
       <Problems
         items={[
           { title: "Subsets", level: "Medium", lc: "subsets", pattern: "Include/exclude", idea: "Record at every node with a start index.", complexity: "O(n · 2ⁿ)" },

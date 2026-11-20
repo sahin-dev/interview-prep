@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity, Practice } from "@/components/content";
 import { SegmentTreeViz } from "@/components/viz/lazy";
 
 export default function SegmentTrees() {
@@ -189,6 +189,9 @@ class LazySegTree:                                    # range add, range sum
           { q: "Lazy propagation is needed for…", options: ["Point updates", "Range updates", "Building the tree", "Range queries only"], answer: 1, explain: "It defers updating children of fully covered nodes." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["range-sum-mutable"]} />
 
       <H2>Practice</H2>
       <Problems

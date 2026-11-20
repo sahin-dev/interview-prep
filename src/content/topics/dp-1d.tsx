@@ -294,7 +294,7 @@ function wordBreak(s, wordDict) {
       />
 
       <H2>Practice</H2>
-      <Practice ids={["climbing-stairs", "house-robber", "coin-change", "max-subarray"]} />
+      <Practice ids={["climbing-stairs", "house-robber", "coin-change", "max-subarray", "decode-ways", "house-robber-ii"]} />
       <Problems
         items={[
           { title: "Climbing Stairs", level: "Easy", lc: "climbing-stairs", pattern: "Count ways", idea: "Fibonacci recurrence.", complexity: "O(n), O(1)" },

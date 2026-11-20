@@ -140,7 +140,7 @@ def is_bipartite_dsu(graph):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["is-bipartite"]} />
+      <Practice ids={["is-bipartite", "possible-bipartition"]} />
       <Problems
         items={[
           { title: "Is Graph Bipartite?", level: "Medium", lc: "is-graph-bipartite", pattern: "BFS 2-coloring", idea: "Conflicting colors → false; loop over all components.", complexity: "O(V + E)" },

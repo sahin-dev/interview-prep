@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity, Practice } from "@/components/content";
 import { BSTViz } from "@/components/viz/lazy";
 
 export default function BalancedBST() {
@@ -190,6 +190,9 @@ class MyCalendar {
           { q: "Java's TreeMap is implemented as…", options: ["AVL tree", "Red-black tree", "Skip list", "B-tree"], answer: 1, explain: "As is C++ std::map in common implementations." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["my-calendar"]} />
 
       <H2>Practice</H2>
       <Problems

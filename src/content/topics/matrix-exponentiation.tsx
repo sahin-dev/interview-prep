@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula, Practice } from "@/components/content";
 import { FastPowViz } from "@/components/viz/lazy";
 
 export default function MatrixExponentiation() {
@@ -148,6 +148,9 @@ def knight_dialer(n):                           # LeetCode 935, n up to 5000 (or
           { q: "(Aⁿ)[i][j] for an adjacency matrix counts…", options: ["Shortest paths", "Walks of length n from i to j", "Edges", "Cycles"], answer: 1, explain: "Each multiplication extends walks by one edge." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["fibonacci-mod-huge"]} />
 
       <H2>Practice</H2>
       <Problems

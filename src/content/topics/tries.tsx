@@ -219,7 +219,7 @@ def find_maximum_xor(nums):
         Tries are a favorite at Google and Amazon for autocomplete and word games. Practice writing one from memory in
         under 5 minutes; then the interview is about the twist.
       </Callout>
-      <Practice ids={["word-break"]} />
+      <Practice ids={["word-break", "implement-trie", "replace-words", "maximum-xor"]} />
     </>
   );
 }

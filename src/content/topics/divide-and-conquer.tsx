@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Steps } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Steps, Practice } from "@/components/content";
 import { SortingViz } from "@/components/viz/lazy";
 
 export default function DivideAndConquer() {
@@ -179,6 +179,9 @@ def karatsuba(x, y):
           { q: "Karatsuba's speedup comes from…", options: ["Better caching", "Replacing 4 half-size multiplications with 3", "Parallelism", "Using floating point"], answer: 1, explain: "3T(n/2) + n = O(n^1.585)." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["diff-ways-parentheses", "count-inversions"]} />
 
       <H2>Practice</H2>
       <Problems

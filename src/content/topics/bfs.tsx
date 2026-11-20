@@ -320,7 +320,7 @@ vector<int> zeroOneBFS(int n, vector<vector<pair<int,int>>>& adj, int src) {
       />
 
       <H2>Practice</H2>
-      <Practice ids={["shortest-path-binary-matrix"]} />
+      <Practice ids={["shortest-path-binary-matrix", "rotting-oranges", "zero-one-matrix", "word-ladder"]} />
       <Problems
         items={[
           { title: "Flood Fill", level: "Easy", lc: "flood-fill", pattern: "Grid BFS/DFS", idea: "Recolor connected same-color cells.", complexity: "O(R·C)" },

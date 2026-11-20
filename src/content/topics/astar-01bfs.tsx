@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { GridPathViz } from "@/components/viz/lazy";
 
 export default function AStar01BFS() {
@@ -147,6 +147,9 @@ def a_star(grid, start, goal):                # 0 = free, 1 = wall; 4-directiona
           { q: "An admissible heuristic must…", options: ["Overestimate", "Never overestimate the remaining cost", "Be zero", "Be exact"], answer: 1, explain: "Then A* finds an optimal path." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["min-obstacle-removal"]} />
 
       <H2>Practice</H2>
       <Problems

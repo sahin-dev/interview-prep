@@ -84,6 +84,79 @@ def mod_inverse(a, m):
 `}
       />
 
+      <H3>A worked trace</H3>
+      <P>
+        Tracing the extended algorithm on a = 240, b = 46 makes the back-substitution concrete. Each row keeps the
+        invariant <code>a·x + b·y = r</code>:
+      </P>
+      <Table
+        head={["r", "x", "y", "q = previous r // r"]}
+        rows={[
+          ["240", "1", "0", ""],
+          ["46", "0", "1", "5"],
+          ["10", "1", "−5", "4"],
+          ["6", "−4", "21", "1"],
+          ["4", "5", "−26", "1"],
+          ["2", "−9", "47", "2"],
+          ["0", "", "", "stop"],
+        ]}
+      />
+      <P>
+        The last non-zero remainder is the gcd, 2, and its row gives 240 · (−9) + 46 · 47 = 2. The iterative version is
+        what you want in an interview: no recursion, and it is easy to keep only the x column when you just need an
+        inverse.
+      </P>
+      <Code
+        python={String.raw`
+def ext_gcd_iter(a, b):
+    old_r, r = a, b
+    old_x, x = 1, 0
+    old_y, y = 0, 1
+    while r:
+        q = old_r // r
+        old_r, r = r, old_r - q * r
+        old_x, x = x, old_x - q * x
+        old_y, y = y, old_y - q * y
+    return old_r, old_x, old_y      # gcd, x, y
+
+assert ext_gcd_iter(240, 46) == (2, -9, 47)
+`}
+      />
+
+      <H2>Linear Diophantine equations</H2>
+      <P>
+        An equation <code>a·x + b·y = c</code> has integer solutions <strong>iff gcd(a, b) divides c</strong>. To find
+        one, scale the Bézout coefficients by c / g. All solutions then differ by multiples of (b / g, −a / g).
+      </P>
+      <Formula>x = x₀ · c/g + k · b/g,   y = y₀ · c/g − k · a/g   (k any integer)</Formula>
+      <Code
+        python={String.raw`
+def solve_diophantine(a, b, c):
+    g, x0, y0 = ext_gcd_iter(a, b)
+    if c % g:
+        return None                       # no integer solution
+    return x0 * (c // g), y0 * (c // g)   # one solution; shift by (b/g, -a/g) for others
+
+# 6x + 9y = 21  ->  g = 3 divides 21, e.g. x = -7, y = 7 (and x = -4, y = 5, ...)
+`}
+      />
+      <Callout type="analogy">
+        The water-jug puzzle is this equation in disguise: filling jug x and emptying jug y repeatedly reaches every
+        amount of the form a·x + b·y, which is exactly the multiples of gcd(x, y).
+      </Callout>
+
+      <H2>GCD tricks on arrays</H2>
+      <Table
+        head={["Problem", "Trick"]}
+        rows={[
+          ["GCD of the whole array", "Fold: g = gcd(g, x). Stop early once g == 1."],
+          ["GCD after deleting one element", "Prefix gcd[i] and suffix gcd[i]; answer for i is gcd(prefix[i−1], suffix[i+1])."],
+          ["Lattice points on a segment (x₁,y₁)–(x₂,y₂)", "gcd(|x₂ − x₁|, |y₂ − y₁|) + 1"],
+          ["Smallest number divisible by 1..n", "Fold lcm over 1..n (grows fast: use big integers)"],
+          ["Reduce a fraction p/q", "Divide both by gcd(p, q); fix the sign so q > 0"],
+        ]}
+      />
+
       <H3>Applications you&apos;ll meet</H3>
       <ul className="my-4 list-disc space-y-1.5 pl-6">
         <li><strong>Water jug problem</strong>: you can measure z liters with jugs x and y iff z ≤ x + y and z is a multiple of gcd(x, y).</li>
@@ -96,11 +169,13 @@ def mod_inverse(a, m):
         questions={[
           { q: "gcd(48, 18) = ?", options: ["2", "3", "6", "9"], answer: 2, explain: "48 = 2·18 + 12; 18 = 1·12 + 6; 12 = 2·6 + 0 → 6." },
           { q: "lcm(4, 6) = ?", options: ["10", "12", "24", "2"], answer: 1, explain: "4 · 6 / gcd(4, 6) = 24 / 2 = 12." },
+          { q: "Does 4x + 6y = 7 have an integer solution?", options: ["Yes", "No"], answer: 1, explain: "gcd(4, 6) = 2 does not divide 7." },
+          { q: "How many lattice points lie on the segment from (0, 0) to (6, 9), including both ends?", options: ["3", "4", "6", "10"], answer: 1, explain: "gcd(6, 9) + 1 = 4: (0,0), (2,3), (4,6), (6,9)." },
         ]}
       />
 
       <H2>Practice</H2>
-      <Practice ids={["gcd-lcm"]} />
+      <Practice ids={["gcd-lcm", "gcd-of-strings", "water-and-jug"]} />
       <Problems
         items={[
           { title: "Find Greatest Common Divisor of Array", level: "Easy", lc: "find-greatest-common-divisor-of-array", pattern: "gcd(min, max)", idea: "Just the gcd of the smallest and largest elements.", complexity: "O(n)" },

@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula, Practice } from "@/components/content";
 import { ConvexHullViz } from "@/components/viz/lazy";
 
 export default function Geometry() {
@@ -149,6 +149,9 @@ def point_in_polygon(pt, poly):
           { q: "The shoelace formula computes…", options: ["Perimeter", "Polygon area", "Convex hull", "Centroid only"], answer: 1, explain: "Half the absolute sum of cross products of consecutive vertices." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["rectangle-overlap", "max-points-on-a-line"]} />
 
       <H2>Practice</H2>
       <Problems

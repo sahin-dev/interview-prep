@@ -10,9 +10,13 @@ What's included:
   tagged P0 / P1 / P2 and by difficulty.
 - **74 interactive visualizers** (sorting, graphs, DP tables, CPU scheduling, TCP, crypto demos, consistent hashing,
   Raft, rate limiters, LSM trees and more), also browsable at `/visualizers`.
-- **60 runnable practice problems** in JavaScript and Python, with tests, hints and solutions.
-- Prerequisites, key takeaways, real-world uses and related topics on every lesson; a 4/8/12-week roadmap; cheat
-  sheets; progress tracking.
+- **250 runnable practice problems** in JavaScript and Python, with tests, hints and solutions. Every lesson in
+  sections 1–8 that teaches a coding technique has problems you can solve in the page, including linked-list,
+  tree and "design a class" problems. The playground filters by section, topic, difficulty and solved state.
+- Prerequisites, key takeaways, real-world uses and related topics on every lesson. The DSA lessons (sections 1–8)
+  also end with common mistakes, interview questions with model answers, and hand-picked external resources
+  (cp-algorithms, VisuAlgo, USACO Guide, CSES and others).
+- A 4/8/12-week roadmap, cheat sheets and progress tracking.
 
 ## Run it
 
@@ -33,7 +37,9 @@ Don't run `npm run build` while `npm run dev` is running: both use the `.next` f
 | `src/content/registry.ts` + `ready.ts` | Register a new lesson in **both** (the build fails if they disagree). |
 | `src/components/content/` | Lesson building blocks: `H2`, `Callout`, `Code` (multi-language tabs), `Complexity`, `Problems`, `Quiz`, `Practice`. |
 | `src/components/viz/` | Interactive visualizers. Lessons import them from `viz/lazy.tsx` so each page only loads what it uses. |
-| `src/data/problems.ts` | Runnable problems (JS + Python starters, tests, hints, solutions). |
+| `src/data/problems.ts` + `problems-*.ts` | Runnable problems (JS + Python starters, tests, hints, solutions). |
+| `src/data/lesson-extras.ts` + `extras/` | Common mistakes, interview Q&A and external resources per DSA lesson. |
+| `scripts/verify-problems.*` | `npm run verify:problems`: runs every reference solution in JS and Python. |
 | `src/components/playground/` | CodeMirror editor; JavaScript runs in a Web Worker, Python via Pyodide (loaded from jsDelivr on first run). |
 | `src/data/roadmaps.ts` | 4 / 8 / 12-week study plans. |
 
@@ -44,6 +50,15 @@ Don't run `npm run build` while `npm run dev` is running: both use the `.next` f
 3. Add an entry to `src/data/lesson-meta.ts`: prerequisites, related topics, real-world uses and key takeaways.
    These render automatically at the top and bottom of the lesson. The build fails if an entry is missing or links
    to an unknown slug.
-4. Optional: add runnable problems in `src/data/problems.ts` and show them with `<Practice ids={[...]} />`.
+4. Optional: add an entry to `src/data/lesson-extras.ts` (mistakes, interview Q&A, resources).
+5. Optional: add runnable problems and show them with `<Practice ids={[...]} />`.
+
+## Adding a practice problem
+
+Add an object to one of the `src/data/problems-*.ts` files (or `problems.ts`): statement, examples, function names,
+starter code, reference solutions in both languages, tests and hints. Set `io` when arguments or the return value
+are linked lists (`"list"`), arrays of lists (`"lists"`), trees in LeetCode level-order form (`"tree"`) or a node
+inside the tree argument (`"node"`). For class-design problems, the tests call a `runOps(ops, args)` driver.
+Then run `npm run verify:problems`, which checks every solution against its tests in JavaScript and Python.
 
 Progress, bookmarks and saved code are stored in the browser's localStorage only.

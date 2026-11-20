@@ -324,7 +324,7 @@ def tree_sum(root):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["fibonacci"]} />
+      <Practice ids={["fibonacci", "tower-of-hanoi", "nested-list-weight-sum"]} />
       <Problems
         items={[
           { title: "Fibonacci Number", level: "Easy", lc: "fibonacci-number", pattern: "Branching + memo", idea: "Base n < 2; memoize.", complexity: "O(n)" },

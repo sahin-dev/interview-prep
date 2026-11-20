@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula, Practice } from "@/components/content";
 import { EuclidViz } from "@/components/viz/lazy";
 
 export default function AdvancedNumberTheory() {
@@ -184,6 +184,9 @@ assert is_prime(1_000_000_007) and not is_prime(561)   # 561 is a Carmichael num
           { q: "x ≡ 1 (mod 2), x ≡ 2 (mod 3): smallest non-negative x?", options: ["1", "5", "2", "7"], answer: 1, explain: "5 mod 2 = 1, 5 mod 3 = 2." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["euler-totient", "chinese-remainder"]} />
 
       <H2>Practice</H2>
       <Problems

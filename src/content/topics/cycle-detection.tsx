@@ -298,6 +298,9 @@ def find_cycle(n, adj):
         ]}
       />
 
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["eventual-safe-states", "graph-valid-tree"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

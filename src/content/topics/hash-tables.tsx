@@ -360,7 +360,7 @@ function twoSum(nums, target) {
       />
 
       <H2>Practice</H2>
-      <Practice ids={["two-sum", "contains-duplicate", "valid-anagram", "top-k-frequent"]} />
+      <Practice ids={["two-sum", "contains-duplicate", "valid-anagram", "top-k-frequent", "isomorphic-strings", "first-unique-char", "longest-consecutive"]} />
       <Problems
         items={[
           { title: "Two Sum", level: "Easy", lc: "two-sum", pattern: "Complement lookup", idea: "Map value → index; check target − x before inserting x.", complexity: "O(n)" },

@@ -189,7 +189,7 @@ def remove_k_digits(num, k):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["daily-temperatures", "next-greater-element", "largest-rectangle"]} />
+      <Practice ids={["daily-temperatures", "next-greater-element", "largest-rectangle", "remove-k-digits", "sliding-window-maximum"]} />
       <Problems
         items={[
           { title: "Next Greater Element I", level: "Easy", lc: "next-greater-element-i", pattern: "Decreasing stack + map", idea: "Compute next greater for nums2, map value → answer.", complexity: "O(n + m)" },

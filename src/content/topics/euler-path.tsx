@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { GraphBuilderViz } from "@/components/viz/lazy";
 
 export default function EulerPath() {
@@ -140,6 +140,9 @@ def crack_safe(n, k):
           { q: "Hierholzer's algorithm runs in…", options: ["O(V!)", "O(E)", "O(E²)", "O(V³)"], answer: 1, explain: "Each edge is consumed once (plus sorting for lexicographic order)." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["reconstruct-itinerary"]} />
 
       <H2>Practice</H2>
       <Problems

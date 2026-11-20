@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Formula } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Formula, Practice } from "@/components/content";
 import { ProbabilityViz } from "@/components/viz/lazy";
 
 export default function Probability() {
@@ -106,6 +106,9 @@ def rand7():
             return (x - 1) % 7 + 1
 `}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["knight-probability", "new-21-game"]} />
 
       <QA
         items={[

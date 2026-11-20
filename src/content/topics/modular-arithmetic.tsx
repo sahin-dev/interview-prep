@@ -133,6 +133,82 @@ def comb(n, k):                                 # O(1) per query
 `}
       />
 
+      <H2>More inverse tricks</H2>
+      <H3>Inverses of 1..n in O(n)</H3>
+      <P>
+        Writing p = q·i + r gives the identity <code>inv[i] = −(p // i) · inv[p mod i] mod p</code>, so every inverse
+        comes from a smaller one. Useful when you need many inverses and want to avoid n fast powers.
+      </P>
+      <Code
+        python={String.raw`
+def inverses_up_to(n, p=10**9 + 7):
+    inv = [0, 1] + [0] * (n - 1)
+    for i in range(2, n + 1):
+        inv[i] = (p - (p // i) * inv[p % i] % p) % p
+    return inv
+
+inv = inverses_up_to(10)
+assert all(i * inv[i] % (10**9 + 7) == 1 for i in range(1, 11))
+`}
+      />
+      <H3>Huge exponents: reduce the exponent too</H3>
+      <P>
+        If p is prime and a is not a multiple of p, Fermat says a^(p−1) ≡ 1, so exponents can be reduced modulo p − 1:
+        <code> a^b ≡ a^(b mod (p − 1)) (mod p)</code>. That&apos;s how you compute a tower like 2^(3^(10¹⁸)) mod p. For a
+        general modulus m, Euler&apos;s theorem replaces p − 1 with φ(m) (when gcd(a, m) = 1).
+      </P>
+      <Code
+        python={String.raw`
+P = 10**9 + 7
+# 2^(3^100) mod P: first reduce the exponent mod P-1, then one fast power.
+e = pow(3, 100, P - 1)
+print(pow(2, e, P))
+`}
+      />
+      <Callout type="warning">
+        Reduce the <em>exponent</em> mod p − 1, not mod p. Mixing them up is a very common bug in &ldquo;super
+        pow&rdquo; style problems.
+      </Callout>
+
+      <H2>Worked example: counting with a modulus</H2>
+      <P>
+        Count the ways to climb n stairs taking 1, 2 or 3 steps, modulo 10⁹ + 7, for n up to 10⁶. The DP is the usual
+        one; the only change is reducing after every addition so values stay below 2·10⁹ (safe even in 32-bit Java if
+        you reduce after each add, and always safe in 64-bit).
+      </P>
+      <Code
+        python={String.raw`
+def ways(n, MOD=10**9 + 7):
+    a, b, c = 1, 0, 0              # ways to reach i, i-1, i-2 (start: i = 0)
+    for _ in range(n):
+        a, b, c = (a + b + c) % MOD, a, b
+    return a
+
+assert [ways(i) for i in range(6)] == [1, 1, 2, 4, 7, 13]
+`}
+        java={String.raw`
+int ways(int n) {
+    final int MOD = 1_000_000_007;
+    long a = 1, b = 0, c = 0;          // long: a + b + c can reach 3·10⁹
+    for (int i = 0; i < n; i++) {
+        long next = (a + b + c) % MOD;
+        c = b; b = a; a = next;
+    }
+    return (int) a;
+}
+`}
+      />
+      <Table
+        head={["Identity", "Why it matters"]}
+        rows={[
+          ["a ≡ b (mod m) ⇔ m divides a − b", "The definition; use it to prove tricks"],
+          ["If a ≡ b, then a·c ≡ b·c and a + c ≡ b + c", "You may reduce at any step"],
+          ["a·c ≡ b·c does NOT imply a ≡ b", "Unless gcd(c, m) = 1: you can only 'cancel' invertible factors"],
+          ["(a mod m) mod m = a mod m", "Extra reductions are harmless"],
+          ["(−a) mod m = m − (a mod m) when a mod m ≠ 0", "Normalizing negatives"],
+        ]}
+      />
+
       <H3>Where modular arithmetic appears</H3>
       <ul className="my-4 list-disc space-y-1.5 pl-6">
         <li>Counting DP and combinatorics answers &ldquo;mod 10⁹ + 7&rdquo;.</li>
@@ -146,11 +222,13 @@ def comb(n, k):                                 # O(1) per query
           { q: "In Java, (a - b) % m can be negative. The fix is…", options: ["Math.abs((a - b) % m)", "((a - b) % m + m) % m", "(a - b) % (m + 1)", "Use int"], answer: 1, explain: "Adding m shifts the remainder into [0, m)." },
           { q: "The inverse of 3 mod 7 is…", options: ["2", "3", "5", "6"], answer: 2, explain: "3 × 5 = 15 = 2·7 + 1." },
           { q: "Fast exponentiation needs how many multiplications for exponent 10⁹?", options: ["~10⁹", "~30,000", "~60", "~1"], answer: 2, explain: "About 2·log₂(10⁹) ≈ 60." },
+          { q: "p is prime. To compute 5^(10¹⁸) mod p you can first reduce the exponent modulo…", options: ["p", "p − 1", "p + 1", "10⁹"], answer: 1, explain: "Fermat: 5^(p−1) ≡ 1 (mod p), so exponents repeat with period p − 1." },
+          { q: "6 · 2 ≡ 6 · 7 (mod 10). Can you cancel the 6 to get 2 ≡ 7 (mod 10)?", options: ["Yes", "No"], answer: 1, explain: "gcd(6, 10) = 2, so 6 has no inverse mod 10 and can't be cancelled (indeed 2 ≢ 7)." },
         ]}
       />
 
       <H2>Practice</H2>
-      <Practice ids={["pow-mod", "n-choose-k-mod"]} />
+      <Practice ids={["pow-mod", "n-choose-k-mod", "count-good-numbers", "modular-inverse"]} />
       <Problems
         items={[
           { title: "Pow(x, n)", level: "Medium", lc: "powx-n", pattern: "Fast power", idea: "Repeated squaring; for negative n use 1 / x^(−n).", complexity: "O(log n)" },

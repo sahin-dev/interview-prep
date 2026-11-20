@@ -349,7 +349,7 @@ def find_anagrams(s, p):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["longest-unique-substring", "min-subarray-len", "best-time-stock"]} />
+      <Practice ids={["longest-unique-substring", "min-subarray-len", "best-time-stock", "max-average-subarray", "char-replacement", "min-window-substring"]} />
       <Problems
         items={[
           { title: "Maximum Average Subarray I", level: "Easy", lc: "maximum-average-subarray-i", pattern: "Fixed window", idea: "Rolling sum of size k.", complexity: "O(n)" },

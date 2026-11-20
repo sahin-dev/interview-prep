@@ -311,7 +311,7 @@ function longestCommonSubstring(a, b) {
       />
 
       <H2>Practice</H2>
-      <Practice ids={["lcs", "edit-distance"]} />
+      <Practice ids={["lcs", "edit-distance", "longest-increasing-subsequence", "longest-palindromic-subseq"]} />
       <Problems
         items={[
           { title: "Is Subsequence", level: "Easy", lc: "is-subsequence", pattern: "Two pointers", idea: "Greedy match left to right.", complexity: "O(n)" },

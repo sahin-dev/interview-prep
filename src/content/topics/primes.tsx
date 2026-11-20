@@ -153,6 +153,78 @@ def spf_sieve(n):
         ]}
       />
 
+      <H2>Segmented sieve: primes in a window [L, R]</H2>
+      <P>
+        When R is up to 10¹² but the window R − L is small (say 10⁶), you can&apos;t allocate an array of size R. Instead,
+        sieve the primes up to √R, then use each of them to cross out its multiples inside the window only.
+      </P>
+      <Code
+        python={String.raw`
+import math
+
+def primes_in_range(L, R):
+    base = sieve(math.isqrt(R))                    # primes up to sqrt(R)
+    is_prime = [True] * (R - L + 1)                # index i represents L + i
+    for p in base:
+        start = max(p * p, (L + p - 1) // p * p)   # first multiple of p in [L, R], at least p*p
+        for m in range(start, R + 1, p):
+            is_prime[m - L] = False
+    if L <= 1:
+        for x in range(L, min(R, 1) + 1):
+            is_prime[x - L] = False                # 0 and 1 are not prime
+    return [L + i for i, v in enumerate(is_prime) if v]
+
+# primes_in_range(10**12, 10**12 + 100) runs instantly: about 10^6 base primes, a 101-slot window.
+`}
+      />
+      <Callout type="tip">
+        Memory is O(√R + (R − L)) instead of O(R). The same idea sieves 1..10⁹ in blocks that fit in the CPU cache,
+        which is much faster than one giant array.
+      </Callout>
+
+      <H2>Sieving other functions</H2>
+      <P>
+        The sieve pattern (&ldquo;for each d, visit its multiples&rdquo;) computes far more than primality. Visiting the
+        multiples of every d costs n/1 + n/2 + … + n/n = O(n log n), the harmonic series.
+      </P>
+      <Code
+        python={String.raw`
+def divisor_counts(n):
+    cnt = [0] * (n + 1)
+    for d in range(1, n + 1):
+        for m in range(d, n + 1, d):    # d divides m
+            cnt[m] += 1
+    return cnt                           # cnt[12] == 6: 1, 2, 3, 4, 6, 12
+
+def totients(n):
+    phi = list(range(n + 1))
+    for p in range(2, n + 1):
+        if phi[p] == p:                  # p is prime (untouched so far)
+            for m in range(p, n + 1, p):
+                phi[m] -= phi[m] // p    # multiply by (1 - 1/p)
+    return phi                           # phi[9] == 6
+`}
+      />
+
+      <H2>Which method for which n?</H2>
+      <Table
+        head={["Task", "Size", "Method", "Cost"]}
+        rows={[
+          ["Is n prime?", "n ≤ 10¹²", "Trial division (6k ± 1)", "O(√n)"],
+          ["Is n prime?", "n ≤ 2⁶⁴", "Deterministic Miller-Rabin", "O(k log³ n)"],
+          ["All primes ≤ n", "n ≤ 10⁷–10⁸", "Sieve of Eratosthenes", "O(n log log n)"],
+          ["Primes in [L, R]", "R ≤ 10¹², R − L ≤ 10⁶", "Segmented sieve", "O(√R + (R − L) log log R)"],
+          ["Factor one n", "n ≤ 10¹²", "Trial division", "O(√n)"],
+          ["Factor many x ≤ n", "n ≤ 10⁷", "Smallest-prime-factor sieve", "O(n) build, O(log x) each"],
+          ["Factor one huge n", "n ≈ 10¹⁸", "Pollard's rho + Miller-Rabin", "≈ O(n^¼)"],
+        ]}
+      />
+      <Callout type="key" title="Facts worth knowing">
+        There are about n / ln n primes below n (the prime number theorem): 25 below 100, 168 below 1,000, 78,498 below
+        10⁶. A number up to 10¹⁸ has at most 15 distinct prime factors, and highly composite numbers near 10⁹ have only
+        about 1,344 divisors, which is why &ldquo;enumerate all divisors&rdquo; is often fast enough.
+      </Callout>
+
       <H3>Big numbers</H3>
       <P>
         For 64-bit or larger n, trial division is too slow. <strong>Miller-Rabin</strong> is a fast probabilistic test
@@ -166,11 +238,12 @@ def spf_sieve(n):
           { q: "To test whether 97 is prime, the largest divisor you need to try is about…", options: ["48", "9", "97", "32"], answer: 1, explain: "√97 ≈ 9.8, so test 2, 3, 5, 7." },
           { q: "In the sieve, crossing out multiples of p starts at…", options: ["2p", "p + 1", "p²", "p/2"], answer: 2, explain: "Smaller multiples k·p with k < p were already crossed out by k's prime factors." },
           { q: "How many divisors does 72 = 2³ · 3² have?", options: ["6", "12", "5", "9"], answer: 1, explain: "(3 + 1)(2 + 1) = 12." },
+          { q: "You need all primes between 10¹¹ and 10¹¹ + 10⁶. Best approach?", options: ["Sieve up to 10¹¹ + 10⁶", "Trial-divide each number", "Segmented sieve with primes up to √R", "Miller-Rabin on each number"], answer: 2, explain: "Sieve primes up to about 3.2 · 10⁵ once, then cross out multiples inside the 10⁶ window." },
         ]}
       />
 
       <H2>Practice</H2>
-      <Practice ids={["count-primes"]} />
+      <Practice ids={["count-primes", "prime-factorization", "ugly-number-ii"]} />
       <Problems
         items={[
           { title: "Count Primes", level: "Medium", lc: "count-primes", pattern: "Sieve", idea: "Sieve below n and count.", complexity: "O(n log log n)" },

@@ -378,6 +378,10 @@ class PeekingIterator:
           ["Counts with O(1) increment and min/max count", "Buckets of keys keyed by count (linked list of buckets)"],
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["lru-cache", "time-based-kv", "lfu-cache"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

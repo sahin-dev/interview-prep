@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 
 export default function ZFunction() {
   return (
@@ -131,6 +131,9 @@ def minimum_time_to_initial_state(word, k):    # LeetCode 3031 / 3029
           { q: "To find pattern P in text T with Z, compute Z of…", options: ["T", "P", "P + sep + T", "T + P"], answer: 2, explain: "Positions with z = |P| mark matches." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["z-array"]} />
 
       <H2>Practice</H2>
       <Problems

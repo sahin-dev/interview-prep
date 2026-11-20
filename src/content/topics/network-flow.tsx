@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Steps } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Steps, Practice } from "@/components/content";
 
 export default function NetworkFlow() {
   return (
@@ -142,6 +142,9 @@ def max_bipartite_matching(n_left, n_right, adj):   # adj[u] = right nodes u may
           { q: "Edmonds-Karp chooses augmenting paths using…", options: ["DFS", "BFS (shortest path)", "Random walks", "Dijkstra on capacities"], answer: 1, explain: "That gives the O(V·E²) bound." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["max-flow"]} />
 
       <H2>Practice</H2>
       <Problems

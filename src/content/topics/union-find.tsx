@@ -189,7 +189,7 @@ def accounts_merge(accounts):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["number-of-provinces", "redundant-connection"]} />
+      <Practice ids={["number-of-provinces", "redundant-connection", "count-components", "equations-possible"]} />
       <Problems
         items={[
           { title: "Number of Provinces", level: "Medium", lc: "number-of-provinces", pattern: "Count components", idea: "Union every connected pair; the answer is the component count.", complexity: "O(n² α(n))" },

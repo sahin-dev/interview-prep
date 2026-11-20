@@ -305,7 +305,7 @@ def intersect_sorted(a, b):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["valid-palindrome", "three-sum", "sort-colors"]} />
+      <Practice ids={["valid-palindrome", "three-sum", "sort-colors", "remove-duplicates-sorted", "container-most-water", "trapping-rain-water"]} />
       <Problems
         items={[
           { title: "Valid Palindrome", level: "Easy", lc: "valid-palindrome", pattern: "Opposite ends", idea: "Skip non-alphanumerics, compare lowercase.", complexity: "O(n)" },

@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { GraphAlgoViz } from "@/components/viz/lazy";
 
 export default function SCC() {
@@ -168,6 +168,9 @@ def condensation(n, edges):
           { q: "Kosaraju's second pass runs on…", options: ["The same graph", "The reversed graph", "An undirected version", "The condensation"], answer: 1, explain: "Processing nodes in decreasing finish time." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["count-scc"]} />
 
       <H2>Practice</H2>
       <Problems

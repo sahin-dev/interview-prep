@@ -38,6 +38,28 @@ def build_lps(p):
 `}
       />
 
+      <H3>Trace: building lps for &ldquo;aabaaab&rdquo;</H3>
+      <P>
+        k is the length of the border we&apos;re trying to extend. The interesting row is i = 5: the attempt to extend
+        &ldquo;aa&rdquo; to &ldquo;aab&rdquo; fails, so k falls back to lps[1] = 1 and extends &ldquo;a&rdquo; to
+        &ldquo;aa&rdquo; instead.
+      </P>
+      <Table
+        head={["i", "p[i]", "Compare", "Fallbacks", "lps[i]"]}
+        rows={[
+          ["1", "a", "p[1] = a vs p[0] = a: match", "none", "1"],
+          ["2", "b", "p[2] = b vs p[1] = a: mismatch", "k = lps[0] = 0; b vs p[0] = a: mismatch", "0"],
+          ["3", "a", "p[3] = a vs p[0] = a: match", "none", "1"],
+          ["4", "a", "p[4] = a vs p[1] = a: match", "none", "2"],
+          ["5", "a", "p[5] = a vs p[2] = b: mismatch", "k = lps[1] = 1; a vs p[1] = a: match", "2"],
+          ["6", "b", "p[6] = b vs p[2] = b: match", "none", "3"],
+        ]}
+      />
+      <Callout type="tip" title="How to explain it in an interview">
+        &ldquo;lps tells me, after matching j characters, the longest prefix of the pattern I&apos;ve already seen at the
+        end of the text window. On a mismatch I slide the pattern so that prefix lines up, instead of restarting.&rdquo;
+      </Callout>
+
       <H2>Matching</H2>
       <KMPViz />
       <P>
@@ -142,7 +164,7 @@ def shortest_palindrome(s):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["str-str"]} />
+      <Practice ids={["str-str", "repeated-substring-pattern", "shortest-palindrome"]} />
       <Problems
         items={[
           { title: "Find the Index of the First Occurrence in a String", level: "Easy", lc: "find-the-index-of-the-first-occurrence-in-a-string", pattern: "KMP", idea: "Build LPS, then match.", complexity: "O(n + m)" },

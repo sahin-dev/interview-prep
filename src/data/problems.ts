@@ -1,4 +1,13 @@
-import type { Compare, TestCase } from "@/components/playground/runner";
+import type { Compare, IOSpec, TestCase } from "@/components/playground/runner";
+import { foundationsProblems } from "./problems-foundations";
+import { ds1Problems } from "./problems-ds1";
+import { ds2Problems } from "./problems-ds2";
+import { algo1Problems } from "./problems-algo1";
+import { algo2Problems } from "./problems-algo2";
+import { dpProblems } from "./problems-dp";
+import { treesProblems } from "./problems-trees";
+import { graphsProblems } from "./problems-graphs";
+import { strmathProblems } from "./problems-strmath";
 
 export interface CodingProblem {
   id: string;
@@ -13,13 +22,15 @@ export interface CodingProblem {
   solution: { js: string; py: string };
   tests: TestCase[];
   compare?: Compare;
+  /** Convert test arrays to linked lists / trees (and back) for the solution. */
+  io?: IOSpec;
   hints: string[];
   complexity: string;
 }
 
 const p = (x: CodingProblem) => x;
 
-export const problems: CodingProblem[] = [
+const coreProblems: CodingProblem[] = [
   p({
     id: "contains-duplicate", title: "Contains Duplicate", level: "Easy", topic: "big-o", pattern: "Hash set",
     statement: "Given an integer array `nums`, return `true` if any value appears at least twice, and `false` if every element is distinct.",
@@ -382,7 +393,7 @@ export const problems: CodingProblem[] = [
       js: "function subsets(nums) {\n  const res = [], path = [];\n  const bt = (i) => {\n    if (i === nums.length) { res.push([...path]); return; }\n    path.push(nums[i]); bt(i + 1);  // include\n    path.pop(); bt(i + 1);          // exclude\n  };\n  bt(0);\n  return res;\n}\n",
       py: "def subsets(nums):\n    res, path = [], []\n    def bt(i):\n        if i == len(nums):\n            res.append(path[:])\n            return\n        path.append(nums[i]); bt(i + 1)   # include\n        path.pop(); bt(i + 1)             # exclude\n    bt(0)\n    return res\n",
     },
-    tests: [{ args: [[1, 2, 3]], expected: [[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]] }, { args: [[0]], expected: [[], [0]] }],
+    tests: [{ args: [[1, 2, 3]], expected: [[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]] }, { args: [[0]], expected: [[], [0]] }, { args: [[]], expected: [[]] }, { args: [[5, 9]], expected: [[], [5], [9], [5, 9]] }],
     compare: "unordered-nested",
     hints: ["Each element is either in or out: 2ⁿ subsets.", "Recurse with an index; append a copy of the path at the end."],
     complexity: "O(n · 2ⁿ) time",
@@ -676,6 +687,20 @@ export const problems: CodingProblem[] = [
   p({"id": "min-cost-connect-points", "title": "Min Cost to Connect All Points", "level": "Medium", "topic": "mst", "pattern": "Prim on a dense graph", "statement": "Given `points[i] = [x, y]`, the cost of connecting two points is their Manhattan distance |x1 − x2| + |y1 − y2|. Return the minimum total cost to connect all points.", "examples": [{"input": "points = [[0,0],[2,2],[3,10],[5,2],[7,0]]", "output": "20"}], "fn": {"js": "minCostConnectPoints", "py": "min_cost_connect_points"}, "starter": {"js": "function minCostConnectPoints(points) {\n  \n}\n", "py": "def min_cost_connect_points(points):\n    pass\n"}, "solution": {"js": "function minCostConnectPoints(points) {\n  const n = points.length, cost = new Array(n).fill(Infinity), inTree = new Array(n).fill(false);\n  cost[0] = 0;\n  let total = 0;\n  for (let it = 0; it < n; it++) {\n    let u = -1;\n    for (let i = 0; i < n; i++) if (!inTree[i] && (u === -1 || cost[i] < cost[u])) u = i;\n    inTree[u] = true;\n    total += cost[u];\n    for (let v = 0; v < n; v++) {\n      if (inTree[v]) continue;\n      const d = Math.abs(points[u][0] - points[v][0]) + Math.abs(points[u][1] - points[v][1]);\n      if (d < cost[v]) cost[v] = d;\n    }\n  }\n  return total;\n}\n", "py": "def min_cost_connect_points(points):\n    n = len(points)\n    cost = [float('inf')] * n\n    cost[0] = 0\n    in_tree = [False] * n\n    total = 0\n    for _ in range(n):\n        u = min((c, i) for i, c in enumerate(cost) if not in_tree[i])[1]\n        in_tree[u] = True\n        total += cost[u]\n        for v in range(n):\n            if not in_tree[v]:\n                d = abs(points[u][0] - points[v][0]) + abs(points[u][1] - points[v][1])\n                cost[v] = min(cost[v], d)\n    return total\n"}, "tests": [{"args": [[[0, 0], [2, 2], [3, 10], [5, 2], [7, 0]]], "expected": 20}, {"args": [[[3, 12], [-2, 5], [-4, 1]]], "expected": 18}, {"args": [[[0, 0]]], "expected": 0}, {"args": [[[0, 0], [1, 1], [1, 0], [-1, 1]]], "expected": 4}], "hints": ["This is a minimum spanning tree on a complete graph.", "Prim with an array: repeatedly add the cheapest unconnected point, O(n²)."], "complexity": "O(n²)"}),
   p({"id": "critical-connections", "title": "Critical Connections in a Network", "level": "Hard", "topic": "bridges", "pattern": "Tarjan low-link", "statement": "`n` servers are connected by undirected `connections`. A critical connection is one whose removal disconnects some servers. Return all critical connections in any order.", "examples": [{"input": "n = 4, connections = [[0,1],[1,2],[2,0],[1,3]]", "output": "[[1,3]]"}], "fn": {"js": "criticalConnections", "py": "critical_connections"}, "starter": {"js": "function criticalConnections(n, connections) {\n  \n}\n", "py": "def critical_connections(n, connections):\n    pass\n"}, "solution": {"js": "function criticalConnections(n, connections) {\n  const g = Array.from({ length: n }, () => []);\n  connections.forEach(([a, b], i) => { g[a].push([b, i]); g[b].push([a, i]); });\n  const tin = new Array(n).fill(-1), low = new Array(n).fill(0), out = [];\n  let timer = 0;\n  const dfs = (u, pe) => {\n    tin[u] = low[u] = timer++;\n    for (const [v, id] of g[u]) {\n      if (id === pe) continue;\n      if (tin[v] === -1) {\n        dfs(v, id);\n        low[u] = Math.min(low[u], low[v]);\n        if (low[v] > tin[u]) out.push([u, v]);\n      } else low[u] = Math.min(low[u], tin[v]);\n    }\n  };\n  for (let s = 0; s < n; s++) if (tin[s] === -1) dfs(s, -1);\n  return out;\n}\n", "py": "import sys\n\ndef critical_connections(n, connections):\n    sys.setrecursionlimit(10000)\n    g = [[] for _ in range(n)]\n    for i, (a, b) in enumerate(connections):\n        g[a].append((b, i))\n        g[b].append((a, i))\n    tin, low, out = [-1] * n, [0] * n, []\n    timer = [0]\n    def dfs(u, pe):\n        tin[u] = low[u] = timer[0]\n        timer[0] += 1\n        for v, eid in g[u]:\n            if eid == pe:\n                continue\n            if tin[v] == -1:\n                dfs(v, eid)\n                low[u] = min(low[u], low[v])\n                if low[v] > tin[u]:\n                    out.append([u, v])\n            else:\n                low[u] = min(low[u], tin[v])\n    for s in range(n):\n        if tin[s] == -1:\n            dfs(s, -1)\n    return out\n"}, "tests": [{"args": [4, [[0, 1], [1, 2], [2, 0], [1, 3]]], "expected": [[1, 3]]}, {"args": [2, [[0, 1]]], "expected": [[0, 1]]}, {"args": [5, [[0, 1], [1, 2], [2, 3], [3, 4]]], "expected": [[0, 1], [1, 2], [2, 3], [3, 4]]}, {"args": [6, [[0, 1], [1, 2], [2, 0], [2, 3], [3, 4], [4, 5], [5, 3]]], "expected": [[2, 3]]}], "compare": "unordered-nested", "hints": ["Record discovery times and the lowest discovery time reachable from each subtree.", "Tree edge (u, v) is critical when low[v] > tin[u]."], "complexity": "O(V + E)"}),
   p({"id": "str-str", "title": "Find the First Occurrence (strStr)", "level": "Easy", "topic": "kmp", "pattern": "KMP", "statement": "Return the index of the first occurrence of `needle` in `haystack`, or -1 if it does not occur. An empty needle matches at index 0. Try KMP for guaranteed O(n + m).", "examples": [{"input": "haystack = \"sadbutsad\", needle = \"sad\"", "output": "0"}, {"input": "haystack = \"leetcode\", needle = \"leeto\"", "output": "-1"}], "fn": {"js": "strStr", "py": "str_str"}, "starter": {"js": "function strStr(text, pat) {\n  \n}\n", "py": "def str_str(text, pat):\n    pass\n"}, "solution": {"js": "function strStr(text, pat) {\n  if (!pat) return 0;\n  const lps = new Array(pat.length).fill(0);\n  for (let i = 1, k = 0; i < pat.length; i++) {\n    while (k && pat[i] !== pat[k]) k = lps[k - 1];\n    if (pat[i] === pat[k]) k++;\n    lps[i] = k;\n  }\n  for (let i = 0, j = 0; i < text.length; i++) {\n    while (j && text[i] !== pat[j]) j = lps[j - 1];\n    if (text[i] === pat[j]) j++;\n    if (j === pat.length) return i - j + 1;\n  }\n  return -1;\n}\n", "py": "def str_str(text, pat):\n    if not pat:\n        return 0\n    lps, k = [0] * len(pat), 0\n    for i in range(1, len(pat)):\n        while k and pat[i] != pat[k]:\n            k = lps[k - 1]\n        if pat[i] == pat[k]:\n            k += 1\n        lps[i] = k\n    j = 0\n    for i, ch in enumerate(text):\n        while j and ch != pat[j]:\n            j = lps[j - 1]\n        if ch == pat[j]:\n            j += 1\n        if j == len(pat):\n            return i - j + 1\n    return -1\n"}, "tests": [{"args": ["sadbutsad", "sad"], "expected": 0}, {"args": ["leetcode", "leeto"], "expected": -1}, {"args": ["hello", "ll"], "expected": 2}, {"args": ["aaaaab", "aab"], "expected": 3}, {"args": ["a", "a"], "expected": 0}, {"args": ["abc", ""], "expected": 0}], "hints": ["Precompute lps: the longest proper prefix that is also a suffix for each prefix of the needle.", "On a mismatch, fall back with j = lps[j − 1] instead of moving back in the haystack."], "complexity": "O(n + m)"}),
+];
+
+/** Every runnable problem. The generated problem-bank files were checked in both Python and JavaScript. */
+export const problems: CodingProblem[] = [
+  ...coreProblems,
+  ...foundationsProblems,
+  ...ds1Problems,
+  ...ds2Problems,
+  ...algo1Problems,
+  ...algo2Problems,
+  ...dpProblems,
+  ...treesProblems,
+  ...graphsProblems,
+  ...strmathProblems,
 ];
 
 export const problemById = new Map(problems.map((pr) => [pr.id, pr]));

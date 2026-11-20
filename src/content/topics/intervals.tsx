@@ -288,7 +288,7 @@ class MyCalendar {
       />
 
       <H2>Practice</H2>
-      <Practice ids={["merge-intervals"]} />
+      <Practice ids={["merge-intervals", "insert-interval", "non-overlapping-intervals", "meeting-rooms-ii"]} />
       <Problems
         items={[
           { title: "Meeting Rooms", level: "Easy", lc: "meeting-rooms", pattern: "Sort by start", idea: "Any start < previous end means a conflict.", complexity: "O(n log n)" },

@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Formula, Steps } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Formula, Steps, Practice } from "@/components/content";
 import { FibTreeViz } from "@/components/viz/lazy";
 
 export default function Recurrences() {
@@ -121,6 +121,9 @@ def subsets(a, i=0):                   # T(n) = 2T(n-1) + O(1)
           ["Word search in a grid", "≤ 4 · 3ᴸ⁻¹ per start cell", "O(R · C · 3ᴸ)"],
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["pow-x-n", "kth-symbol-grammar"]} />
 
       <QA
         items={[

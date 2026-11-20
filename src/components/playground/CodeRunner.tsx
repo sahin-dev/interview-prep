@@ -92,6 +92,7 @@ export default function CodeRunner({ problem, showStatement = true }: { problem:
     setOut(null);
     const res = await runCode(lang, code, lang === "javascript" ? problem.fn.js : problem.fn.py, problem.tests, problem.compare, (s) =>
       setStatus(s === "loading" ? "Loading Python runtime (first run only, ~10 MB)…" : "Running…"),
+      problem.io,
     );
     setStatus(null);
     setOut(res);

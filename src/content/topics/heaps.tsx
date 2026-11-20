@@ -383,7 +383,7 @@ sort_heap(v.begin(), v.end());   // O(n log n) -> ascending order
       />
 
       <H2>Practice</H2>
-      <Practice ids={["kth-largest", "top-k-frequent"]} />
+      <Practice ids={["kth-largest", "top-k-frequent", "last-stone-weight", "k-closest-points", "find-median-stream"]} />
       <Problems
         items={[
           { title: "Last Stone Weight", level: "Easy", lc: "last-stone-weight", pattern: "Max-heap simulation", idea: "Pop the two heaviest, push the difference if non-zero.", complexity: "O(n log n)" },

@@ -298,7 +298,7 @@ def rob_with_houses(nums):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["fibonacci", "climbing-stairs", "house-robber"]} />
+      <Practice ids={["fibonacci", "climbing-stairs", "house-robber", "min-cost-climbing-stairs", "integer-break"]} />
       <Problems
         items={[
           { title: "Fibonacci Number", level: "Easy", lc: "fibonacci-number", pattern: "Memo / two variables", idea: "Keep the last two values.", complexity: "O(n), O(1)" },

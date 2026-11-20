@@ -176,7 +176,7 @@ def flood_fill(image, sr, sc, color):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["spiral-matrix", "rotate-image", "number-of-islands"]} />
+      <Practice ids={["spiral-matrix", "rotate-image", "number-of-islands", "set-matrix-zeroes", "search-2d-matrix-ii"]} />
       <Problems
         items={[
           { title: "Flood Fill", level: "Easy", lc: "flood-fill", pattern: "DFS/BFS", idea: "Recolor connected cells of the original color.", complexity: "O(R·C)" },

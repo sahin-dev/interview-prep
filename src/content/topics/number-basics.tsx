@@ -144,6 +144,112 @@ def trailing_zeroes(n):            # zeros at the end of n!
         problem, see <a href="/topics/binary-search/">Binary Search</a>).
       </P>
 
+      <H2>Integer limits in each language</H2>
+      <P>
+        Know the range of your integer type before you multiply. Most &ldquo;wrong answer on a big test&rdquo; bugs are
+        silent overflow.
+      </P>
+      <Table
+        head={["Language", "Default integer", "Range", "When it overflows"]}
+        rows={[
+          ["Python", "int", "Unbounded", "Never (but huge numbers get slow)"],
+          ["Java", "int / long", "±2.1 · 10⁹ / ±9.2 · 10¹⁸", "Wraps silently; Math.addExact throws instead"],
+          ["C++", "int / long long", "±2.1 · 10⁹ / ±9.2 · 10¹⁸", "Signed overflow is undefined behaviour"],
+          ["JavaScript", "Number (a double)", "Exact up to 2⁵³ − 1 ≈ 9 · 10¹⁵", "Loses precision silently; use BigInt beyond"],
+        ]}
+      />
+      <Callout type="tip">
+        Rule of thumb: if two values can each reach 10⁹ and you multiply them, you need 64 bits. If you then multiply
+        again (or work mod 10⁹ + 7 in JavaScript), you need BigInt or 128-bit arithmetic.
+      </Callout>
+
+      <H2>Number bases</H2>
+      <P>
+        The digit-peeling loop works in any base k: the last digit is <code>n % k</code>. Going the other way, Horner&apos;s
+        rule builds the number one digit at a time: <code>n = n · k + digit</code>.
+      </P>
+      <Code
+        python={String.raw`
+DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+def to_base(n, k):                  # 2 <= k <= 36
+    if n == 0:
+        return "0"
+    sign, n = ("-" if n < 0 else ""), abs(n)
+    out = []
+    while n:
+        n, d = divmod(n, k)
+        out.append(DIGITS[d])
+    return sign + "".join(reversed(out))
+
+def from_base(s, k):
+    n = 0
+    for ch in s:
+        n = n * k + DIGITS.index(ch)   # Horner's rule
+    return n
+
+# Built-ins: bin(10) == '0b1010', int('ff', 16) == 255, format(255, 'x') == 'ff'
+`}
+        js={String.raw`
+function toBase(n, k) {
+  return n.toString(k);            // built in for 2 <= k <= 36
+}
+function fromBase(s, k) {
+  return parseInt(s, k);
+}
+`}
+        java={String.raw`
+String toBase(int n, int k) { return Integer.toString(n, k); }
+int fromBase(String s, int k) { return Integer.parseInt(s, k); }
+`}
+      />
+      <Callout type="key">
+        Excel columns (A, …, Z, AA, …) are base 26 <em>without a zero digit</em>. Converting a number to a title needs
+        <code> n -= 1</code> before each <code>% 26</code>; converting a title to a number is plain Horner with A = 1.
+      </Callout>
+
+      <H2>Floating-point pitfalls</H2>
+      <P>
+        Floats store binary fractions, so most decimals are approximations: <code>0.1 + 0.2 == 0.30000000000000004</code>.
+        In interviews, prefer integers whenever you can.
+      </P>
+      <Table
+        head={["Situation", "Do this instead"]}
+        rows={[
+          ["Comparing two floats", "abs(a − b) < 1e-9 (or a relative tolerance)"],
+          ["Money", "Store cents as integers, or use a decimal type"],
+          ["Slopes in geometry", "Compare cross products, or store reduced fractions (dy/g, dx/g)"],
+          ["√n for big n", "math.isqrt(n), or binary search on integers"],
+          ["Averages that must be exact", "Compare sum₁ · count₂ with sum₂ · count₁"],
+        ]}
+      />
+
+      <H2>Worked example: palindrome number without strings</H2>
+      <P>
+        Reverse only the second half of the digits and compare it with the first half. That avoids overflow (you never
+        build the full reversed number) and uses O(1) space.
+      </P>
+      <Code
+        python={String.raw`
+def is_palindrome(x):
+    if x < 0 or (x % 10 == 0 and x != 0):
+        return False              # negatives and numbers ending in 0 (except 0) can't be palindromes
+    half = 0
+    while x > half:               # stop at the middle
+        half = half * 10 + x % 10
+        x //= 10
+    return x == half or x == half // 10   # odd length: drop the middle digit
+`}
+        js={String.raw`
+function isPalindrome(x) {
+  if (x < 0 || (x % 10 === 0 && x !== 0)) return false;
+  let half = 0;
+  while (x > half) { half = half * 10 + (x % 10); x = Math.floor(x / 10); }
+  return x === half || x === Math.floor(half / 10);
+}
+`}
+      />
+
       <Quiz
         questions={[
           { q: "In Python, -7 // 2 is…", options: ["-3", "-4", "-3.5", "3"], answer: 1, explain: "Python floors toward negative infinity." },
@@ -153,7 +259,7 @@ def trailing_zeroes(n):            # zeros at the end of n!
       />
 
       <H2>Practice</H2>
-      <Practice ids={["reverse-integer", "palindrome-number", "power-of-two"]} />
+      <Practice ids={["reverse-integer", "palindrome-number", "power-of-two", "add-digits", "excel-column-number", "convert-to-base"]} />
       <Problems
         items={[
           { title: "Palindrome Number", level: "Easy", lc: "palindrome-number", pattern: "Reverse half", idea: "Reverse the second half of the digits and compare with the first half.", complexity: "O(log n)" },

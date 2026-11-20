@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 
 export default function SuffixArray() {
   return (
@@ -135,6 +135,9 @@ def occurrences(s, sa, p):
           { q: "Distinct substrings of \"aaa\"?", options: ["3", "6", "1", "9"], answer: 0, explain: "6 total − (2 + 1) LCP = 3: a, aa, aaa." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["suffix-array-construction", "count-distinct-substrings"]} />
 
       <H2>Practice</H2>
       <Problems

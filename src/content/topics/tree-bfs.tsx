@@ -241,6 +241,10 @@ def distance_k(root, target, k):
         <code>node.children</code>, or over a graph&apos;s neighbors plus a visited set. That&apos;s exactly{" "}
         <a href="/topics/bfs/">graph BFS</a>.
       </P>
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["level-order-traversal", "zigzag-level-order", "right-side-view", "max-width-binary-tree"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

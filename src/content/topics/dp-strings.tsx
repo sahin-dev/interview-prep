@@ -187,7 +187,7 @@ def longest_palindromic_subsequence(s):            # = LCS(s, reversed s)
       />
 
       <H2>Practice</H2>
-      <Practice ids={["word-break", "edit-distance", "lcs"]} />
+      <Practice ids={["word-break", "edit-distance", "lcs", "palindromic-substrings", "wildcard-matching"]} />
       <Problems
         items={[
           { title: "Word Break", level: "Medium", lc: "word-break", pattern: "Prefix DP", idea: "dp[i] = any dp[j] and s[j:i] in dict.", complexity: "O(n·L²)" },

@@ -282,7 +282,7 @@ class Fenwick:
       />
 
       <H2>Practice</H2>
-      <Practice ids={["subarray-sum-k", "product-except-self"]} />
+      <Practice ids={["subarray-sum-k", "product-except-self", "pivot-index", "car-pooling", "range-sum-2d"]} />
       <Problems
         items={[
           { title: "Running Sum of 1d Array", level: "Easy", lc: "running-sum-of-1d-array", pattern: "Prefix", idea: "a[i] += a[i − 1].", complexity: "O(n)" },

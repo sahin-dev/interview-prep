@@ -300,6 +300,9 @@ def all_paths(root):
         ]}
       />
 
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["inorder-traversal", "preorder-traversal", "postorder-traversal"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

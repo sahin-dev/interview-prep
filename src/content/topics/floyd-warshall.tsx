@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula, Practice } from "@/components/content";
 import { FloydViz } from "@/components/viz/lazy";
 
 export default function FloydWarshall() {
@@ -140,6 +140,9 @@ def check_if_prerequisite(n, prerequisites, queries):
           { q: "For V = 300, Floyd-Warshall does about how many inner operations?", options: ["9 × 10⁴", "2.7 × 10⁷", "10¹⁰", "300"], answer: 1, explain: "300³ = 27 million: fine." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["city-fewest-neighbors", "course-schedule-iv"]} />
 
       <H2>Practice</H2>
       <Problems

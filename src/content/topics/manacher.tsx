@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 
 export default function Manacher() {
   return (
@@ -118,6 +118,9 @@ String longestPalindrome(String s) {
           { q: "Manacher's algorithm runs in…", options: ["O(n²)", "O(n log n)", "O(n)", "O(n³)"], answer: 2, explain: "The right edge r only moves forward." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["longest-palindromic-substring"]} />
 
       <H2>Practice</H2>
       <Problems

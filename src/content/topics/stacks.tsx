@@ -339,7 +339,7 @@ def eval_postfix(tokens):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["valid-parentheses", "daily-temperatures"]} />
+      <Practice ids={["valid-parentheses", "daily-temperatures", "min-stack", "eval-rpn", "decode-string"]} />
       <Problems
         items={[
           { title: "Valid Parentheses", level: "Easy", lc: "valid-parentheses", pattern: "Matching", idea: "Push openers; each closer must match the popped opener; the stack must end empty.", complexity: "O(n)" },

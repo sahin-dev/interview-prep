@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { readySlugs } from "./ready";
 import { lessonMeta } from "@/data/lesson-meta";
+import { lessonExtras } from "@/data/lesson-extras";
 import { topicBySlug } from "@/data/curriculum";
 
 type Loader = () => Promise<{ default: ComponentType }>;
@@ -195,5 +196,7 @@ const badLinks = Object.entries(lessonMeta).flatMap(([k, m]) =>
 if (noMeta.length || badLinks.length) {
   throw new Error(`lesson-meta problems. Missing meta: [${noMeta}] Bad links: [${badLinks}]`);
 }
+const badExtras = Object.keys(lessonExtras).filter((s) => !readySlugs.includes(s));
+if (badExtras.length) throw new Error(`lesson-extras keys that are not lessons: [${badExtras}]`);
 
 export { readySlugs };

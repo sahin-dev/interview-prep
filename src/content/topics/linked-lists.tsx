@@ -501,6 +501,9 @@ function getIntersectionNode(headA, headB) {
         ]}
       />
 
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["reverse-linked-list", "merge-two-lists", "middle-of-list", "palindrome-linked-list", "remove-nth-from-end", "reorder-list", "add-two-numbers"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

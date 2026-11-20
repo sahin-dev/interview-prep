@@ -208,7 +208,7 @@ def min_path_with_route(grid):
       />
 
       <H2>Practice</H2>
-      <Practice ids={["unique-paths"]} />
+      <Practice ids={["unique-paths", "min-path-sum", "maximal-square", "unique-paths-ii"]} />
       <Problems
         items={[
           { title: "Unique Paths", level: "Medium", lc: "unique-paths", pattern: "Count", idea: "Above + left.", complexity: "O(m·n), O(n)" },

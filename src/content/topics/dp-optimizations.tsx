@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Formula, Practice } from "@/components/content";
 
 export default function DPOptimizations() {
   return (
@@ -190,6 +190,9 @@ def dc_layer(prev, cost, n):
           { q: "LIS with the 'tails' array runs in…", options: ["O(n²)", "O(n log n)", "O(n)", "O(2ⁿ)"], answer: 1, explain: "One binary search per element." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["jump-game-vi"]} />
 
       <H2>Practice</H2>
       <Problems

@@ -101,6 +101,94 @@ def num_trees(n):                 # Unique BSTs: DP version of the Catalan recur
         point: about n!/e).
       </P>
 
+      <H3>Derangements</H3>
+      <P>
+        A derangement is a permutation where nobody stays in place (secret Santa where nobody draws themselves).
+        Inclusion–exclusion gives D(n) = n! · Σ (−1)ᵏ / k!, and there is a simple recurrence: element 1 goes to some
+        position j (n − 1 choices), and then j either swaps back to position 1 (D(n − 2)) or doesn&apos;t (D(n − 1)).
+      </P>
+      <Code
+        python={String.raw`
+def derangements(n):
+    if n == 0:
+        return 1
+    a, b = 1, 0                     # D(0), D(1)
+    for k in range(2, n + 1):
+        a, b = b, (k - 1) * (a + b)  # D(k) = (k-1) * (D(k-1) + D(k-2))
+    return b
+
+assert [derangements(n) for n in range(6)] == [1, 0, 1, 2, 9, 44]
+`}
+      />
+
+      <H2>Stars and bars, step by step</H2>
+      <P>
+        How many ways can you split n identical items among k people? Write the n items as stars and separate the k
+        groups with k − 1 bars: <code>★★|★|★★★</code> gives 2, 1, 3. Every arrangement of n stars and k − 1 bars is one
+        split, so the count is C(n + k − 1, k − 1).
+      </P>
+      <Table
+        head={["Variation", "Count", "Trick"]}
+        rows={[
+          ["Each person may get 0", "C(n + k − 1, k − 1)", "Plain stars and bars"],
+          ["Each person gets at least 1", "C(n − 1, k − 1)", "Hand out 1 to everyone first, then split n − k"],
+          ["Person i gets at least aᵢ", "C(n − Σaᵢ + k − 1, k − 1)", "Pre-assign the minimums"],
+          ["Each person gets at most c", "Inclusion–exclusion over who exceeds c", "Σ (−1)ʲ C(k, j) C(n − j(c+1) + k − 1, k − 1)"],
+          ["Sorted strings of length n over k letters", "C(n + k − 1, k − 1)", "A sorted string is just a count per letter"],
+        ]}
+      />
+
+      <H2>Permutations with repeated items</H2>
+      <P>
+        Arrangements of a multiset divide out the orderings of identical items:{" "}
+        <code>n! / (c₁! · c₂! ⋯)</code>. &ldquo;MISSISSIPPI&rdquo; has 11! / (1! · 4! · 4! · 2!) = 34,650 distinct
+        arrangements.
+      </P>
+
+      <H2>Next permutation</H2>
+      <P>
+        A favourite interview question: rearrange a sequence into the next one in lexicographic order, in place. Find
+        the rightmost &ldquo;ascent&rdquo; i (with a[i] &lt; a[i + 1]), swap a[i] with the smallest larger element to its
+        right, then reverse the suffix (which was descending).
+      </P>
+      <Code
+        python={String.raw`
+def next_permutation(a):
+    i = len(a) - 2
+    while i >= 0 and a[i] >= a[i + 1]:
+        i -= 1                           # a[i+1:] is the longest descending suffix
+    if i >= 0:
+        j = len(a) - 1
+        while a[j] <= a[i]:
+            j -= 1                       # smallest element in the suffix bigger than a[i]
+        a[i], a[j] = a[j], a[i]
+    a[i + 1:] = reversed(a[i + 1:])      # make the suffix as small as possible
+    return a
+
+assert next_permutation([1, 2, 3]) == [1, 3, 2]
+assert next_permutation([3, 2, 1]) == [1, 2, 3]       # wraps to the first permutation
+assert next_permutation([1, 1, 5]) == [1, 5, 1]
+`}
+        js={String.raw`
+function nextPermutation(a) {
+  let i = a.length - 2;
+  while (i >= 0 && a[i] >= a[i + 1]) i--;
+  if (i >= 0) {
+    let j = a.length - 1;
+    while (a[j] <= a[i]) j--;
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  for (let l = i + 1, r = a.length - 1; l < r; l++, r--) [a[l], a[r]] = [a[r], a[l]];
+  return a;
+}
+`}
+      />
+      <Callout type="tip">
+        To jump straight to the k-th permutation, use the factorial number system: the first element is the
+        ⌊(k − 1) / (n − 1)!⌋-th smallest remaining value, and so on (the &ldquo;Permutation Sequence&rdquo; problem
+        below).
+      </Callout>
+
       <H3>The pigeonhole principle</H3>
       <P>
         Put n + 1 items into n boxes and some box gets two. That proves a duplicate must exist in &ldquo;Find the Duplicate
@@ -112,11 +200,13 @@ def num_trees(n):                 # Unique BSTs: DP version of the Catalan recur
           { q: "How many ways to choose a 3-person team from 8?", options: ["24", "56", "336", "512"], answer: 1, explain: "C(8, 3) = 8·7·6 / 6 = 56." },
           { q: "How many valid strings of 4 pairs of parentheses?", options: ["8", "14", "16", "24"], answer: 1, explain: "The 4th Catalan number is 14." },
           { q: "Paths from the top-left to the bottom-right of a 3×4 grid moving right/down?", options: ["7", "10", "12", "35"], answer: 1, explain: "C(3 + 4 − 2, 2) = C(5, 2) = 10." },
+          { q: "Ways to give 7 identical candies to 3 kids if each kid gets at least one?", options: ["15", "21", "36", "35"], answer: 0, explain: "Hand out one each, then split the remaining 4: C(4 + 2, 2) = 15 (equivalently C(6, 2))." },
+          { q: "The next permutation of [1, 3, 2] is…", options: ["[2, 1, 3]", "[2, 3, 1]", "[3, 1, 2]", "[1, 2, 3]"], answer: 0, explain: "Ascent at index 0 (1 < 3); swap 1 with 2 (smallest larger in the suffix) → [2, 3, 1]; reverse the suffix → [2, 1, 3]." },
         ]}
       />
 
       <H2>Practice</H2>
-      <Practice ids={["pascal-triangle", "n-choose-k-mod", "unique-paths"]} />
+      <Practice ids={["pascal-triangle", "n-choose-k-mod", "unique-paths", "unique-bsts", "count-sorted-vowel-strings", "kth-permutation"]} />
       <Problems
         items={[
           { title: "Pascal's Triangle", level: "Easy", lc: "pascals-triangle", pattern: "Recurrence", idea: "Each entry is the sum of the two above.", complexity: "O(n²)" },

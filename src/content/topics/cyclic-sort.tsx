@@ -159,7 +159,7 @@ def find_duplicate(nums):                  # n+1 numbers in 1..n, read-only, O(1
       />
 
       <H2>Practice</H2>
-      <Practice ids={["missing-number", "first-missing-positive"]} />
+      <Practice ids={["missing-number", "first-missing-positive", "find-disappeared-numbers", "find-duplicate-number"]} />
       <Problems
         items={[
           { title: "Missing Number", level: "Easy", lc: "missing-number", pattern: "Sum / XOR / cyclic sort", idea: "Any of the three.", complexity: "O(n), O(1)" },

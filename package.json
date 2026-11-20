@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "npx serve out",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:problems": "node scripts/verify-problems.cjs"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.5",

@@ -223,7 +223,7 @@ def alien_order(words):
         ]}
       />
       <H2>Practice</H2>
-      <Practice ids={["course-schedule"]} />
+      <Practice ids={["course-schedule", "course-schedule-ii", "parallel-courses", "alien-dictionary"]} />
       <Problems
         items={[
           { title: "Course Schedule", level: "Medium", lc: "course-schedule", pattern: "Kahn / cycle check", idea: "Can all n be processed?", complexity: "O(V + E)" },

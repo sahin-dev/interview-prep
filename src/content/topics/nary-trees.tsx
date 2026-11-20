@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { GraphAlgoViz } from "@/components/viz/lazy";
 
 export default function NaryTrees() {
@@ -192,6 +192,9 @@ def find_min_height_trees(n, edges):             # roots that minimize height: t
           { q: "A connected graph with n nodes is a tree iff it has…", options: ["n edges", "n − 1 edges", "n + 1 edges", "2n edges"], answer: 1, explain: "Connected + n − 1 edges ⇔ acyclic." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["all-nodes-distance-k", "time-to-infect-tree"]} />
 
       <H2>Practice</H2>
       <Problems

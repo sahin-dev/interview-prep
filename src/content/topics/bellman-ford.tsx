@@ -147,7 +147,7 @@ def spfa(n, adj, src):                      # adj[u] = [(v, w), ...]
       />
 
       <H2>Practice</H2>
-      <Practice ids={["cheapest-flights"]} />
+      <Practice ids={["cheapest-flights", "negative-cycle-detection"]} />
       <Problems
         items={[
           { title: "Network Delay Time", level: "Medium", lc: "network-delay-time", pattern: "Any SSSP", idea: "Dijkstra, or Bellman-Ford since n is small.", complexity: "O(V·E)" },

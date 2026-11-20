@@ -251,7 +251,7 @@ boolean canPartition(int[] nums) {
       />
 
       <H2>Practice</H2>
-      <Practice ids={["partition-equal-subset", "coin-change"]} />
+      <Practice ids={["partition-equal-subset", "coin-change", "target-sum", "coin-change-ii", "last-stone-weight-ii"]} />
       <Problems
         items={[
           { title: "Partition Equal Subset Sum", level: "Medium", lc: "partition-equal-subset-sum", pattern: "0/1 boolean", idea: "Subset sum to total / 2.", complexity: "O(n · sum)" },

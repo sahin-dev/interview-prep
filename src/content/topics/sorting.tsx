@@ -372,7 +372,7 @@ people.sort((a, b) => a.age - b.age || a.name.localeCompare(b.name));
       />
 
       <H2>Practice</H2>
-      <Practice ids={["sort-array", "sort-colors", "merge-intervals"]} />
+      <Practice ids={["sort-array", "sort-colors", "merge-intervals", "relative-sort-array", "largest-number", "h-index"]} />
       <Problems
         items={[
           { title: "Merge Sorted Array", level: "Easy", lc: "merge-sorted-array", pattern: "Merge from the back", idea: "Fill nums1 from the end, taking the larger of the two tails, so nothing gets overwritten.", complexity: "O(m + n), O(1)" },

@@ -1,3 +1,4 @@
+import { Practice } from "@/components/content";
 import { H2, H3, P, Lead, Callout, List, Table, Complexity, Steps } from "@/components/content/Prose";
 import { Code } from "@/components/content/Code";
 import { Problems } from "@/components/content/Problems";
@@ -429,6 +430,9 @@ for i in range(n):
           },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["majority-element", "intersection-of-arrays", "contains-duplicate"]} />
 
       <H2>Practice problems</H2>
       <P>Each one has an obvious slow solution. Write it, state its complexity, then find the faster one.</P>

@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
 import { TreeTraversalViz } from "@/components/viz/lazy";
 
 export default function AdvancedTrees() {
@@ -159,6 +159,9 @@ def find_centroid(adj, root, removed):
           { q: "Centroid decomposition has recursion depth…", options: ["O(n)", "O(log n)", "O(√n)", "O(1)"], answer: 1, explain: "Each component is at most half the size." },
         ]}
       />
+
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["kth-ancestor"]} />
 
       <H2>Practice</H2>
       <Problems

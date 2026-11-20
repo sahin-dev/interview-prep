@@ -349,6 +349,9 @@ def range_sum(node, lo, hi):           # LeetCode 938
         ]}
       />
 
+      <H2>Solve it in the browser</H2>
+      <Practice ids={["search-bst", "validate-bst", "kth-smallest-bst", "insert-into-bst"]} />
+
       <H2>Practice problems</H2>
       <Problems
         items={[

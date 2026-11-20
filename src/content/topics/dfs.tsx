@@ -317,7 +317,7 @@ def sink_iterative(grid, r, c):
         ]}
       />
       <H2>Practice</H2>
-      <Practice ids={["number-of-islands"]} />
+      <Practice ids={["number-of-islands", "flood-fill", "max-area-of-island", "pacific-atlantic"]} />
       <Problems
         items={[
           { title: "Flood Fill", level: "Easy", lc: "flood-fill", pattern: "Grid DFS", idea: "Recolor while the color matches.", complexity: "O(R·C)" },
