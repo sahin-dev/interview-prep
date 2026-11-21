@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { GraphAlgoViz } from "@/components/viz/lazy";
 
 export default function Dijkstra() {
@@ -26,88 +26,7 @@ export default function Dijkstra() {
         <div><strong>Relax</strong> each edge (u, v, w): if <code>dist[u] + w &lt; dist[v]</code>, update <code>dist[v]</code> and push <code>(dist[v], v)</code>.</div>
         <div>Repeat until the heap is empty. Every popped (non-stale) node&apos;s distance is final.</div>
       </Steps>
-      <Code
-        python={String.raw`
-import heapq
-
-def dijkstra(n, adj, src):            # adj[u] = [(v, w), ...]
-    dist = [float('inf')] * n
-    dist[src] = 0
-    pq = [(0, src)]
-    while pq:
-        d, u = heapq.heappop(pq)
-        if d > dist[u]:
-            continue                  # stale entry: a shorter path was found already
-        for v, w in adj[u]:
-            nd = d + w
-            if nd < dist[v]:
-                dist[v] = nd
-                heapq.heappush(pq, (nd, v))
-    return dist
-`}
-        java={String.raw`
-long[] dijkstra(int n, List<List<int[]>> adj, int src) {
-    long[] dist = new long[n];
-    Arrays.fill(dist, Long.MAX_VALUE);
-    dist[src] = 0;
-    PriorityQueue<long[]> pq = new PriorityQueue<>((a, b) -> Long.compare(a[0], b[0]));
-    pq.offer(new long[]{0, src});
-    while (!pq.isEmpty()) {
-        long[] top = pq.poll();
-        long d = top[0];
-        int u = (int) top[1];
-        if (d > dist[u]) continue;
-        for (int[] e : adj.get(u)) {
-            int v = e[0], w = e[1];
-            if (d + w < dist[v]) {
-                dist[v] = d + w;
-                pq.offer(new long[]{dist[v], v});
-            }
-        }
-    }
-    return dist;
-}
-`}
-        cpp={String.raw`
-vector<long long> dijkstra(int n, const vector<vector<pair<int,int>>>& adj, int src) {
-    vector<long long> dist(n, LLONG_MAX);
-    priority_queue<pair<long long,int>, vector<pair<long long,int>>, greater<>> pq;
-    dist[src] = 0;
-    pq.push({0, src});
-    while (!pq.empty()) {
-        auto [d, u] = pq.top(); pq.pop();
-        if (d > dist[u]) continue;
-        for (auto [v, w] : adj[u]) {
-            if (d + w < dist[v]) {
-                dist[v] = d + w;
-                pq.push({dist[v], v});
-            }
-        }
-    }
-    return dist;
-}
-`}
-        js={String.raw`
-// Needs a min-heap keyed on distance (see the Heaps lesson).
-function dijkstra(n, adj, src) {
-  const dist = new Array(n).fill(Infinity);
-  dist[src] = 0;
-  const pq = new Heap((a, b) => a[0] - b[0]);
-  pq.push([0, src]);
-  while (pq.size) {
-    const [d, u] = pq.pop();
-    if (d > dist[u]) continue;
-    for (const [v, w] of adj[u]) {
-      if (d + w < dist[v]) {
-        dist[v] = d + w;
-        pq.push([dist[v], v]);
-      }
-    }
-  }
-  return dist;
-}
-`}
-      />
+      <PatternTemplate id="dijkstra" />
       <P><strong>Complexity:</strong> O((V + E) log V) with a binary heap (each edge can push one entry). For dense graphs an O(V²) array-scan version is competitive.</P>
 
       <H2>Why it fails with negative weights</H2>
@@ -256,6 +175,23 @@ def cheapest_with_k_stops(n, flights, src, dst, k):
           { q: "Dijkstra's time complexity with a binary heap?", options: ["O(V + E)", "O((V + E) log V)", "O(V·E)", "O(V³)"], answer: 1, explain: "Up to E pushes and pops on a heap of size O(E), each O(log V)." },
           { q: "Which algorithm handles negative edge weights?", options: ["BFS", "Dijkstra", "Bellman-Ford", "Prim"], answer: 2, explain: "Bellman-Ford relaxes all edges V − 1 times and can detect negative cycles." },
           { q: "When is a popped (d, u) entry stale?", options: ["When d < dist[u]", "When d > dist[u]", "When u is the source", "Never"], answer: 1, explain: "A shorter path to u was already found and processed; skip the outdated entry." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="dijkstra"
+        prompts={[
+          "Why is a node's distance final once it's popped from the heap?",
+          "Why does Dijkstra fail with negative edge weights?",
+          "What is a stale heap entry, and how do you handle it?",
+        ]}
+        checklist={[
+          "Always expand the closest node that isn't settled yet",
+          "With non-negative weights, no path discovered later can be shorter",
+          "A negative edge found later could lower an already-settled distance",
+          "Lazy deletion: skip entries where d > dist[node]",
+          "The heap is ordered by (distance, node)",
+          "O((V + E) log V)",
         ]}
       />
 

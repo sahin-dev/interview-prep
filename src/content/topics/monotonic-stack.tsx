@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { MonotonicStackViz } from "@/components/viz/lazy";
 
 export default function MonotonicStack() {
@@ -30,17 +30,10 @@ export default function MonotonicStack() {
         Indices wait on the stack until a bigger value arrives. When it does, it is the answer for every smaller waiting
         index it pops. What stays on the stack is always decreasing.
       </P>
+      <PatternTemplate id="monotonic-stack" />
+      <P>Two common variations of the same loop: return the distance instead of the value, and wrap around a circular array by iterating twice:</P>
       <Code
         python={String.raw`
-def next_greater(nums):
-    res = [-1] * len(nums)
-    stack = []                                  # indices with decreasing values
-    for i, x in enumerate(nums):
-        while stack and nums[stack[-1]] < x:
-            res[stack.pop()] = x
-        stack.append(i)
-    return res
-
 def daily_temperatures(t):
     res, stack = [0] * len(t), []
     for i, x in enumerate(t):
@@ -59,19 +52,6 @@ def next_greater_circular(nums):                # loop twice to wrap around
         if i < n:
             stack.append(i)
     return res
-`}
-        java={String.raw`
-int[] nextGreater(int[] nums) {
-    int n = nums.length;
-    int[] res = new int[n];
-    Arrays.fill(res, -1);
-    Deque<Integer> stack = new ArrayDeque<>();
-    for (int i = 0; i < n; i++) {
-        while (!stack.isEmpty() && nums[stack.peek()] < nums[i]) res[stack.pop()] = nums[i];
-        stack.push(i);
-    }
-    return res;
-}
 `}
       />
       <Callout type="key" title="Why O(n)?">
@@ -185,6 +165,23 @@ def remove_k_digits(num, k):
         questions={[
           { q: "Total stack operations for next-greater over n elements?", options: ["O(n²)", "O(n log n)", "At most 2n: O(n)", "O(1)"], answer: 2, explain: "Each index is pushed once and popped at most once." },
           { q: "Sliding window maximum uses a deque whose values are…", options: ["Increasing", "Decreasing from front to back", "Random", "Sorted by index only"], answer: 1, explain: "The front is the current maximum." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="monotonic-stack"
+        prompts={[
+          "What does the stack hold at any moment, and in what order?",
+          "Why is it O(n) even though there's a while loop inside the for loop?",
+          "How do you choose between < and <= when popping?",
+        ]}
+        checklist={[
+          "Indices of elements still waiting for their answer",
+          "Their values are monotonic: decreasing for next-greater",
+          "A new element resolves every waiting element it beats",
+          "Each index is pushed once and popped at most once",
+          "Strict vs non-strict depends on how the problem defines 'greater'",
+          "Indices left on the stack have no answer",
         ]}
       />
 

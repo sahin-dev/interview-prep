@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { GraphAlgoViz, IslandsViz } from "@/components/viz/lazy";
 
 export default function DFS() {
@@ -81,6 +81,7 @@ def count_components(n, edges):
     return count
 `}
       />
+      <PatternTemplate id="graph-dfs" />
 
       <H2>DFS on grids: flood fill</H2>
       <IslandsViz />
@@ -316,6 +317,23 @@ def sink_iterative(grid, r, c):
           ["Detect the edge that creates a cycle in an undirected graph", "Union-Find"],
         ]}
       />
+      <ExplainBack
+        slug="dfs"
+        prompts={[
+          "How does DFS count connected components?",
+          "When would you choose DFS over BFS, and when union-find?",
+          "What goes wrong with recursive DFS on a 1000×1000 grid, and how do you fix it?",
+        ]}
+        checklist={[
+          "Start a DFS from every unvisited node; each start floods one whole component",
+          "Mark a node visited before visiting its neighbours, or the search loops forever",
+          "DFS for reachability, components and cycles; BFS when you need shortest paths",
+          "Union-find when edges arrive over time with queries in between",
+          "Very deep recursion overflows the call stack: use an explicit stack",
+          "O(V + E) time, O(V) space",
+        ]}
+      />
+
       <H2>Practice</H2>
       <Practice ids={["number-of-islands", "flood-fill", "max-area-of-island", "pacific-atlantic"]} />
       <Problems

@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { IntervalsViz } from "@/components/viz/lazy";
 
 export default function Greedy() {
@@ -37,43 +37,7 @@ export default function Greedy() {
       <H2>Classic 1: activity selection</H2>
       <P>Maximum number of non-overlapping intervals: sort by end time and keep each interval that starts after the last kept one ends.</P>
       <IntervalsViz />
-      <Code
-        python={String.raw`
-def max_non_overlapping(intervals):
-    intervals.sort(key=lambda x: x[1])     # earliest finish first
-    count, end = 0, float('-inf')
-    for s, e in intervals:
-        if s >= end:
-            count += 1
-            end = e
-    return count
-`}
-        java={String.raw`
-int maxNonOverlapping(int[][] intervals) {
-    Arrays.sort(intervals, (a, b) -> Integer.compare(a[1], b[1]));
-    int count = 0;
-    long end = Long.MIN_VALUE;
-    for (int[] iv : intervals) if (iv[0] >= end) { count++; end = iv[1]; }
-    return count;
-}
-`}
-        cpp={String.raw`
-int maxNonOverlapping(vector<vector<int>>& iv) {
-    sort(iv.begin(), iv.end(), [](auto& a, auto& b) { return a[1] < b[1]; });
-    int count = 0; long long end = LLONG_MIN;
-    for (auto& x : iv) if (x[0] >= end) { count++; end = x[1]; }
-    return count;
-}
-`}
-        js={String.raw`
-function maxNonOverlapping(intervals) {
-  intervals.sort((a, b) => a[1] - b[1]);
-  let count = 0, end = -Infinity;
-  for (const [s, e] of intervals) if (s >= end) { count++; end = e; }
-  return count;
-}
-`}
-      />
+      <PatternTemplate id="greedy-sort-scan" />
 
       <H2>Classic 2: jump game (track the frontier)</H2>
       <P>Keep the farthest index reachable so far. If you ever stand beyond it, you&apos;re stuck. For the minimum number of jumps, treat it as BFS by levels: each &ldquo;level&rdquo; is the range reachable with one more jump.</P>
@@ -218,6 +182,22 @@ def fractional_knapsack(items, capacity):      # items: (value, weight)
           { q: "Coins [1, 3, 4], amount 6. Greedy (largest first) uses how many coins?", options: ["2", "3", "4", "6"], answer: 1, explain: "4 + 1 + 1 = 3 coins, but 3 + 3 = 2 coins is optimal. Greedy fails here, so use DP." },
           { q: "Activity selection sorts by…", options: ["Start time", "Duration", "End time", "Number of overlaps"], answer: 2, explain: "Finishing earliest leaves the most room for the remaining activities." },
           { q: "In Gas Station, when the tank goes negative at station i, the next start candidate is…", options: ["0", "i", "i + 1", "start + 1"], answer: 2, explain: "No start between the old start and i can make it past i, so try i + 1." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="greedy"
+        prompts={[
+          "What two properties must a problem have for a greedy algorithm to be correct?",
+          "Explain the exchange argument for activity selection.",
+          "How do you decide between greedy and dynamic programming?",
+        ]}
+        checklist={[
+          "The greedy-choice property and optimal substructure",
+          "Activity selection: sort by earliest end and take each compatible interval",
+          "Exchange: replacing an optimal answer's first interval with the earliest-ending one keeps it optimal",
+          "Try to break the rule with a small counterexample before trusting it",
+          "If a counterexample exists, the problem probably needs DP",
         ]}
       />
 

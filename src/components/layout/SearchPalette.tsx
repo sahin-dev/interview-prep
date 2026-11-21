@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 const pages = [
   { title: "Master curriculum", href: "/curriculum/", hint: "Fourteen-part knowledge map" },
   { title: "All topics", href: "/topics/", hint: "Browse & filter" },
+  { title: "Pattern templates", href: "/templates/", hint: "Canonical code + the decisions behind it" },
+  { title: "Which technique? flowchart", href: "/flowchart/", hint: "Answer questions, get a pattern" },
   { title: "Roadmap", href: "/roadmap/", hint: "Study plans" },
   { title: "Visualizers", href: "/visualizers/", hint: "Interactive animations" },
   { title: "Coding playground", href: "/playground/", hint: "Run code in your browser" },

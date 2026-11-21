@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, PatternTemplate, ExplainBack, Trace } from "@/components/content";
 import { SlidingWindowViz } from "@/components/viz/lazy";
 
 export default function SlidingWindow() {
@@ -21,51 +21,7 @@ export default function SlidingWindow() {
 
       <H2>Type 1: fixed-size window</H2>
       <P>The window always holds exactly k elements. Add the new right element, remove the element that just left on the left.</P>
-      <Code
-        python={String.raw`
-def max_sum_k(nums, k):
-    window = sum(nums[:k])
-    best = window
-    for r in range(k, len(nums)):
-        window += nums[r] - nums[r - k]     # add new, drop old
-        best = max(best, window)
-    return best
-`}
-        java={String.raw`
-int maxSumK(int[] nums, int k) {
-    int window = 0;
-    for (int i = 0; i < k; i++) window += nums[i];
-    int best = window;
-    for (int r = k; r < nums.length; r++) {
-        window += nums[r] - nums[r - k];
-        best = Math.max(best, window);
-    }
-    return best;
-}
-`}
-        cpp={String.raw`
-int maxSumK(const vector<int>& nums, int k) {
-    int window = accumulate(nums.begin(), nums.begin() + k, 0), best = window;
-    for (int r = k; r < (int)nums.size(); r++) {
-        window += nums[r] - nums[r - k];
-        best = max(best, window);
-    }
-    return best;
-}
-`}
-        js={String.raw`
-function maxSumK(nums, k) {
-  let window = 0;
-  for (let i = 0; i < k; i++) window += nums[i];
-  let best = window;
-  for (let r = k; r < nums.length; r++) {
-    window += nums[r] - nums[r - k];
-    best = Math.max(best, window);
-  }
-  return best;
-}
-`}
-      />
+      <PatternTemplate id="sliding-window-fixed" />
 
       <H2>Type 2: variable-size window (the universal template)</H2>
       <Steps>
@@ -73,6 +29,29 @@ function maxSumK(nums, k) {
         <div><strong>Shrink</strong>: while the window is invalid, remove <code>s[l]</code> from the state and move <code>l</code> right.</div>
         <div><strong>Record</strong>: the window is now valid, so update the answer (often <code>r − l + 1</code>).</div>
       </Steps>
+      <Callout type="key" title="The invariant">
+        After the shrink loop, <code>[left, right]</code> is the <em>longest</em> valid window that ends at{" "}
+        <code>right</code>. <code>left</code> only moves when it must, and it never needs to move back: a window that
+        was invalid stays invalid when you extend it to the right. That&apos;s the monotonicity a sliding window needs.
+      </Callout>
+      <PatternTemplate id="sliding-window-longest" />
+      <Trace
+        head={["right", "s[right]", "shrink?", "window", "best"]}
+        rows={[
+          ["0", "a", "no", "a", "1"],
+          ["1", "b", "no", "ab", "2"],
+          ["2", "c", "no", "abc", "3"],
+          ["3", "a", "a appears twice: drop s[0]", "bca", "3"],
+          ["4", "b", "drop s[1]", "cab", "3"],
+          ["5", "c", "drop s[2]", "abc", "3"],
+          ["6", "b", "drop s[3], s[4]", "cb", "3"],
+          ["7", "b", "drop s[5], s[6]", "b", "3"],
+        ]}
+        highlight={[2]}
+        caption='s = "abcabcbb". left moves 7 times in total and right moves 8 times: O(n) even with the inner loop.'
+      />
+      <H3>Same skeleton: at most k distinct characters</H3>
+      <P>Only the window state and the invalid condition change. The state is a count map, and the window is invalid when it holds more than k keys:</P>
       <Code
         title="Longest substring with at most k distinct characters"
         python={String.raw`
@@ -143,21 +122,7 @@ function longestKDistinct(s, k) {
         <strong>shortest</strong> valid window, shrink <em>while valid</em> and record inside the loop, before each
         shrink step.
       </Callout>
-      <Code
-        title="Shortest subarray with sum ≥ target (positive numbers)"
-        python={String.raw`
-def min_subarray_len(target, nums):
-    l = total = 0
-    best = float('inf')
-    for r, x in enumerate(nums):
-        total += x
-        while total >= target:              # valid: try to shrink
-            best = min(best, r - l + 1)
-            total -= nums[l]
-            l += 1
-    return 0 if best == float('inf') else best
-`}
-      />
+      <PatternTemplate id="sliding-window-shortest" />
 
       <H2>Type 3: the &ldquo;exactly K&rdquo; trick</H2>
       <P>
@@ -345,6 +310,22 @@ def find_anagrams(s, p):
           { q: "Why is the variable sliding window O(n) despite the inner while-loop?", options: ["The inner loop runs at most once", "l only moves forward, at most n times in total", "It uses binary search", "It isn't O(n)"], answer: 1, explain: "Both l and r only move right, so total work is at most 2n steps." },
           { q: "Longest subarray with sum ≤ k when the array has negative numbers. Sliding window?", options: ["Works fine", "Doesn't work, since shrinking may not restore validity", "Works if sorted first", "Only for k > 0"], answer: 1, explain: "With negatives, adding elements can decrease the sum, so validity isn't monotonic." },
           { q: "exactly(K) distinct subarrays equals…", options: ["atMost(K) + atMost(K − 1)", "atMost(K) − atMost(K − 1)", "atLeast(K) − K", "atMost(K)²"], answer: 1, explain: "Subarrays with at most K distinct values, minus those with at most K − 1, leaves exactly K." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="sliding-window"
+        prompts={[
+          "Why is a variable-size window O(n) even though it has a loop inside a loop?",
+          "What's the difference between the longest-valid and shortest-valid templates?",
+          "When does a sliding window not work, and what do you use instead?",
+        ]}
+        checklist={[
+          "Each index enters once (right) and leaves at most once (left), so ≤ 2n moves",
+          "Longest: shrink while invalid, record after; shortest: shrink while valid, record inside",
+          "Requires monotonic validity: extending an invalid window keeps it invalid",
+          "Negative numbers with a sum condition break it: use prefix sums + hash map",
+          "Exactly K = atMost(K) − atMost(K − 1)",
         ]}
       />
 

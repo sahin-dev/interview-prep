@@ -13,7 +13,7 @@ export const lessonMeta: Record<string, LessonMeta> = {
   /* ------------------------------ 0. Strategy ------------------------------ */
   "how-faang-interviews-work": {
     prereqs: [],
-    related: ["problem-solving-framework", "study-roadmaps", "communication-while-coding", "system-design-framework", "star-method"],
+    related: ["problem-solving-framework", "online-assessments", "study-roadmaps", "communication-while-coding", "system-design-framework", "star-method"],
     uses: ["Planning your preparation time per round type", "Knowing what each interviewer writes in their feedback", "Asking your recruiter the right questions about the loop"],
     takeaways: [
       "Loops are coding + behavioral for juniors; system design is added from mid-level and dominates at senior levels.",
@@ -61,6 +61,17 @@ export const lessonMeta: Record<string, LessonMeta> = {
       "Silence is the worst signal. Narrate what you're considering, even dead ends.",
       "Treat hints as collaboration: acknowledge, explain how they change your plan, move on.",
       "Finding your own bug and fixing it calmly is a positive signal.",
+    ],
+  },
+  "online-assessments": {
+    prereqs: ["problem-solving-framework", "big-o"],
+    related: ["pattern-recognition", "how-faang-interviews-work", "simulation", "language-toolkits"],
+    uses: ["Passing the first technical filter at most large companies", "Timed coding rounds and contests", "Testing your own code when nobody reviews it"],
+    takeaways: [
+      "Hidden tests decide the score, often with partial credit: a correct brute force beats a buggy optimal solution.",
+      "Read the constraints first; they're the specification for the complexity you need.",
+      "Skim every problem, start with the easiest, and submit early and often.",
+      "Stress-test against a brute force on tiny random inputs to find hidden-test bugs.",
     ],
   },
 
@@ -282,7 +293,7 @@ export const lessonMeta: Record<string, LessonMeta> = {
   },
   intervals: {
     prereqs: ["sorting"],
-    related: ["greedy", "heaps", "prefix-sums", "two-pointers", "segment-trees"],
+    related: ["line-sweep", "greedy", "heaps", "prefix-sums", "two-pointers", "segment-trees"],
     uses: ["Calendar and meeting room scheduling", "Merging time ranges in logs and monitoring", "Memory allocation and IP address ranges", "Genomics (overlapping gene ranges)"],
     takeaways: [
       "Sort by start for merging; sort by end for maximum non-overlapping selection.",
@@ -1256,7 +1267,7 @@ export const lessonMeta: Record<string, LessonMeta> = {
   },
   matrix: {
     prereqs: ["arrays"],
-    related: ["bfs", "dfs", "dp-grid", "binary-search", "prefix-sums"],
+    related: ["simulation", "bfs", "dfs", "dp-grid", "binary-search", "prefix-sums"],
     uses: ["Image processing (rotation, flood fill)", "Game boards and grid simulations", "Spreadsheets and 2D range queries"],
     takeaways: [
       "Flatten (r, c) as r·C + c; check bounds before indexing neighbors.",
@@ -1495,6 +1506,28 @@ export const lessonMeta: Record<string, LessonMeta> = {
       "Reservoir sampling keeps item i with probability k/i.",
       "Weighted pick: prefix sums + binary search.",
       "Array + hash map with swap-and-pop gives O(1) insert, delete and getRandom.",
+    ],
+  },
+  "line-sweep": {
+    prereqs: ["intervals", "sorting"],
+    related: ["intervals", "greedy", "prefix-sums", "heaps", "segment-trees"],
+    uses: ["Capacity planning: peak concurrent sessions, rooms, servers", "Calendar and booking systems", "Rendering skylines and computing covered areas in graphics and GIS"],
+    takeaways: [
+      "The active count only changes at starts and ends, so sort 2n events and sweep with a counter.",
+      "Decide the tie-break first: half-open intervals process ends before starts at equal times.",
+      "Swap the counter for a heap when you need which interval, or the largest active value.",
+      "Small integer timelines can use a difference array instead of sorting.",
+    ],
+  },
+  simulation: {
+    prereqs: ["arrays", "matrix"],
+    related: ["matrix", "heaps", "online-assessments", "bit-manipulation", "hash-tables"],
+    uses: ["Game engines and physics steps", "Schedulers and discrete-event simulators", "Cellular automata and grid-based tools"],
+    takeaways: [
+      "Write the exact state, then the rules as one step function applied in the stated order.",
+      "Direction vectors and turn formulas remove whole classes of bugs.",
+      "Simultaneous updates need a copy, or two states packed into one value.",
+      "Huge step counts with few states: detect the cycle and skip full laps; idle time: jump to the next event.",
     ],
   },
   "dp-bitmask": {

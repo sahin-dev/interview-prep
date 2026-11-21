@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { TreeTraversalViz } from "@/components/viz/lazy";
 
 export default function TreeBFS() {
@@ -20,80 +20,7 @@ export default function TreeBFS() {
 
       <H2>The level-by-level template</H2>
       <P>The trick is <code>for _ in range(len(queue))</code>: at the start of each loop the queue holds exactly one full level.</P>
-      <Code
-        python={String.raw`
-from collections import deque
-
-def level_order(root):
-    if not root:
-        return []
-    res, q = [], deque([root])
-    while q:
-        level = []
-        for _ in range(len(q)):            # snapshot size = this level only
-            node = q.popleft()
-            level.append(node.val)
-            if node.left:  q.append(node.left)
-            if node.right: q.append(node.right)
-        res.append(level)
-    return res
-`}
-        java={String.raw`
-List<List<Integer>> levelOrder(TreeNode root) {
-    List<List<Integer>> res = new ArrayList<>();
-    if (root == null) return res;
-    Queue<TreeNode> q = new ArrayDeque<>(List.of(root));
-    while (!q.isEmpty()) {
-        int size = q.size();
-        List<Integer> level = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            TreeNode node = q.poll();
-            level.add(node.val);
-            if (node.left != null) q.offer(node.left);
-            if (node.right != null) q.offer(node.right);
-        }
-        res.add(level);
-    }
-    return res;
-}
-`}
-        cpp={String.raw`
-vector<vector<int>> levelOrder(TreeNode* root) {
-    vector<vector<int>> res;
-    if (!root) return res;
-    queue<TreeNode*> q;
-    q.push(root);
-    while (!q.empty()) {
-        int size = q.size();
-        vector<int> level;
-        while (size--) {
-            TreeNode* node = q.front(); q.pop();
-            level.push_back(node->val);
-            if (node->left) q.push(node->left);
-            if (node->right) q.push(node->right);
-        }
-        res.push_back(level);
-    }
-    return res;
-}
-`}
-        js={String.raw`
-function levelOrder(root) {
-  const res = [];
-  let level = root ? [root] : [];
-  while (level.length) {
-    res.push(level.map((n) => n.val));
-    const next = [];
-    for (const n of level) {
-      if (n.left) next.push(n.left);
-      if (n.right) next.push(n.right);
-    }
-    level = next;
-  }
-  return res;
-}
-`}
-      />
+      <PatternTemplate id="tree-bfs" />
 
       <H2>Variations on the same loop</H2>
       <Table
@@ -241,6 +168,22 @@ def distance_k(root, target, k):
         <code>node.children</code>, or over a graph&apos;s neighbors plus a visited set. That&apos;s exactly{" "}
         <a href="/topics/bfs/">graph BFS</a>.
       </P>
+
+      <ExplainBack
+        slug="tree-bfs"
+        prompts={[
+          "How does the template know where one level ends and the next begins?",
+          "Why is BFS better than DFS for minimum depth?",
+          "How would you return the right side view of a tree?",
+        ]}
+        checklist={[
+          "Freeze len(queue) at the start of each round",
+          "The inner loop pops exactly that many nodes: one level",
+          "BFS reaches nodes in order of depth, so it can stop at the first leaf",
+          "Right side view: the last node popped in each level",
+          "O(n) time, O(width) space",
+        ]}
+      />
 
       <H2>Solve it in the browser</H2>
       <Practice ids={["level-order-traversal", "zigzag-level-order", "right-side-view", "max-width-binary-tree"]} />

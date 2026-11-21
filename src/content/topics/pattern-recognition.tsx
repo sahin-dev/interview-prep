@@ -99,6 +99,10 @@ export default function PatternRecognition() {
 
       <H2>Step 3: walk the decision tree</H2>
       <P>Use this when keywords aren&apos;t obvious. It&apos;s not perfect, but it gets you to a strong first candidate.</P>
+      <Callout type="tip" title="Interactive version">
+        The <a href="/flowchart/">flowchart</a> asks these questions one at a time, goes deeper on arrays, graphs and DP,
+        and ends with the precondition to check plus links to the lesson and the <a href="/templates/">template</a>.
+      </Callout>
       <div className="not-prose my-6 overflow-x-auto">
         <TreeView node={tree} />
       </div>

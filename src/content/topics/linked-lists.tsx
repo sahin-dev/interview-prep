@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, ExplainBack } from "@/components/content";
 import { LinkedListViz } from "@/components/viz/lazy";
 
 export default function LinkedLists() {
@@ -498,6 +498,22 @@ function getIntersectionNode(headA, headB) {
           { q: "Why use a dummy head node?", options: ["It makes the list faster", "It removes special cases when the head changes", "It's required by Python", "It prevents cycles"], answer: 1, explain: "With a node before the head, deleting or inserting at the front looks exactly like any other position." },
           { q: "In Floyd's cycle detection, fast moves 2 and slow moves 1. If there's no cycle, what happens?", options: ["They meet at the middle", "fast reaches null", "Infinite loop", "slow reaches null first"], answer: 1, explain: "Without a cycle, fast simply runs off the end of the list." },
           { q: "Time and space to reverse a singly linked list iteratively?", options: ["O(n), O(n)", "O(n), O(1)", "O(n²), O(1)", "O(log n), O(1)"], answer: 1, explain: "One pass with three pointers and no extra structure." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="linked-lists"
+        prompts={[
+          "Why does a dummy head node simplify so many linked-list problems?",
+          "Which three pointers do you need to reverse a list, and in what order do they move?",
+          "Why must the fast pointer meet the slow pointer if there's a cycle?",
+        ]}
+        checklist={[
+          "The dummy removes the special case of changing the head",
+          "prev, curr, next: save next, point curr back at prev, then advance both",
+          "Inside a cycle the gap shrinks by one each step, so they meet within one lap",
+          "Check fast and fast.next before taking two steps",
+          "Compare node identity, not values",
         ]}
       />
 

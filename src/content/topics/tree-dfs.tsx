@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, PatternTemplate, ExplainBack, Example, Trace } from "@/components/content";
 import { TreeTraversalViz } from "@/components/viz/lazy";
 
 export default function TreeDFS() {
@@ -34,6 +34,122 @@ function dfs(node) {
   dfs(node.right);
   // post-order
 }
+`}
+      />
+
+      <H2>Think like a node: return values and state</H2>
+      <P>
+        Knowing the traversal orders isn&apos;t what makes tree problems easy. What does is a way to design the
+        recursion. Stand at a single node, pretend the recursive calls on your children already work (trust them), and
+        ask two questions:
+      </P>
+      <Steps>
+        <div>
+          <strong>What do I return to my parent?</strong> Define it in one sentence: &ldquo;the height of my
+          subtree&rdquo;, &ldquo;whether my subtree is a valid BST&rdquo;, &ldquo;the number of good nodes below me&rdquo;.
+          This information flows <em>up</em>.
+        </div>
+        <div>
+          <strong>What do I need from my ancestors?</strong> Anything that depends on the path from the root, such as
+          the maximum value so far, the remaining sum, or the allowed value range. Pass it <em>down</em> as a parameter.
+        </div>
+      </Steps>
+      <P>
+        Then write two things: the answer for an empty tree (the base case), and how to combine your value with your
+        children&apos;s answers. That&apos;s the whole function.
+      </P>
+      <Table
+        head={["The answer depends on…", "Information flows", "Examples"]}
+        rows={[
+          ["Your children's results", "Up, through return values (post-order)", "Max depth, size, is it balanced, invert tree"],
+          ["Your ancestors on the path", "Down, through parameters (pre-order)", "Count good nodes, path sum, validate BST with (low, high) bounds"],
+          ["Both: the best path passes through you, but you return only one branch", "Return up + update a global", "Diameter, binary tree max path sum"],
+        ]}
+      />
+      <PatternTemplate id="tree-dfs" />
+
+      <Example
+        title="Count Good Nodes in Binary Tree"
+        level="Medium"
+        lc="count-good-nodes-in-binary-tree"
+        examples={[{ input: "root = [3,1,4,3,null,1,5]", output: "4", note: "The root 3, the 3 under 1, and the 4 and 5 on the right. No node on their root path is bigger." }]}
+      >
+        <p>A node is <em>good</em> if no node on the path from the root to it has a greater value. Count the good nodes.</p>
+      </Example>
+      <P>
+        Whether a node is good depends on its <em>ancestors</em>, so the maximum seen so far is passed down. The count
+        depends on the <em>children</em>, so it&apos;s returned up. Both directions are in one function, which is the
+        second half of the template above.
+      </P>
+      <Trace
+        head={["Visit", "max_so_far received", "good?", "max passed to children"]}
+        rows={[
+          ["3 (root)", "−∞", "yes", "3"],
+          ["1", "3", "no (1 < 3)", "3"],
+          ["3 (under 1)", "3", "yes (3 ≥ 3)", "3"],
+          ["4", "3", "yes", "4"],
+          ["1 (under 4)", "4", "no", "4"],
+          ["5", "4", "yes", "5"],
+        ]}
+        caption="Each call returns good + left count + right count; the root returns 4."
+      />
+      <H3>Both directions at once: diameter</H3>
+      <P>
+        The diameter is the longest path between any two nodes. It may bend at some node, going down the left and down
+        the right. But a parent can only extend <em>one</em> of those branches. So the function <strong>returns</strong>{" "}
+        the height (what the parent can use) and <strong>updates a global</strong> with the bent path (the candidate
+        answer).
+      </P>
+      <Code
+        python={String.raw`
+def diameter_of_binary_tree(root):
+    best = 0
+    def height(node):                     # returns: the number of nodes on my longest downward path
+        nonlocal best
+        if node is None:
+            return 0
+        left, right = height(node.left), height(node.right)
+        best = max(best, left + right)    # the longest path bending at me, in edges
+        return 1 + max(left, right)       # my parent can extend only one branch
+    height(root)
+    return best
+`}
+        java={String.raw`
+int best = 0;
+
+int diameterOfBinaryTree(TreeNode root) {
+    height(root);
+    return best;
+}
+
+int height(TreeNode node) {
+    if (node == null) return 0;
+    int left = height(node.left), right = height(node.right);
+    best = Math.max(best, left + right);   // the path bending here
+    return 1 + Math.max(left, right);      // one branch for the parent
+}
+`}
+      />
+      <H3>Encode failure in the return value: balanced tree</H3>
+      <P>
+        A tree is balanced if, at every node, the subtree heights differ by at most 1. Computing the height separately
+        at each node is O(n²). Instead, return the height <em>or −1 for &ldquo;already unbalanced&rdquo;</em>, which turns
+        it into one O(n) pass.
+      </P>
+      <Code
+        python={String.raw`
+def is_balanced(root):
+    def height(node):                    # height, or -1 if this subtree is unbalanced
+        if node is None:
+            return 0
+        left = height(node.left)
+        if left == -1:
+            return -1                    # stop early: the answer is already "no"
+        right = height(node.right)
+        if right == -1 or abs(left - right) > 1:
+            return -1
+        return 1 + max(left, right)
+    return height(root) != -1
 `}
       />
 
@@ -297,6 +413,23 @@ def all_paths(root):
         questions={[
           { q: "Iterative pre-order pushes which child first?", options: ["Left", "Right", "Either", "Neither: use a queue"], answer: 1, explain: "Pushing right first means left is popped (processed) first." },
           { q: "Morris traversal achieves O(1) space by…", options: ["Using a queue", "Temporarily rewiring predecessor pointers", "Recursion", "Hashing visited nodes"], answer: 1, explain: "Threads from predecessors back to ancestors replace the stack, then get removed." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="tree-dfs"
+        prompts={[
+          "What are the two questions you ask at a single node when designing a tree recursion?",
+          "Why does the diameter solution return one value but record another?",
+          "When must information be passed down instead of returned up?",
+        ]}
+        checklist={[
+          "Trust the recursive calls on the children; reason about one node only",
+          "Return value = the answer for my subtree, defined in one sentence; it flows up",
+          "Parameters = what depends on the path from the root; they flow down",
+          "Base case: the value for an empty tree that makes the combine step work",
+          "Diameter/max path: return the best single branch, update a global with the bent path",
+          "O(n) time, O(h) stack; skewed trees can overflow recursion",
         ]}
       />
 

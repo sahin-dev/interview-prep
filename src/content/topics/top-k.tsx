@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { HeapViz } from "@/components/viz/lazy";
 
 export default function TopK() {
@@ -28,18 +28,11 @@ export default function TopK() {
         top-K, which is exactly the one to kick out when something bigger arrives. The heap never grows beyond K.
       </Callout>
       <HeapViz />
+      <PatternTemplate id="top-k-heap" />
+      <P>Two refinements: <code>heapreplace</code> pops and pushes in one step, and negating the key turns the same min-heap into a max-heap, which keeps the k <em>closest</em> points:</P>
       <Code
         python={String.raw`
 import heapq
-
-def k_largest(nums, k):
-    heap = []
-    for x in nums:
-        if len(heap) < k:
-            heapq.heappush(heap, x)
-        elif x > heap[0]:
-            heapq.heapreplace(heap, x)     # pop smallest + push x, in one step
-    return heap                            # heap[0] is the k-th largest
 
 # K closest points to origin: keep a MAX-heap (negated distances) of size k
 def k_closest(points, k):
@@ -51,38 +44,6 @@ def k_closest(points, k):
         elif d > heap[0][0]:
             heapq.heapreplace(heap, (d, x, y))
     return [[x, y] for _, x, y in heap]
-`}
-        java={String.raw`
-int kthLargest(int[] nums, int k) {
-    PriorityQueue<Integer> heap = new PriorityQueue<>();   // min-heap
-    for (int x : nums) {
-        heap.offer(x);
-        if (heap.size() > k) heap.poll();
-    }
-    return heap.peek();
-}
-`}
-        cpp={String.raw`
-int kthLargest(vector<int>& nums, int k) {
-    priority_queue<int, vector<int>, greater<int>> heap;   // min-heap
-    for (int x : nums) {
-        heap.push(x);
-        if ((int)heap.size() > k) heap.pop();
-    }
-    return heap.top();
-}
-// Or: nth_element(nums.begin(), nums.begin() + k - 1, nums.end(), greater<int>());
-`}
-        js={String.raw`
-// Using the MinHeap class from the Heaps lesson
-function kthLargest(nums, k) {
-  const h = new MinHeap();
-  for (const x of nums) {
-    h.push(x);
-    if (h.size > k) h.pop();
-  }
-  return h.peek();
-}
 `}
       />
 
@@ -218,6 +179,22 @@ def kth_smallest(matrix, k):
         questions={[
           { q: "Streaming a billion numbers, keep the 100 smallest. Which heap?", options: ["Min-heap of all numbers", "Max-heap of size 100", "Min-heap of size 100", "No heap: sort"], answer: 1, explain: "For K smallest, use a max-heap of size K so you can evict the largest of your current candidates." },
           { q: "Quickselect's average time complexity?", options: ["O(log n)", "O(n)", "O(n log n)", "O(n²)"], answer: 1, explain: "It recurses into only one partition: n + n/2 + n/4 + … ≈ 2n." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="top-k"
+        prompts={[
+          "Why do you use a min-heap to find the k largest elements?",
+          "Compare the heap approach with sorting and with quickselect.",
+          "How would you merge k sorted lists?",
+        ]}
+        checklist={[
+          "The heap's top is the weakest of the current top k, so it's the one to evict",
+          "Heap: O(n log k) time, O(k) space, and it works on a stream",
+          "Sorting: O(n log n); quickselect: O(n) on average but O(n²) worst case, and needs all the data",
+          "K-way merge: a min-heap holding the current head of each list",
+          "Non-comparable items need a tie-breaker in the heap entries",
         ]}
       />
 

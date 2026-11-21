@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { IntervalsViz } from "@/components/viz/lazy";
 
 export default function Intervals() {
@@ -22,56 +22,7 @@ export default function Intervals() {
       <IntervalsViz />
 
       <H2>Pattern 1: merge overlapping intervals</H2>
-      <Code
-        python={String.raw`
-def merge(intervals):
-    intervals.sort(key=lambda x: x[0])
-    merged = []
-    for s, e in intervals:
-        if merged and s <= merged[-1][1]:          # overlaps the last one
-            merged[-1][1] = max(merged[-1][1], e)  # extend it
-        else:
-            merged.append([s, e])
-    return merged
-`}
-        java={String.raw`
-int[][] merge(int[][] intervals) {
-    Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));
-    List<int[]> merged = new ArrayList<>();
-    for (int[] iv : intervals) {
-        if (!merged.isEmpty() && iv[0] <= merged.get(merged.size() - 1)[1]) {
-            int[] last = merged.get(merged.size() - 1);
-            last[1] = Math.max(last[1], iv[1]);
-        } else merged.add(iv);
-    }
-    return merged.toArray(new int[0][]);
-}
-`}
-        cpp={String.raw`
-vector<vector<int>> merge(vector<vector<int>>& iv) {
-    sort(iv.begin(), iv.end());
-    vector<vector<int>> merged;
-    for (auto& x : iv) {
-        if (!merged.empty() && x[0] <= merged.back()[1])
-            merged.back()[1] = max(merged.back()[1], x[1]);
-        else merged.push_back(x);
-    }
-    return merged;
-}
-`}
-        js={String.raw`
-function merge(intervals) {
-  intervals.sort((a, b) => a[0] - b[0]);
-  const merged = [];
-  for (const [s, e] of intervals) {
-    const last = merged[merged.length - 1];
-    if (last && s <= last[1]) last[1] = Math.max(last[1], e);
-    else merged.push([s, e]);
-  }
-  return merged;
-}
-`}
-      />
+      <PatternTemplate id="merge-intervals" />
 
       <H2>Pattern 2: insert into a sorted list</H2>
       <P>Three phases in one pass: copy intervals that end before the new one starts, merge everything that overlaps it, then copy the rest. O(n), no sorting needed.</P>
@@ -95,6 +46,10 @@ def insert(intervals, new):
         &ldquo;How many rooms are needed?&rdquo; = the maximum number of meetings happening at the same moment. Two
         equivalent solutions:
       </P>
+      <Callout type="tip" title="Going deeper">
+        The sweep-line idea goes well beyond meeting rooms: capacity checks, covered length, the skyline and rectangle
+        areas. It has its own lesson, <a href="/topics/line-sweep/">Line Sweep</a>, with tie-breaking rules and a template.
+      </Callout>
       <H3>Min-heap of end times</H3>
       <Code
         python={String.raw`
@@ -284,6 +239,23 @@ class MyCalendar {
           { q: "Merging [1,10] then [2,3] with merged[-1][1] = e (no max) gives…", options: ["[1,10]", "[1,3]: wrong", "[2,10]", "Two intervals"], answer: 1, explain: "Without max, a fully contained interval shrinks the merged end. Always take max(end, e)." },
           { q: "To keep the most non-overlapping intervals, sort by…", options: ["Start time", "End time", "Length", "Random"], answer: 1, explain: "Picking the earliest finishing interval leaves the most room for the remaining ones (exchange argument)." },
           { q: "Meeting rooms with a min-heap: what does the heap store?", options: ["Start times", "End times of rooms in use", "Meeting lengths", "Room numbers"], answer: 1, explain: "The root is the room that frees up earliest; reuse it if it ends before the next meeting starts." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="intervals"
+        prompts={[
+          "Why does sorting by start time make merging a single pass?",
+          "Write the condition for two closed intervals to overlap.",
+          "Which interval questions need a sweep or a heap instead of merging?",
+        ]}
+        checklist={[
+          "After sorting by start, an interval can only overlap the last one kept",
+          "Closed intervals overlap when a.start <= b.end and b.start <= a.end",
+          "Extend with max(last end, end) because of nested intervals",
+          "Max simultaneous overlap: a line sweep or a min-heap of end times",
+          "Keep the most non-overlapping: greedy by earliest end",
+          "Decide closed vs half-open before coding",
         ]}
       />
 

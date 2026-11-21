@@ -7,6 +7,8 @@ export function Footer() {
         <span>FAANG Prep — a complete, free interview handbook.</span>
         <div className="flex gap-4">
           <Link href="/topics/" className="hover:text-fg">Topics</Link>
+          <Link href="/templates/" className="hover:text-fg">Templates</Link>
+          <Link href="/flowchart/" className="hover:text-fg">Flowchart</Link>
           <Link href="/roadmap/" className="hover:text-fg">Roadmap</Link>
           <Link href="/cheatsheets/" className="hover:text-fg">Cheat sheets</Link>
         </div>

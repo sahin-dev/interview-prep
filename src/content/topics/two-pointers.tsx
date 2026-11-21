@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, PatternTemplate, ExplainBack, Trace } from "@/components/content";
 import { TwoPointersViz } from "@/components/viz/lazy";
 
 export default function TwoPointers() {
@@ -19,61 +19,46 @@ export default function TwoPointers() {
 
       <TwoPointersViz />
 
+      <H2>The invariant: why two pointers is allowed to skip pairs</H2>
+      <P>
+        A nested loop checks all n² pairs. Two pointers checks n of them and still never misses the answer. That&apos;s
+        only safe because of an <strong>invariant</strong>, a statement that is true before every step:
+      </P>
+      <Callout type="key" title="Opposite-ends invariant">
+        If an answer exists, both of its elements are inside <code>[left, right]</code>.
+      </Callout>
+      <P>
+        Each move must keep the invariant true. For a sorted pair-sum, if <code>nums[left] + nums[right]</code> is too
+        small, then <code>nums[left]</code> plus <em>any</em> remaining partner is too small, because{" "}
+        <code>nums[right]</code> is the largest one left. So <code>nums[left]</code> can&apos;t be in any answer, and
+        dropping it keeps the invariant. When you can&apos;t state the invariant for a problem, that&apos;s a strong sign
+        two pointers doesn&apos;t apply.
+      </P>
+      <Table
+        head={["Shape", "Invariant", "Move rule"]}
+        rows={[
+          ["Opposite ends (pair sum)", "Any answer lies inside [left, right]", "Drop the end that provably can't be in an answer"],
+          ["Read / write (compaction)", "nums[0:write] is the finished answer for nums[0:read]", "Copy nums[read] to write when it should be kept"],
+          ["Fast / slow (linked list)", "fast has moved exactly twice as far as slow", "slow += 1, fast += 2"],
+          ["Three-way partition (Dutch flag)", "[0, lo) < pivot, [lo, mid) = pivot, (hi, end] > pivot", "Swap into the right region; don't advance mid after a swap from hi"],
+          ["Two sequences", "Everything before i and j is fully processed", "Advance the pointer whose element is smaller"],
+        ]}
+      />
+
       <H2>Pattern 1: opposite ends (converging)</H2>
       <P>Start at both ends and move inward. Each step eliminates one element for good, so it&apos;s O(n) total.</P>
-      <Code
-        python={String.raw`
-def pair_with_sum(nums, target):            # nums is sorted
-    l, r = 0, len(nums) - 1
-    while l < r:
-        s = nums[l] + nums[r]
-        if s == target:
-            return [l, r]
-        if s < target:
-            l += 1        # need a bigger sum: only moving l right can help
-        else:
-            r -= 1        # need a smaller sum
-    return []
-`}
-        java={String.raw`
-int[] pairWithSum(int[] nums, int target) {
-    int l = 0, r = nums.length - 1;
-    while (l < r) {
-        int s = nums[l] + nums[r];
-        if (s == target) return new int[]{l, r};
-        if (s < target) l++;
-        else r--;
-    }
-    return new int[0];
-}
-`}
-        cpp={String.raw`
-vector<int> pairWithSum(const vector<int>& nums, int target) {
-    int l = 0, r = (int)nums.size() - 1;
-    while (l < r) {
-        int s = nums[l] + nums[r];
-        if (s == target) return {l, r};
-        if (s < target) l++; else r--;
-    }
-    return {};
-}
-`}
-        js={String.raw`
-function pairWithSum(nums, target) {
-  let l = 0, r = nums.length - 1;
-  while (l < r) {
-    const s = nums[l] + nums[r];
-    if (s === target) return [l, r];
-    if (s < target) l++; else r--;
-  }
-  return [];
-}
-`}
+      <PatternTemplate id="two-pointers-opposite" />
+      <Trace
+        head={["left", "right", "nums[left] + nums[right]", "Decision"]}
+        rows={[
+          ["0 (1)", "5 (15)", "16", "too big: 15 can't pair with anything ≥ 1, so right −= 1"],
+          ["0 (1)", "4 (11)", "12", "too small: 1 can't pair with anything ≤ 11, so left += 1"],
+          ["1 (2)", "4 (11)", "13", "too small, so left += 1"],
+          ["2 (4)", "4 (11)", "15", "found: return [2, 4]"],
+        ]}
+        highlight={[3]}
+        caption="nums = [1, 2, 4, 7, 11, 15], target = 15. Four checks instead of fifteen pairs."
       />
-      <Callout type="key" title="Why is it safe to discard?">
-        If <code>nums[l] + nums[r] &lt; target</code>, then <code>nums[l]</code> paired with <em>any</em> element left
-        of r is even smaller, so <code>nums[l]</code> can never be part of the answer. We lose nothing by moving l.
-      </Callout>
 
       <H3>Container with most water: same idea, different rule</H3>
       <P>The area is limited by the shorter line. Moving the taller line inward can never help (the width shrinks and the height can&apos;t exceed the shorter line), so always move the shorter one.</P>
@@ -91,52 +76,28 @@ def max_area(height):
 `}
       />
 
-      <H2>Pattern 2: same direction (fast and slow)</H2>
-      <P>A <strong>slow</strong> pointer marks where the next &ldquo;kept&rdquo; element goes; a <strong>fast</strong> pointer reads every element. This is how you filter or compact an array in place with O(1) space.</P>
+      <H2>Pattern 2: same direction (read and write)</H2>
+      <P>A <strong>write</strong> pointer marks where the next &ldquo;kept&rdquo; element goes; a <strong>read</strong> pointer visits every element. This is how you filter or compact an array in place with O(1) space. (The other same-direction shape, fast and slow pointers on a linked list, is in the <a href="/topics/linked-lists/">linked lists</a> lesson.)</P>
+      <PatternTemplate id="two-pointers-same-direction" />
+      <P>Move Zeroes is the same skeleton with a different keep rule, plus a swap so the zeros end up at the back:</P>
       <Code
         python={String.raw`
-def remove_duplicates(nums):            # sorted input, keep one of each
-    if not nums:
-        return 0
-    slow = 0
-    for fast in range(1, len(nums)):
-        if nums[fast] != nums[slow]:
-            slow += 1
-            nums[slow] = nums[fast]
-    return slow + 1
-
-def move_zeroes(nums):                  # keep order of non-zeros
-    slow = 0
-    for fast in range(len(nums)):
-        if nums[fast] != 0:
-            nums[slow], nums[fast] = nums[fast], nums[slow]
-            slow += 1
-`}
-        java={String.raw`
-int removeDuplicates(int[] nums) {
-    if (nums.length == 0) return 0;
-    int slow = 0;
-    for (int fast = 1; fast < nums.length; fast++)
-        if (nums[fast] != nums[slow]) nums[++slow] = nums[fast];
-    return slow + 1;
-}
-`}
-        cpp={String.raw`
-int removeDuplicates(vector<int>& nums) {
-    if (nums.empty()) return 0;
-    int slow = 0;
-    for (int fast = 1; fast < (int)nums.size(); fast++)
-        if (nums[fast] != nums[slow]) nums[++slow] = nums[fast];
-    return slow + 1;
-}
+def move_zeroes(nums):                  # keep the order of the non-zeros
+    write = 0
+    for read in range(len(nums)):
+        if nums[read] != 0:
+            nums[write], nums[read] = nums[read], nums[write]
+            write += 1
 `}
         js={String.raw`
-function removeDuplicates(nums) {
-  if (!nums.length) return 0;
-  let slow = 0;
-  for (let fast = 1; fast < nums.length; fast++)
-    if (nums[fast] !== nums[slow]) nums[++slow] = nums[fast];
-  return slow + 1;
+function moveZeroes(nums) {
+  let write = 0;
+  for (let read = 0; read < nums.length; read++) {
+    if (nums[read] !== 0) {
+      [nums[write], nums[read]] = [nums[read], nums[write]];
+      write++;
+    }
+  }
 }
 `}
       />
@@ -301,6 +262,22 @@ def intersect_sorted(a, b):
           { q: "In sorted pair-sum, nums[l] + nums[r] > target. What do you do?", options: ["l += 1", "r −= 1", "Both", "Restart"], answer: 1, explain: "The sum is too big, and moving r left is the only way to decrease it." },
           { q: "Time complexity of 3Sum with sorting + two pointers?", options: ["O(n)", "O(n log n)", "O(n²)", "O(n³)"], answer: 2, explain: "Sorting is O(n log n), then n anchors × an O(n) two-pointer scan = O(n²)." },
           { q: "In Container With Most Water, which pointer moves?", options: ["The taller line", "The shorter line", "Always the left", "Both"], answer: 1, explain: "The shorter line limits the area; moving the taller one can only shrink the width without raising the limit." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="two-pointers"
+        prompts={[
+          "Why can two pointers skip most pairs and still never miss the answer?",
+          "In sorted pair-sum, how do you decide which pointer to move?",
+          "What changes between the opposite-ends and the read/write shapes?",
+        ]}
+        checklist={[
+          "States the invariant: any answer stays inside [left, right]",
+          "Explains why one end can be dropped (it's too small or too big for every remaining partner)",
+          "Mentions that sortedness (or another order) is what makes the drop rule valid",
+          "Read/write: nums[0:write] is the finished prefix; write ≤ read so nothing needed is overwritten",
+          "O(n) time and O(1) extra space (plus O(n log n) if you have to sort)",
         ]}
       />
 

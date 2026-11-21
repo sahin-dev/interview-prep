@@ -17,6 +17,7 @@ export const loaders: Record<string, Loader> = {
   "pattern-recognition": () => import("./topics/pattern-recognition"),
   "study-roadmaps": () => import("./topics/study-roadmaps"),
   "communication-while-coding": () => import("./topics/communication-while-coding"),
+  "online-assessments": () => import("./topics/online-assessments"),
   // 1. Foundations
   "big-o": () => import("./topics/big-o"),
   recursion: () => import("./topics/recursion"),
@@ -154,6 +155,8 @@ export const loaders: Record<string, Loader> = {
   "sparse-table": () => import("./topics/sparse-table"),
   "probabilistic-structures": () => import("./topics/probabilistic-structures"),
   "randomized": () => import("./topics/randomized"),
+  "line-sweep": () => import("./topics/line-sweep"),
+  simulation: () => import("./topics/simulation"),
   "dp-bitmask": () => import("./topics/dp-bitmask"),
   "dp-digit-dag": () => import("./topics/dp-digit-dag"),
   "dp-optimizations": () => import("./topics/dp-optimizations"),

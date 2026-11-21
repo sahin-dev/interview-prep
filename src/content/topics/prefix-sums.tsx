@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { PrefixSumViz } from "@/components/viz/lazy";
 
 export default function PrefixSums() {
@@ -72,56 +72,7 @@ const rangeSum = (prefix, l, r) => prefix[r + 1] - prefix[l];
         <code>prefix[j] − prefix[i] = k</code>, i.e. <code>prefix[i] = prefix[j] − k</code>. So while scanning, keep a
         map of how many times each prefix value has appeared, and look up <code>current − k</code>.
       </P>
-      <Code
-        python={String.raw`
-def subarray_sum(nums, k):
-    seen = {0: 1}               # the empty prefix
-    total = count = 0
-    for x in nums:
-        total += x
-        count += seen.get(total - k, 0)
-        seen[total] = seen.get(total, 0) + 1
-    return count
-`}
-        java={String.raw`
-int subarraySum(int[] nums, int k) {
-    Map<Integer, Integer> seen = new HashMap<>();
-    seen.put(0, 1);
-    int total = 0, count = 0;
-    for (int x : nums) {
-        total += x;
-        count += seen.getOrDefault(total - k, 0);
-        seen.merge(total, 1, Integer::sum);
-    }
-    return count;
-}
-`}
-        cpp={String.raw`
-int subarraySum(vector<int>& nums, int k) {
-    unordered_map<int, int> seen{{0, 1}};
-    int total = 0, count = 0;
-    for (int x : nums) {
-        total += x;
-        auto it = seen.find(total - k);
-        if (it != seen.end()) count += it->second;
-        seen[total]++;
-    }
-    return count;
-}
-`}
-        js={String.raw`
-function subarraySum(nums, k) {
-  const seen = new Map([[0, 1]]);
-  let total = 0, count = 0;
-  for (const x of nums) {
-    total += x;
-    count += seen.get(total - k) || 0;
-    seen.set(total, (seen.get(total) || 0) + 1);
-  }
-  return count;
-}
-`}
-      />
+      <PatternTemplate id="prefix-sum-hashmap" />
       <H3>Variations of the same trick</H3>
       <P>Change what you store in the map and the same idea solves many problems:</P>
       <ul className="my-4 list-disc space-y-1.5 pl-6">
@@ -278,6 +229,23 @@ class Fenwick:
           { q: "a = [2, 4, 1, 3]. prefix = [0, 2, 6, 7, 10]. sum(a[1..2]) = ?", options: ["prefix[2] − prefix[1] = 4", "prefix[3] − prefix[1] = 5", "prefix[3] − prefix[0] = 7", "prefix[2] = 6"], answer: 1, explain: "prefix[r + 1] − prefix[l] = prefix[3] − prefix[1] = 7 − 2 = 5 (that's 4 + 1)." },
           { q: "Why does 'subarray sum equals k' need a hash map rather than a sliding window?", options: ["It's faster", "Values can be negative, so the window can't be shrunk safely", "Maps use less memory", "Sliding windows only work on strings"], answer: 1, explain: "With negatives, sum validity isn't monotonic in window size; the prefix + map trick doesn't care." },
           { q: "A difference array makes each range update…", options: ["O(n)", "O(log n)", "O(1)", "O(r − l)"], answer: 2, explain: "Two point writes per update, then one O(n) prefix pass at the end." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="prefix-sums"
+        prompts={[
+          "How do you get the sum of nums[i..j] in O(1)?",
+          "Why does Subarray Sum Equals K need a hash map, and why does the map start with {0: 1}?",
+          "When should you use a difference array instead?",
+        ]}
+        checklist={[
+          "prefix[j + 1] − prefix[i] is the sum of nums[i..j]",
+          "Count the earlier prefixes equal to prefix − k",
+          "{0: 1} is the empty prefix, so subarrays starting at index 0 are counted",
+          "Look up before inserting the current prefix",
+          "Works with negative numbers, unlike a sliding window",
+          "A difference array makes each range update O(1), then one prefix pass reads it",
         ]}
       />
 

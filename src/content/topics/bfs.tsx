@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, PatternTemplate, ExplainBack, Example, Trace } from "@/components/content";
 import { GraphAlgoViz, GridPathViz } from "@/components/viz/lazy";
 
 export default function BFS() {
@@ -20,79 +20,15 @@ export default function BFS() {
       <GraphAlgoViz algos={["bfs"]} />
 
       <H2>The template</H2>
-      <Code
-        python={String.raw`
-from collections import deque
-
-def bfs(adj, start):
-    dist = {start: 0}
-    q = deque([start])
-    while q:
-        u = q.popleft()
-        for v in adj[u]:
-            if v not in dist:              # mark when ENQUEUED, not when dequeued
-                dist[v] = dist[u] + 1
-                q.append(v)
-    return dist                            # shortest edge-count to every reachable node
-`}
-        java={String.raw`
-Map<Integer, Integer> bfs(List<List<Integer>> adj, int start) {
-    Map<Integer, Integer> dist = new HashMap<>();
-    Queue<Integer> q = new ArrayDeque<>();
-    dist.put(start, 0);
-    q.offer(start);
-    while (!q.isEmpty()) {
-        int u = q.poll();
-        for (int v : adj.get(u)) {
-            if (!dist.containsKey(v)) {
-                dist.put(v, dist.get(u) + 1);
-                q.offer(v);
-            }
-        }
-    }
-    return dist;
-}
-`}
-        cpp={String.raw`
-vector<int> bfs(const vector<vector<int>>& adj, int start) {
-    vector<int> dist(adj.size(), -1);
-    queue<int> q;
-    dist[start] = 0;
-    q.push(start);
-    while (!q.empty()) {
-        int u = q.front(); q.pop();
-        for (int v : adj[u]) {
-            if (dist[v] == -1) {
-                dist[v] = dist[u] + 1;
-                q.push(v);
-            }
-        }
-    }
-    return dist;
-}
-`}
-        js={String.raw`
-function bfs(adj, start) {
-  const dist = new Map([[start, 0]]);
-  const q = [start];
-  for (let head = 0; head < q.length; head++) {   // head index = O(1) dequeue
-    const u = q[head];
-    for (const v of adj[u]) {
-      if (!dist.has(v)) {
-        dist.set(v, dist.get(u) + 1);
-        q.push(v);
-      }
-    }
-  }
-  return dist;
-}
-`}
-      />
-      <Callout type="key" title="Mark visited when you enqueue">
-        If you mark nodes visited only when dequeued, the same node can be enqueued many times by different neighbors.
-        The answer stays correct, but it wastes time and memory, and can blow up on dense graphs.
-      </Callout>
-      <P><strong>Complexity:</strong> O(V + E) time and O(V) space with an adjacency list.</P>
+      <P>
+        One loop covers explicit graphs, grids and implicit graphs of states. Only the way you list a node&apos;s
+        neighbours changes.
+      </P>
+      <PatternTemplate id="graph-bfs" />
+      <P>
+        To get the distance to <em>every</em> reachable node instead of one target, drop the early return and return{" "}
+        <code>dist</code> at the end. That&apos;s O(V + E) time and O(V) space with an adjacency list.
+      </P>
 
       <H2>BFS on a grid</H2>
       <P>Cells are nodes; moving up/down/left/right are edges. Same template, with neighbors generated on the fly.</P>
@@ -124,6 +60,11 @@ def shortest_path_grid(grid, start, target):     # grid: 0 open, 1 wall
         its nearest source, in one pass. Rotting oranges, walls and gates, and &ldquo;distance to nearest 0&rdquo; all
         use this.
       </P>
+      <PatternTemplate id="grid-bfs" />
+      <P>
+        When the answer is &ldquo;how many rounds until everything is reached&rdquo;, process the queue one level at a
+        time (freeze <code>len(q)</code>) and count the levels, as in Rotting Oranges:
+      </P>
       <Code
         python={String.raw`
 def oranges_rotting(grid):
@@ -147,13 +88,137 @@ def oranges_rotting(grid):
 `}
       />
 
-      <H2>Shortest path over states</H2>
+      <H2>Implicit graphs: when the nodes are states</H2>
       <P>
-        When the &ldquo;position&rdquo; alone isn&apos;t enough, put extra information in the node:{" "}
-        <code>(cell, keys collected)</code>, <code>(cell, obstacles removed so far)</code>,{" "}
-        <code>(word)</code> in Word Ladder, <code>(lock code)</code> in Open the Lock. The graph is implicit, and BFS
-        still finds the fewest moves.
+        Many &ldquo;fewest moves&rdquo; problems never mention a graph. The graph is there anyway: every possible{" "}
+        <strong>situation</strong> is a node, and every legal <strong>move</strong> is an edge. You never build it.
+        You generate a node&apos;s neighbours when you pop it, and BFS finds the fewest moves exactly as before.
       </P>
+      <Steps>
+        <div>
+          <strong>Define the state:</strong> the smallest thing that fully describes a situation. It must be hashable (a
+          string or a tuple) so it can go in the visited set.
+        </div>
+        <div>
+          <strong>Write <code>neighbours(state)</code>:</strong> every state reachable in one move, minus forbidden ones.
+        </div>
+        <div>
+          <strong>Count the states:</strong> that&apos;s the size of the graph and the BFS cost. If it&apos;s
+          astronomically large, BFS isn&apos;t the intended solution.
+        </div>
+      </Steps>
+      <Example
+        title="Open the Lock"
+        level="Medium"
+        lc="open-the-lock"
+        examples={[
+          { input: 'deadends = ["0201","0101","0102","1212","2002"], target = "0202"', output: "6" },
+          { input: 'deadends = ["8888"], target = "0009"', output: "1", note: 'Turn the last wheel down once: "0000" → "0009".' },
+        ]}
+        constraints={["4 wheels, digits 0–9, each move turns one wheel by one (9 and 0 wrap around)"]}
+      >
+        <p>
+          A lock starts at <code>&quot;0000&quot;</code>. If it ever shows a deadend combination, it jams. Return the
+          fewest moves to reach <code>target</code>, or −1.
+        </p>
+      </Example>
+      <P>
+        State: the 4-character string. Neighbours: turn one of 4 wheels up or down, so 8 per state. There are 10⁴
+        states, so BFS is at most 10⁴ × 8 checks. Deadends are simply states you never enqueue.
+      </P>
+      <Trace
+        head={["Distance", "States discovered", "Examples"]}
+        rows={[
+          ["0", "1", "0000"],
+          ["1", "8", "1000, 9000, 0100, 0900, 0010, 0090, 0001, 0009"],
+          ["2", "32", "2000, 1100, 1900, 9900, …"],
+          ["…", "…", "the rings keep growing, then shrink"],
+          ["20", "1", "5555: every state is reached within 20 moves"],
+        ]}
+        caption="BFS rings from 0000 when there are no deadends. The first ring that contains the target gives the answer."
+      />
+      <Code
+        python={String.raw`
+from collections import deque
+
+def open_lock(deadends, target):
+    dead = set(deadends)
+    if "0000" in dead:
+        return -1                            # jammed before the first move
+    def neighbours(code):                    # 8 states: each wheel one step up or down
+        for i in range(4):
+            d = int(code[i])
+            for move in (1, -1):
+                yield code[:i] + str((d + move) % 10) + code[i + 1:]
+    dist = {"0000": 0}
+    queue = deque(["0000"])
+    while queue:
+        code = queue.popleft()
+        if code == target:
+            return dist[code]
+        for nxt in neighbours(code):
+            if nxt not in dist and nxt not in dead:   # deadends are never enqueued
+                dist[nxt] = dist[code] + 1
+                queue.append(nxt)
+    return -1
+`}
+        java={String.raw`
+int openLock(String[] deadends, String target) {
+    Set<String> dead = new HashSet<>(Arrays.asList(deadends));
+    if (dead.contains("0000")) return -1;
+    Map<String, Integer> dist = new HashMap<>();
+    dist.put("0000", 0);
+    Deque<String> queue = new ArrayDeque<>();
+    queue.add("0000");
+    while (!queue.isEmpty()) {
+        String code = queue.poll();
+        if (code.equals(target)) return dist.get(code);
+        char[] c = code.toCharArray();
+        for (int i = 0; i < 4; i++) {
+            char original = c[i];
+            for (int move : new int[]{1, 9}) {               // +1 and -1, mod 10
+                c[i] = (char) ('0' + (original - '0' + move) % 10);
+                String next = new String(c);
+                if (!dist.containsKey(next) && !dead.contains(next)) {
+                    dist.put(next, dist.get(code) + 1);
+                    queue.add(next);
+                }
+            }
+            c[i] = original;
+        }
+    }
+    return -1;
+}
+`}
+      />
+      <H3>Designing the state for other problems</H3>
+      <Table
+        head={["Problem", "State", "Neighbours", "Number of states"]}
+        rows={[
+          ["Open the Lock", "\"0000\" … \"9999\"", "One wheel ±1 (8 moves)", "10⁴"],
+          ["Word Ladder", "a word", "Change one letter; keep only dictionary words", "dictionary size"],
+          ["Sliding Puzzle (2×3)", "the board as a string, e.g. \"123450\"", "Swap 0 with an adjacent tile", "360 reachable"],
+          ["Shortest Path with Obstacle Elimination", "(row, col, eliminations left)", "4 moves; entering a wall uses one elimination", "R · C · (k + 1)"],
+          ["Shortest Path to Get All Keys", "(row, col, keys held as a bitmask)", "4 moves; picking up a key sets a bit", "R · C · 2^keys"],
+        ]}
+      />
+      <Callout type="key" title="If two situations need different futures, they're different states">
+        In Obstacle Elimination, standing on a cell with 3 eliminations left is <em>not</em> the same as standing there
+        with 0 left. If the state is just <code>(row, col)</code>, the visited set wrongly blocks the better path. Put
+        everything that affects future moves into the state.
+      </Callout>
+      <P>Word Ladder neighbours are generated by changing one letter at a time and keeping only dictionary words:</P>
+      <Code
+        python={String.raw`
+def neighbours(word, words):                 # words: a set of allowed words
+    for i in range(len(word)):
+        for ch in "abcdefghijklmnopqrstuvwxyz":
+            if ch != word[i]:
+                candidate = word[:i] + ch + word[i + 1:]
+                if candidate in words:
+                    yield candidate          # O(26 · L) candidates, each O(L) to build
+`}
+      />
 
       {/* extra:bfs:0 */}
       <H2>Reconstructing the shortest path</H2>
@@ -316,6 +381,23 @@ vector<int> zeroOneBFS(int n, vector<vector<pair<int,int>>>& adj, int src) {
         questions={[
           { q: "Why does BFS find shortest paths in unweighted graphs?", options: ["It uses a heap", "It processes nodes in nondecreasing order of distance", "It visits fewer nodes", "It backtracks"], answer: 1, explain: "All distance-d nodes are dequeued before any distance-(d + 1) node, so the first discovery is via a shortest path." },
           { q: "Multi-source BFS initializes the queue with…", options: ["One random source", "All sources at distance 0", "All nodes", "The target"], answer: 1, explain: "Each node then gets its distance to the nearest source in one O(V + E) pass." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="bfs"
+        prompts={[
+          "Why does the first visit to a node in BFS give its shortest distance?",
+          "Why do you mark a node visited when you enqueue it rather than when you pop it?",
+          "How do you turn Open the Lock into a graph problem?",
+        ]}
+        checklist={[
+          "The queue holds nodes in non-decreasing order of distance (distance d, then d + 1)",
+          "Only valid when every edge has the same cost",
+          "Marking on enqueue stops duplicate entries; the first discovery is already shortest",
+          "Implicit graph: state = a hashable description of the situation, edges = legal moves",
+          "Everything that affects future moves must be in the state",
+          "Multi-source: put every source in the queue at distance 0",
         ]}
       />
 

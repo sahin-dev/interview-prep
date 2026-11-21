@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, PatternTemplate, ExplainBack, Trace } from "@/components/content";
 import { BinarySearchViz } from "@/components/viz/lazy";
 
 export default function BinarySearch() {
@@ -72,10 +72,57 @@ function binarySearch(nums, target) {
 `}
       />
 
+      <H2>Deduce it, don&apos;t memorize it</H2>
+      <P>
+        Every binary search bug comes from one of three decisions. Make each one on purpose and the code stops being
+        fragile:
+      </P>
+      <Steps>
+        <div>
+          <strong>What range is still possible?</strong> Write it down as an interval: inclusive{" "}
+          <code>[lo, hi]</code> or half-open <code>[lo, hi)</code>. The loop condition follows from it. Inclusive keeps
+          going while <code>lo &lt;= hi</code>, because a one-element range is still a candidate.
+        </div>
+        <div>
+          <strong>After checking mid, can mid itself still be the answer?</strong> If not, exclude it (
+          <code>mid + 1</code> or <code>mid − 1</code>). If it can, either keep it in the range or save it in a variable
+          before excluding it.
+        </div>
+        <div>
+          <strong>When the loop ends, where is the answer?</strong> In the saved variable, or at <code>lo</code> when{" "}
+          <code>lo == hi</code>. Check the &ldquo;nothing found&rdquo; case explicitly.
+        </div>
+      </Steps>
+      <Callout type="tip" title="Test it on two tiny arrays">
+        Before trusting a binary search, trace it on a one-element array and a two-element array, with the target
+        present and absent. These four cases catch nearly every off-by-one and infinite loop.
+      </Callout>
+
       <H2>Template 2: the first index where a condition becomes true</H2>
       <P>
-        This is the template to memorize, because it solves almost everything. Imagine the array turned into booleans:{" "}
-        <code>F F F F T T T</code>. Find the first <code>T</code>. Use a half-open range and never return early.
+        This is the template to learn, because it solves almost everything. Imagine the array turned into booleans:{" "}
+        <code>F F F F T T T</code>. Find the first <code>T</code>. The array doesn&apos;t even have to exist: any
+        condition that flips once from false to true over a range works.
+      </P>
+      <PatternTemplate id="binary-search-first-true" />
+      <Trace
+        head={["lo", "hi", "mid", "feasible(mid)", "Action"]}
+        rows={[
+          ["0", "4", "2", "T", "answer = 2; look left: hi = 1"],
+          ["0", "1", "0", "F", "lo = 1"],
+          ["1", "1", "1", "F", "lo = 2"],
+          ["2", "1", "", "", "lo > hi: stop. The answer is 2"],
+        ]}
+        highlight={[3]}
+        caption="Finding the first true in [F, F, T, T, T]. Finding a true at index 2 didn't end the search; only the empty range did."
+      />
+      <H3>The same search in half-open style</H3>
+      <P>
+        Many people (and the standard libraries) write it with a half-open range <code>[lo, hi)</code> instead. Then{" "}
+        <code>mid</code> stays in the range when it&apos;s true (<code>hi = mid</code>), the loop runs while{" "}
+        <code>lo &lt; hi</code>, and the answer is wherever <code>lo</code> and <code>hi</code> meet. It returns{" "}
+        <code>hi</code> (the original end) when nothing is true. Both styles are correct. Pick one, learn its three
+        decisions, and use it everywhere.
       </P>
       <Code
         python={String.raw`
@@ -142,32 +189,36 @@ const lower = firstTrue(0, nums.length, (i) => nums[i] >= target);
         <div>Confirm monotonicity: feasible(x) implies feasible(x + 1).</div>
         <div>Find the first x where feasible(x) is true with Template 2.</div>
       </Steps>
+      <PatternTemplate id="binary-search-on-answer" />
+      <P>Koko Eating Bananas is the same template with a different check: the hours needed at speed k.</P>
       <Code
         python={String.raw`
-import math
-
 def min_eating_speed(piles, h):                   # LeetCode 875
-    def feasible(k):
-        return sum(math.ceil(p / k) for p in piles) <= h
-    lo, hi = 1, max(piles)
-    while lo < hi:
+    def feasible(k):                              # can Koko finish within h hours at speed k?
+        return sum((p + k - 1) // k for p in piles) <= h   # integer ceil(p / k)
+    lo, hi = 1, max(piles)                        # speed max(piles) always works
+    answer = hi
+    while lo <= hi:
         mid = (lo + hi) // 2
         if feasible(mid):
-            hi = mid
+            answer = mid
+            hi = mid - 1
         else:
             lo = mid + 1
-    return lo                                     # O(n log max(piles))
+    return answer                                 # O(n log max(piles))
 `}
         java={String.raw`
 int minEatingSpeed(int[] piles, int h) {
     int lo = 1, hi = Arrays.stream(piles).max().getAsInt();
-    while (lo < hi) {
+    int answer = hi;
+    while (lo <= hi) {
         int mid = lo + (hi - lo) / 2;
         long hours = 0;
         for (int p : piles) hours += (p + mid - 1) / mid;   // ceil division
-        if (hours <= h) hi = mid; else lo = mid + 1;
+        if (hours <= h) { answer = mid; hi = mid - 1; }
+        else lo = mid + 1;
     }
-    return lo;
+    return answer;
 }
 `}
       />
@@ -358,6 +409,23 @@ def search_matrix(m, target):
           { q: "Maximum number of steps to binary search 1,000,000 sorted items?", options: ["About 10", "About 20", "About 1,000", "About 500,000"], answer: 1, explain: "log₂(10⁶) ≈ 20." },
           { q: "In the 'first true' template, when condition(mid) is true you set…", options: ["lo = mid + 1", "hi = mid − 1", "hi = mid", "return mid"], answer: 2, explain: "mid could be the first true, so keep it in the range by setting hi = mid." },
           { q: "'Find the minimum ship capacity to deliver in D days' is solved by…", options: ["Sorting", "Binary search on the capacity", "DFS", "A heap"], answer: 1, explain: "Feasibility is monotonic in capacity, so binary search the answer with a greedy check." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="binary-search"
+        prompts={[
+          "Turn \"find the first element ≥ target\" into a true/false condition. Why does binary search work on it?",
+          "What are the three decisions that make a binary search correct?",
+          "How do you recognize a binary-search-on-the-answer problem?",
+        ]}
+        checklist={[
+          "The condition must be monotonic: false … false, true … true",
+          "Each step discards half of the remaining range because of that monotonicity",
+          "Decision 1: inclusive vs half-open range, which fixes the loop condition",
+          "Decision 2: whether mid can still be the answer (keep it or save it)",
+          "Decision 3: where the answer is when the loop ends, including the 'none' case",
+          "On the answer: a range of candidate answers plus a fast monotonic check, O(n log range)",
         ]}
       />
 

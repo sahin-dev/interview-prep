@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { UnionFindViz } from "@/components/viz/lazy";
 
 export default function UnionFind() {
@@ -29,77 +29,7 @@ export default function UnionFind() {
       />
 
       <H2>Implementation</H2>
-      <Code
-        python={String.raw`
-class DSU:
-    def __init__(self, n):
-        self.parent = list(range(n))
-        self.size = [1] * n
-        self.components = n
-
-    def find(self, x):
-        root = x
-        while self.parent[root] != root:
-            root = self.parent[root]
-        while self.parent[x] != root:           # path compression (iterative: no recursion limit)
-            self.parent[x], x = root, self.parent[x]
-        return root
-
-    def union(self, a, b):
-        ra, rb = self.find(a), self.find(b)
-        if ra == rb:
-            return False                        # already connected (an edge here would form a cycle)
-        if self.size[ra] < self.size[rb]:
-            ra, rb = rb, ra
-        self.parent[rb] = ra                    # union by size
-        self.size[ra] += self.size[rb]
-        self.components -= 1
-        return True
-
-    def connected(self, a, b):
-        return self.find(a) == self.find(b)
-`}
-        java={String.raw`
-class DSU {
-    private final int[] parent, size;
-    int components;
-
-    DSU(int n) {
-        parent = new int[n]; size = new int[n]; components = n;
-        for (int i = 0; i < n; i++) { parent[i] = i; size[i] = 1; }
-    }
-    int find(int x) {
-        while (parent[x] != x) {
-            parent[x] = parent[parent[x]];      // path halving: simple and just as fast
-            x = parent[x];
-        }
-        return x;
-    }
-    boolean union(int a, int b) {
-        int ra = find(a), rb = find(b);
-        if (ra == rb) return false;
-        if (size[ra] < size[rb]) { int t = ra; ra = rb; rb = t; }
-        parent[rb] = ra; size[ra] += size[rb]; components--;
-        return true;
-    }
-}
-`}
-        cpp={String.raw`
-struct DSU {
-    vector<int> p, sz;
-    int comps;
-    DSU(int n) : p(n), sz(n, 1), comps(n) { iota(p.begin(), p.end(), 0); }
-    int find(int x) { return p[x] == x ? x : p[x] = find(p[x]); }
-    bool unite(int a, int b) {
-        a = find(a); b = find(b);
-        if (a == b) return false;
-        if (sz[a] < sz[b]) swap(a, b);
-        p[b] = a; sz[a] += sz[b]; comps--;
-        return true;
-    }
-};
-`}
-      />
+      <PatternTemplate id="union-find" />
       <Complexity
         rows={[
           { op: "find / union (both optimizations)", time: "O(α(n)) amortized", note: "Effectively constant" },
@@ -112,13 +42,13 @@ struct DSU {
       <Code
         python={String.raw`
 def count_components(n, edges):
-    dsu = DSU(n)
+    dsu = UnionFind(n)
     for a, b in edges:
         dsu.union(a, b)
     return dsu.components
 
 def find_redundant_connection(edges):      # nodes are 1..n
-    dsu = DSU(len(edges) + 1)
+    dsu = UnionFind(len(edges) + 1)
     for a, b in edges:
         if not dsu.union(a, b):
             return [a, b]                  # the first edge that closes a cycle
@@ -141,7 +71,7 @@ def accounts_merge(accounts):
             if email not in idx:
                 idx[email] = len(idx)
                 owner[email] = acc[0]
-    dsu = DSU(len(idx))
+    dsu = UnionFind(len(idx))
     for acc in accounts:
         first = idx[acc[1]]
         for email in acc[2:]:
@@ -185,6 +115,23 @@ def accounts_merge(accounts):
         questions={[
           { q: "union(a, b) returns false when…", options: ["a > b", "a and b already have the same root", "The DSU is full", "a is a root"], answer: 1, explain: "They are already connected; an edge between them would form a cycle." },
           { q: "Amortized cost per operation with both optimizations?", options: ["O(log n)", "O(α(n)), effectively constant", "O(n)", "O(1) worst case"], answer: 1, explain: "Inverse Ackermann." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="union-find"
+        prompts={[
+          "What do find and union actually do to the parent array?",
+          "Why are path compression and union by size both used?",
+          "How does union-find spot a redundant edge?",
+        ]}
+        checklist={[
+          "Each set is a tree and its root names the set",
+          "find walks up to the root; union hangs one root under the other",
+          "Union by size keeps trees shallow, O(log n) depth",
+          "Path compression flattens the path during find",
+          "Together they give near-constant amortized time, O(α(n))",
+          "A union that finds the same root means the edge closes a cycle",
         ]}
       />
 

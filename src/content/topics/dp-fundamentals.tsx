@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, PatternTemplate, ExplainBack } from "@/components/content";
 import { FibTreeViz } from "@/components/viz/lazy";
 
 export default function DPFundamentals() {
@@ -131,6 +131,35 @@ function fib(n) {
           ["Interview advice", "Great first version", "Convert to this if asked to optimize"],
         ]}
       />
+
+      <H2>Where DP comes from: DFS that remembers</H2>
+      <P>
+        You don&apos;t need to see the table first. Almost every DP solution can be <em>derived</em> from a brute-force
+        search in three moves, and in an interview that derivation is easier to explain than a recurrence pulled out
+        of thin air:
+      </P>
+      <Steps>
+        <div>
+          <strong>Write the search as a function that returns the answer</strong> for &ldquo;the rest of the
+          problem&rdquo;, given a few parameters. Combine the children&apos;s results with <code>+</code>,{" "}
+          <code>min</code>, <code>max</code> or <code>or</code>. This is backtracking that aggregates instead of
+          collecting (see the <a href="/topics/backtracking/">backtracking ladder</a>).
+        </div>
+        <div>
+          <strong>Look at the parameters.</strong> They&apos;re the state. If the same parameters can be reached along
+          different paths, subproblems overlap, and the brute force is redoing work.
+        </div>
+        <div>
+          <strong>Cache on those parameters.</strong> The exponential tree collapses to one visit per distinct state.
+          Then, if you need to, rewrite the cache as a table filled in dependency order.
+        </div>
+      </Steps>
+      <PatternTemplate id="dp-memo" />
+      <Callout type="interview" title="Two things to get right">
+        Every DP answer depends on two decisions. Is it a DP at all? Look for an optimum, a count of ways, or a
+        feasibility question with repeated subproblems; try to break a greedy rule first. And what is the recurrence?
+        Say the state and the recurrence out loud before coding. The memo or table code after that is mechanical.
+      </Callout>
 
       <H2>The 5-step recipe for any DP problem</H2>
       <Steps>
@@ -294,6 +323,23 @@ def rob_with_houses(nums):
           { q: "Naive recursive fib(n) runs in…", options: ["O(n)", "O(n log n)", "O(2ⁿ) roughly", "O(n²)"], answer: 2, explain: "Each call spawns two more; the tree has exponentially many nodes (about φⁿ)." },
           { q: "Memoized fib(n) runs in…", options: ["O(1)", "O(n)", "O(n²)", "O(2ⁿ)"], answer: 1, explain: "n distinct states, each computed once with O(1) work." },
           { q: "Merge sort splits into subproblems. Why isn't it DP?", options: ["It's too fast", "Its subproblems don't overlap", "It has no base case", "It uses extra space"], answer: 1, explain: "Each half is a distinct subarray, solved exactly once, so there's nothing to cache." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="dp-fundamentals"
+        prompts={[
+          "How do you turn a brute-force recursion into a memoized DP?",
+          "What exactly is the state, and how do you know it's complete?",
+          "How do you compute a DP's time complexity?",
+        ]}
+        checklist={[
+          "Start from a DFS that returns the answer for the rest of the problem and combines its children",
+          "The state is exactly the parameters the answer depends on",
+          "Overlapping subproblems: the same state is reached along different paths",
+          "Cache on the state; nothing outside the parameters may change the answer",
+          "Time = number of states × work per state",
+          "Bottom-up fills the table in dependency order and enables space compression",
         ]}
       />
 

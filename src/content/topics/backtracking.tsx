@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, PatternTemplate, ExplainBack, Trace } from "@/components/content";
 import { NQueensViz, SubsetsTreeViz } from "@/components/viz/lazy";
 
 export default function Backtracking() {
@@ -38,6 +38,44 @@ def backtrack(state, choices):
         Every backtracking solution is these three lines. If your results are wrong, the bug is almost always a missing
         undo, or recording a reference to the state instead of a copy.
       </Callout>
+
+      <H2>Design any backtracking solution in three questions</H2>
+      <P>
+        Backtracking is a depth-first search over a <strong>state-space tree</strong>. Each node is a partial answer,
+        each edge adds one choice, and the leaves are complete answers or dead ends. Unlike a tree problem, the tree
+        isn&apos;t given to you: you build it as you search. So the first step is always to draw it, by hand, for a tiny
+        input.
+      </P>
+      <Figure caption="State-space tree for choosing k = 2 numbers from 1..4. Each node shows the path so far; edges only go to larger numbers, which is why [2, 1] never appears.">
+        <pre className="text-[12.5px] leading-relaxed">{`[]
+├── [1]
+│   ├── [1,2]   ✓ complete: length k = 2, record a copy
+│   ├── [1,3]   ✓
+│   └── [1,4]   ✓
+├── [2]
+│   ├── [2,3]   ✓
+│   └── [2,4]   ✓
+├── [3]
+│   └── [3,4]   ✓
+└── [4]         ✗ pruned: no larger number is left to add`}</pre>
+      </Figure>
+      <Steps>
+        <div>
+          <strong>When is a path complete?</strong> This is the leaf test. For combinations, it&apos;s{" "}
+          <code>len(path) == k</code>. For permutations, it&apos;s when every element is used. For subsets, every node
+          counts.
+        </div>
+        <div>
+          <strong>What are the choices from here?</strong> These are the edges. For combinations, they&apos;re the numbers
+          after the last one chosen. For permutations, the unused elements. For N-Queens, the safe columns in the next row.
+        </div>
+        <div>
+          <strong>When can I stop early?</strong> This is the pruning. A branch that can&apos;t lead to any valid leaf
+          should be cut before you recurse into it.
+        </div>
+      </Steps>
+      <P>Answer the three questions and the template fills itself in:</P>
+      <PatternTemplate id="backtracking" />
 
       <H2>The three generators</H2>
       <H3>Subsets (2ⁿ results)</H3>
@@ -97,7 +135,7 @@ function subsets(nums) {
 `}
       />
       <H3>Combinations (choose k)</H3>
-      <P>Same as subsets, but record only when <code>len(path) == k</code>. Prune: stop if there aren&apos;t enough elements left to reach k.</P>
+      <P>Same as subsets, but record only when <code>len(path) == k</code>. Prune: stop if there aren&apos;t enough elements left to reach k. It&apos;s the template above.</P>
       <H3>Permutations (n! results)</H3>
       <P>Order matters, so every unused element is a candidate at every position. Track usage with a boolean array.</P>
       <Code
@@ -295,13 +333,51 @@ def solve_sudoku(board):
         real inputs fast.
       </P>
 
-      <H2>Backtracking vs DP</H2>
+      <H2>The ladder: from backtracking to dynamic programming</H2>
       <P>
-        If the question asks for <strong>all</strong> solutions, you must enumerate them: backtracking. If it asks for
-        the <strong>count</strong>, the <strong>best</strong> one, or <strong>whether one exists</strong>, and the same
-        sub-state (like &ldquo;index i with remaining sum s&rdquo;) repeats, memoize it and you&apos;ve turned
-        backtracking into <a href="/topics/dp-fundamentals/">dynamic programming</a>.
+        One skeleton grows into a whole family of techniques. Each rung changes a single thing. Recognizing which rung a
+        problem needs is most of the work.
       </P>
+      <Table
+        head={["Rung", "What changes", "Example", "Typical cost"]}
+        rows={[
+          ["1. Collect", "Record a copy of the path at each complete leaf", "Subsets, combinations", "O(#answers × length)"],
+          ["2. Prune", "Skip choices that can't lead to a valid leaf", "Combination Sum, N-Queens", "Same worst case, much faster in practice"],
+          ["3. Extra state", "Track more than the path: used flags, sets, a running sum", "Permutations, Sudoku", "Same, plus O(1) checks"],
+          ["4. Aggregate", "Return a count, min or bool instead of collecting paths", "Target Sum (brute force)", "O(branchesᵈᵉᵖᵗʰ)"],
+          ["5. Memoize", "Cache the return value for each state", "Target Sum, Word Break, Coin Change", "O(#states × work per state)"],
+        ]}
+      />
+      <H3>Rung 4: aggregate instead of collect</H3>
+      <P>
+        If the question asks <em>how many</em> answers exist, or which one is best, you don&apos;t need the answers
+        themselves. Let the DFS <strong>return</strong> a value for its subtree and combine the children&apos;s values.
+        With the state passed as parameters, you no longer need a shared path or an undo step.
+      </P>
+      <PatternTemplate id="backtracking-aggregation" showSignals={false} />
+      <H3>Rung 5: notice repeated states, then memoize</H3>
+      <P>
+        Draw the tree for <code>nums = [1, 1, 1, 1, 1]</code>, target 3. The state is <code>(i, total)</code>, and many
+        different paths lead to the same state: <code>+1 −1</code> and <code>−1 +1</code> both reach{" "}
+        <code>(2, 0)</code>, and everything below that state gets computed twice. With more elements, the same state is
+        reached exponentially many times.
+      </P>
+      <Trace
+        head={["Version", "Subproblems solved, n = 5", "n = 20", "Why"]}
+        rows={[
+          ["Brute-force aggregation", "63", "2,097,151", "Every path is explored: 2ⁿ⁺¹ − 1 calls, repeats included"],
+          ["Memoized on (i, total)", "21", "231", "Each distinct state is solved once, (n+1)(n+2)/2 of them; repeats are cache hits"],
+        ]}
+        caption="Target Sum with all ones. Memoization doesn't change the recurrence; it just refuses to solve the same state twice."
+      />
+      <PatternTemplate id="dp-memo" showSignals={false} />
+      <Callout type="key" title="Backtracking + memoization = dynamic programming">
+        If a problem asks for <strong>all</strong> solutions, you must enumerate them: stay on rungs 1–3. If it asks for
+        the <strong>count</strong>, the <strong>best</strong> one, or <strong>whether one exists</strong>, climb to rung 4,
+        then check whether states repeat. If they do, rung 5 is{" "}
+        <a href="/topics/dp-fundamentals/">dynamic programming</a>. The memo can then be converted into a bottom-up table.
+      </Callout>
+
       <H2>Complexity</H2>
       <Table
         head={["Problem", "Number of results", "Typical time"]}
@@ -332,6 +408,23 @@ def solve_sudoku(board):
           { q: "How many subsets does a set of 10 elements have?", options: ["10", "100", "1,024", "3,628,800"], answer: 2, explain: "2¹⁰ = 1,024. (3,628,800 is 10!, the number of permutations.)" },
           { q: "In Combination Sum (reuse allowed), the recursive call uses…", options: ["bt(i + 1)", "bt(i)", "bt(0)", "bt(start + 1)"], answer: 1, explain: "Passing i lets the same element be chosen again; i + 1 would forbid reuse." },
           { q: "In N-Queens, cells on the same diagonal share the same…", options: ["r + c", "r − c", "r × c", "c"], answer: 1, explain: "Moving down-right adds 1 to both r and c, so r − c stays constant. Anti-diagonals share r + c." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="backtracking"
+        prompts={[
+          "What is the state-space tree for Permutations of [1, 2, 3]? What's in a node, and what's an edge?",
+          "What are the three questions you answer before writing any backtracking code?",
+          "When does a backtracking problem become a dynamic programming problem?",
+        ]}
+        checklist={[
+          "A node is a partial answer (the path); an edge adds one choice; leaves are complete answers",
+          "Q1: when is a path complete; Q2: what are the choices from here; Q3: when to prune",
+          "Choose → explore → un-choose, and record a copy at the leaf",
+          "Extra state (used flags, sets) must be undone exactly like the path",
+          "Count, best or exists → return values instead of collecting (aggregation)",
+          "Repeated (i, …) states → memoize → DP",
         ]}
       />
 

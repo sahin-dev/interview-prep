@@ -30,6 +30,7 @@ complexity analysis → common mistakes → practice problems tiered Easy → Me
 | 0.3 | Pattern recognition: "which technique fits this problem?" decision tree | Medium | 🔴 P0 | 📊 🧩 |
 | 0.4 | Study roadmaps: 4-week crash, 8-week standard, 12-week complete | Easy | 🔴 P0 | 📊 |
 | 0.5 | Communicating while coding, handling hints, testing your code aloud | Easy | 🟠 P1 | — |
+| 0.6 | Online assessments (OAs): formats, scoring, a time plan, fast I/O, stress testing | Easy | 🔴 P0 | 🧩 |
 
 ## 1. Programming Foundations
 
@@ -83,6 +84,8 @@ complexity analysis → common mistakes → practice problems tiered Easy → Me
 | 3.12 | Greedy algorithms | Exchange argument, activity selection, jump game, gas station, Huffman coding | Medium | 🔴 P0 | 🎬 |
 | 3.13 | Backtracking | Subsets, permutations, combinations, N-Queens, Sudoku, word search, pruning | Medium→Advanced | 🔴 P0 | 🎬 decision-tree + N-Queens board |
 | 3.14 | Randomized algorithms | Shuffle (Fisher-Yates), reservoir sampling, random pick with weight | Medium | 🟢 P2 | 🧪 |
+| 3.15 | Line sweep | Events, tie-breaking, max overlap, capacity checks, covered length, skyline, rectangle union area | Medium | 🟠 P1 | 🧩 |
+| 3.16 | Simulation & implementation | Modelling state, direction vectors, in-place encoding, cycle detection, event-driven simulation | Easy→Medium | 🟠 P1 | 🧩 |
 
 ## 4. Dynamic Programming
 

@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 export const NAV = [
   { href: "/curriculum/", label: "Curriculum" },
   { href: "/topics/", label: "Topics" },
+  { href: "/templates/", label: "Templates" },
+  { href: "/flowchart/", label: "Flowchart" },
   { href: "/roadmap/", label: "Roadmap" },
   { href: "/visualizers/", label: "Visualizers" },
   { href: "/playground/", label: "Playground" },
@@ -30,13 +32,13 @@ export function Navbar() {
           </span>
           <span className="text-[15px]">FAANG Prep</span>
         </Link>
-        <nav className="ml-4 hidden items-center gap-1 lg:flex">
+        <nav className="ml-2 hidden items-center gap-0.5 xl:flex">
           {NAV.map((n) => (
             <Link
               key={n.href}
               href={n.href}
               className={cn(
-                "rounded-lg px-3 py-1.5 text-sm",
+                "whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm",
                 isActive(n.href) ? "bg-surface-2 font-medium text-fg" : "text-muted hover:text-fg",
               )}
             >
@@ -45,10 +47,10 @@ export function Navbar() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <SearchButton className="sm:w-56" />
+          <SearchButton className="sm:w-56 xl:w-40 2xl:w-56" />
           <ThemeToggle />
           <button
-            className="grid size-9 place-items-center rounded-lg text-muted hover:bg-surface-2 lg:hidden"
+            className="grid size-9 place-items-center rounded-lg text-muted hover:bg-surface-2 xl:hidden"
             onClick={() => setOpen((o) => !o)}
             aria-label="Menu"
           >
@@ -57,7 +59,7 @@ export function Navbar() {
         </div>
       </div>
       {open && (
-        <nav className="border-t border-border bg-bg px-4 py-3 lg:hidden">
+        <nav className="border-t border-border bg-bg px-4 py-3 xl:hidden">
           {NAV.map((n) => (
             <Link
               key={n.href}

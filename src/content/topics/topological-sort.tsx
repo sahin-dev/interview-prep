@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { GraphAlgoViz } from "@/components/viz/lazy";
 
 export default function TopologicalSort() {
@@ -26,76 +26,7 @@ export default function TopologicalSort() {
         <div>Pop a node, append it to the order, and &ldquo;remove&rdquo; its outgoing edges by decrementing its neighbors&apos; in-degrees. Any neighbor reaching 0 joins the queue.</div>
         <div>If the order has fewer than n nodes, a cycle blocked the rest.</div>
       </Steps>
-      <Code
-        python={String.raw`
-from collections import deque
-
-def topo_sort(n, edges):                 # edge (u, v): u must come before v
-    adj = [[] for _ in range(n)]
-    indeg = [0] * n
-    for u, v in edges:
-        adj[u].append(v)
-        indeg[v] += 1
-    q = deque(i for i in range(n) if indeg[i] == 0)
-    order = []
-    while q:
-        u = q.popleft()
-        order.append(u)
-        for v in adj[u]:
-            indeg[v] -= 1
-            if indeg[v] == 0:
-                q.append(v)
-    return order if len(order) == n else []     # [] = cycle detected
-`}
-        java={String.raw`
-int[] topoSort(int n, int[][] edges) {
-    List<List<Integer>> adj = new ArrayList<>();
-    for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
-    int[] indeg = new int[n];
-    for (int[] e : edges) { adj.get(e[0]).add(e[1]); indeg[e[1]]++; }
-    Queue<Integer> q = new ArrayDeque<>();
-    for (int i = 0; i < n; i++) if (indeg[i] == 0) q.offer(i);
-    int[] order = new int[n];
-    int k = 0;
-    while (!q.isEmpty()) {
-        int u = q.poll();
-        order[k++] = u;
-        for (int v : adj.get(u)) if (--indeg[v] == 0) q.offer(v);
-    }
-    return k == n ? order : new int[0];
-}
-`}
-        cpp={String.raw`
-vector<int> topoSort(int n, const vector<vector<int>>& edges) {
-    vector<vector<int>> adj(n);
-    vector<int> indeg(n, 0), order;
-    for (auto& e : edges) { adj[e[0]].push_back(e[1]); indeg[e[1]]++; }
-    queue<int> q;
-    for (int i = 0; i < n; i++) if (indeg[i] == 0) q.push(i);
-    while (!q.empty()) {
-        int u = q.front(); q.pop();
-        order.push_back(u);
-        for (int v : adj[u]) if (--indeg[v] == 0) q.push(v);
-    }
-    return (int)order.size() == n ? order : vector<int>{};
-}
-`}
-        js={String.raw`
-function topoSort(n, edges) {
-  const adj = Array.from({ length: n }, () => []), indeg = new Array(n).fill(0);
-  for (const [u, v] of edges) { adj[u].push(v); indeg[v]++; }
-  const q = [];
-  for (let i = 0; i < n; i++) if (indeg[i] === 0) q.push(i);
-  const order = [];
-  for (let h = 0; h < q.length; h++) {
-    const u = q[h];
-    order.push(u);
-    for (const v of adj[u]) if (--indeg[v] === 0) q.push(v);
-  }
-  return order.length === n ? order : [];
-}
-`}
-      />
+      <PatternTemplate id="topological-sort" />
       <Callout type="warning" title="Edge direction">
         In Course Schedule, <code>[a, b]</code> means &ldquo;take b before a&rdquo;, so the edge is <strong>b → a</strong>.
         Getting this backwards gives the reversed order. Always restate the direction out loud.
@@ -222,6 +153,23 @@ def alien_order(words):
           ["Code length", "Slightly longer", "Very short"],
         ]}
       />
+      <ExplainBack
+        slug="topological-sort"
+        prompts={[
+          "What does in-degree 0 mean, and why is it safe to output such a node next?",
+          "How does Kahn's algorithm detect a cycle?",
+          "Given [course, prerequisite] pairs, which way should the edges point?",
+        ]}
+        checklist={[
+          "In-degree = the number of prerequisites not yet output",
+          "Output an in-degree-0 node, then decrement its neighbours' in-degrees",
+          "Fewer than n nodes output means there's a cycle",
+          "Edges point from the prerequisite to the dependent task",
+          "Many valid orders usually exist; a min-heap gives the lexicographically smallest",
+          "O(V + E) time and space",
+        ]}
+      />
+
       <H2>Practice</H2>
       <Practice ids={["course-schedule", "course-schedule-ii", "parallel-courses", "alien-dictionary"]} />
       <Problems

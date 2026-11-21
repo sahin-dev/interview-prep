@@ -1,4 +1,4 @@
-import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, Table, Quiz, QA, Code, Problems, Complexity, Practice, ExplainBack, PatternTemplate } from "@/components/content";
 import { TrieViz } from "@/components/viz/lazy";
 
 export default function Tries() {
@@ -20,73 +20,7 @@ export default function Tries() {
       </P>
 
       <H2>Implementation</H2>
-      <Code
-        python={String.raw`
-class TrieNode:
-    __slots__ = ("children", "end")
-    def __init__(self):
-        self.children = {}          # char -> TrieNode (or a list of 26)
-        self.end = False
-
-class Trie:
-    def __init__(self):
-        self.root = TrieNode()
-
-    def insert(self, word):
-        node = self.root
-        for ch in word:
-            node = node.children.setdefault(ch, TrieNode())
-        node.end = True
-
-    def _walk(self, s):
-        node = self.root
-        for ch in s:
-            node = node.children.get(ch)
-            if node is None:
-                return None
-        return node
-
-    def search(self, word):
-        node = self._walk(word)
-        return node is not None and node.end
-
-    def starts_with(self, prefix):
-        return self._walk(prefix) is not None
-
-    def complete(self, prefix, limit=10):
-        node, out = self._walk(prefix), []
-        def dfs(n, path):
-            if len(out) >= limit: return
-            if n.end: out.append(prefix + "".join(path))
-            for ch in sorted(n.children):
-                path.append(ch); dfs(n.children[ch], path); path.pop()
-        if node: dfs(node, [])
-        return out
-`}
-        java={String.raw`
-class Trie {
-    private static class Node { Node[] next = new Node[26]; boolean end; }
-    private final Node root = new Node();
-
-    public void insert(String word) {
-        Node n = root;
-        for (char c : word.toCharArray()) {
-            int i = c - 'a';
-            if (n.next[i] == null) n.next[i] = new Node();
-            n = n.next[i];
-        }
-        n.end = true;
-    }
-    private Node walk(String s) {
-        Node n = root;
-        for (char c : s.toCharArray()) { n = n.next[c - 'a']; if (n == null) return null; }
-        return n;
-    }
-    public boolean search(String w)     { Node n = walk(w); return n != null && n.end; }
-    public boolean startsWith(String p) { return walk(p) != null; }
-}
-`}
-      />
+      <PatternTemplate id="trie" />
       <Complexity
         rows={[
           { op: "insert / search / startsWith", time: "O(L)", note: "L = length of the word or prefix" },
@@ -199,6 +133,22 @@ def find_maximum_xor(nums):
         questions={[
           { q: "Time to check whether any stored word starts with a prefix of length L?", options: ["O(1)", "O(L)", "O(n)", "O(n·L)"], answer: 1, explain: "Walk L nodes." },
           { q: "What distinguishes search(word) from startsWith(word)?", options: ["Nothing", "search also requires the end-of-word flag", "startsWith checks the flag", "search uses BFS"], answer: 1, explain: "The path existing only means it's a prefix." },
+        ]}
+      />
+
+      <ExplainBack
+        slug="tries"
+        prompts={[
+          "Why does a trie answer prefix queries faster than a hash set of words?",
+          "Why does each node need an is-word flag?",
+          "How does a trie speed up Word Search II?",
+        ]}
+        checklist={[
+          "Words that share a prefix share a path from the root",
+          "A prefix query costs O(prefix length), whatever the number of words",
+          "A path can exist for a prefix that was never inserted as a word",
+          "Word Search II walks the board and the trie together and stops at dead prefixes",
+          "Space is O(total characters stored)",
         ]}
       />
 

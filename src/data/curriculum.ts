@@ -77,6 +77,7 @@ export const topics: Topic[] = [
   t("0.3", "pattern-recognition", "Pattern Recognition", M, "P0", ["Signals in the problem statement", "Constraint → complexity table", "Decision tree"], ["diagram", "quiz"], "How to tell which technique a problem needs from its wording and constraints."),
   t("0.4", "study-roadmaps", "Study Roadmaps", E, "P0", ["4-week crash plan", "8-week standard plan", "12-week complete plan"], ["diagram"], "Week-by-week plans that link straight to the topics."),
   t("0.5", "communication-while-coding", "Communicating While Coding", E, "P1", ["Thinking aloud", "Handling hints", "Testing aloud", "When you are stuck"], [], "What to say, when to say it, and how to recover when stuck."),
+  t("0.6", "online-assessments", "Online Assessments (OAs)", E, "P0", ["Formats & platforms", "Scoring & hidden tests", "A 90-minute game plan", "Debugging without a debugger", "Common OA problem types"], ["quiz"], "How timed take-home coding tests work, how they're scored, and how to pass them."),
 
   // 1. Foundations
   t("1.1", "big-o", "Time & Space Complexity", E, "P0", ["Big-O, Ω, Θ", "Best / average / worst case", "Amortized analysis", "Common complexities"], ["chart", "quiz"], "Measure how code scales so you can compare solutions before writing them."),
@@ -121,6 +122,8 @@ export const topics: Topic[] = [
   t("3.12", "greedy", "Greedy Algorithms", M, "P0", ["Exchange argument", "Activity selection", "Jump game", "Gas station", "Huffman coding"], ["animation"], "Make the locally best choice, and know how to prove it works."),
   t("3.13", "backtracking", "Backtracking", MA, "P0", ["Subsets", "Permutations", "Combinations", "N-Queens", "Sudoku", "Pruning"], ["animation"], "Systematically try choices, undo, and try again."),
   t("3.14", "randomized", "Randomized Algorithms", M, "P2", ["Fisher-Yates shuffle", "Reservoir sampling", "Weighted random pick"], ["playground"], "Use randomness for fair shuffles, sampling and expected-time speedups."),
+  t("3.15", "line-sweep", "Line Sweep", M, "P1", ["Events & sorting", "Tie-breaking at equal times", "Max overlap (meeting rooms)", "Capacity checks", "Coordinate compression", "Sweep + heap (skyline)"], ["quiz"], "Turn intervals into start and end events, sort them, and sweep with a running count."),
+  t("3.16", "simulation", "Simulation & Implementation", EM, "P1", ["Modelling state", "Direction vectors", "In-place updates with encoding", "Cycle detection for huge step counts", "Event-driven simulation"], ["quiz"], "Problems with no trick: model the state exactly, apply the rules carefully, and test the edges."),
 
   // 4. DP
   t("4.1", "dp-fundamentals", "DP Fundamentals", M, "P0", ["Overlapping subproblems", "Optimal substructure", "Memoization vs tabulation", "Designing the state"], ["animation"], "Cache answers to subproblems to avoid recomputing them."),

@@ -4,3 +4,6 @@ export { Problems } from "./Problems";
 export { Quiz } from "./Quiz";
 export { Practice } from "@/components/playground/Practice";
 export { QA } from "./QA";
+export { PatternTemplate } from "./PatternTemplate";
+export { ExplainBack } from "./ExplainBack";
+export { Example, Trace } from "./Worked";
