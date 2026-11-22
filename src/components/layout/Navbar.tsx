@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 export const NAV = [
   { href: "/curriculum/", label: "Curriculum" },
+  { href: "/dsa-roadmap/", label: "DSA Track" },
   { href: "/topics/", label: "Topics" },
   { href: "/templates/", label: "Templates" },
   { href: "/flowchart/", label: "Flowchart" },

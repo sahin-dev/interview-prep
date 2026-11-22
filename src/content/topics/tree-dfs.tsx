@@ -69,7 +69,7 @@ function dfs(node) {
       <PatternTemplate id="tree-dfs" />
 
       <Example
-        title="Count Good Nodes in Binary Tree"
+        title="Visible Tree Nodes / Count Good Nodes in Binary Tree"
         level="Medium"
         lc="count-good-nodes-in-binary-tree"
         examples={[{ input: "root = [3,1,4,3,null,1,5]", output: "4", note: "The root 3, the 3 under 1, and the 4 and 5 on the right. No node on their root path is bigger." }]}

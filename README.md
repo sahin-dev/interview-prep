@@ -11,6 +11,9 @@ It distinguishes published lessons, planned chapters and chapters that have pass
 
 What's included:
 
+- **A complete DSA interview track** at `/dsa-roadmap`: 173 explicitly named concepts and classic case studies in
+  11 beginner-to-advanced groups. Every entry links to its canonical long-form lesson, so related topics share one
+  maintained explanation, implementation, quiz and practice set instead of duplicated notes.
 - **162 lessons** across 17 sections, from strategy and Big-O to system design, OOD and behavioral interviews, each
   tagged P0 / P1 / P2 and by difficulty.
 - **74 interactive visualizers** (sorting, graphs, DP tables, CPU scheduling, TCP, crypto demos, consistent hashing,

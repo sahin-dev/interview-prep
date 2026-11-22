@@ -269,6 +269,69 @@ function kLargest(nums, k) {
       <H3>Scheduling and greedy-by-priority</H3>
       <P>Meeting rooms (heap of end times), task scheduler, &ldquo;reorganize string&rdquo; (always place the most frequent remaining letter).</P>
 
+      <H2>Case studies: Reorganize String and Ugly Number II</H2>
+      <H3>Reorganize String: choose the best currently legal item</H3>
+      <P>
+        A max-heap exposes the most frequent remaining character. Hold the previously used character out of the heap
+        for one turn, so it cannot be selected twice in a row. If the heap becomes empty while that held character
+        still has copies, no valid arrangement exists. Time is O(n log k), where k is the alphabet size, and space is
+        O(k).
+      </P>
+      <Code
+        python={String.raw`
+from collections import Counter
+import heapq
+
+def reorganize_string(s):
+    heap = [(-count, ch) for ch, count in Counter(s).items()]
+    heapq.heapify(heap)
+    out, previous = [], (0, "")
+    while heap:
+        count, ch = heapq.heappop(heap)
+        out.append(ch)
+        if previous[0] < 0:                # previous is legal again
+            heapq.heappush(heap, previous)
+        previous = (count + 1, ch)          # consume one; negative count moves toward 0
+    return "".join(out) if len(out) == len(s) else ""
+`}
+      />
+
+      <H3>Ugly Number II: merge three increasing streams</H3>
+      <P>
+        Every ugly number after 1 is 2x, 3x or 5x an earlier ugly number. Treat those as three sorted streams and
+        repeatedly take the smallest unseen value. A min-heap plus a set gives O(n log n) time and O(n) space. The
+        three-pointer DP optimization reduces this to O(n) time because there are exactly three multipliers.
+      </P>
+      <Code
+        python={String.raw`
+def nth_ugly_number(n):
+    heap, seen = [1], {1}
+    for _ in range(n):
+        x = heapq.heappop(heap)
+        for factor in (2, 3, 5):
+            nxt = x * factor
+            if nxt not in seen:             # deduplicate: 6 is both 2*3 and 3*2
+                seen.add(nxt)
+                heapq.heappush(heap, nxt)
+    return x
+`}
+        js={String.raw`
+function nthUglyNumber(n) {
+  const heap = new MinHeap(), seen = new Set([1]);
+  heap.push(1);
+  let x = 1;
+  for (let i = 0; i < n; i++) {
+    x = heap.pop();
+    for (const factor of [2, 3, 5]) {
+      const next = x * factor;
+      if (!seen.has(next)) { seen.add(next); heap.push(next); }
+    }
+  }
+  return x;
+}
+`}
+      />
+
       {/* extra:heaps:0 */}
       <H2>Heap sort</H2>
       <P>

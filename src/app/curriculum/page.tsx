@@ -33,6 +33,9 @@ export default function CurriculumPage() {
           which the ideas connect, and which textbook chapters are already published. Planned modules are shown
           explicitly; they are never counted as finished lessons.
         </p>
+        <Link href="/dsa-roadmap/" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-accent-fg hover:opacity-90">
+          Open the complete DSA interview track
+        </Link>
       </header>
 
       <section className="mt-8 grid gap-3 sm:grid-cols-4">

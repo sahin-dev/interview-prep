@@ -72,6 +72,55 @@ function numDecodings(s) {
 `}
       />
 
+      <H3>Climbing-stairs variations: Tribonacci and minimum cost</H3>
+      <P>
+        The state definition tells you which recurrence to use. If a step can be reached from the previous three
+        steps, the count is Tribonacci: <code>dp[i] = dp[i-1] + dp[i-2] + dp[i-3]</code>. If each step has a cost,
+        define <code>dp[i]</code> as the minimum cost to arrive just beyond step i; the last paid step was i-1 or i-2.
+        Both need O(n) time and only O(1) rolling space.
+      </P>
+      <Code
+        title="Minimum Cost Climbing Stairs"
+        python={String.raw`
+def min_cost_climbing_stairs(cost):
+    two_back = one_back = 0             # cost to reach positions i-2 and i-1
+    for i in range(2, len(cost) + 1):
+        cur = min(one_back + cost[i - 1], two_back + cost[i - 2])
+        two_back, one_back = one_back, cur
+    return one_back
+`}
+        java={String.raw`
+int minCostClimbingStairs(int[] cost) {
+    int twoBack = 0, oneBack = 0;
+    for (int i = 2; i <= cost.length; i++) {
+        int cur = Math.min(oneBack + cost[i - 1], twoBack + cost[i - 2]);
+        twoBack = oneBack; oneBack = cur;
+    }
+    return oneBack;
+}
+`}
+        cpp={String.raw`
+int minCostClimbingStairs(vector<int>& cost) {
+    int twoBack = 0, oneBack = 0;
+    for (int i = 2; i <= (int)cost.size(); ++i) {
+        int cur = min(oneBack + cost[i - 1], twoBack + cost[i - 2]);
+        twoBack = oneBack; oneBack = cur;
+    }
+    return oneBack;
+}
+`}
+        js={String.raw`
+function minCostClimbingStairs(cost) {
+  let twoBack = 0, oneBack = 0;
+  for (let i = 2; i <= cost.length; i++) {
+    const cur = Math.min(oneBack + cost[i - 1], twoBack + cost[i - 2]);
+    [twoBack, oneBack] = [oneBack, cur];
+  }
+  return oneBack;
+}
+`}
+      />
+
       <H2>Shape 2: take it or skip it (max of choices)</H2>
       <P><strong>House robber</strong>: either skip house i (keep dp[i−1]) or rob it (dp[i−2] + value). The answer is the better of the two.</P>
       <Code

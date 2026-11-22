@@ -163,7 +163,13 @@ class LazySegTree:                                    # range add, range sum
         ]}
       />
 
-      <H3>What can a node store?</H3>
+      <H3>Range maximum queries and other node values</H3>
+      <P>
+        The implementation does not fundamentally belong to sums. For a <strong>range maximum query</strong>, store
+        the maximum at each node, combine children with <code>max</code>, and use negative infinity as the identity for
+        a non-overlapping segment. Build, point update and range query keep the same O(n), O(log n) and O(log n)
+        bounds. Only the combine operation and identity change.
+      </P>
       <Table
         head={["Node value", "Combine", "Example problem"]}
         rows={[

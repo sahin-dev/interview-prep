@@ -173,6 +173,78 @@ function permute(nums) {
 `}
       />
 
+      <H2>Three high-frequency output patterns</H2>
+      <P>
+        These problems use the same choose â†’ recurse â†’ un-choose skeleton, but each has a different definition of a
+        legal next choice. Say that rule aloud before coding; it is the invariant that prevents invalid leaves.
+      </P>
+      <Table
+        head={["Problem", "State", "Legal next choice", "Output-sensitive cost"]}
+        rows={[
+          ["Phone letter combinations", "digit index + current text", "Any letter mapped by this digit", "O(4â¿ Â· n)"],
+          ["Generate valid parentheses", "open count, close count", "'(' if open < n; ')' if close < open", "O(Catalan(n) Â· n)"],
+          ["Palindrome partitioning", "start index + chosen pieces", "Any palindromic prefix beginning at start", "O(n Â· 2â¿)"],
+        ]}
+      />
+      <Code
+        title="Phone combinations, valid parentheses and palindrome partitioning"
+        python={String.raw`
+def letter_combinations(digits):
+    if not digits: return []
+    letters = {"2":"abc", "3":"def", "4":"ghi", "5":"jkl",
+               "6":"mno", "7":"pqrs", "8":"tuv", "9":"wxyz"}
+    out, path = [], []
+    def bt(i):
+        if i == len(digits):
+            out.append("".join(path)); return
+        for ch in letters[digits[i]]:
+            path.append(ch); bt(i + 1); path.pop()
+    bt(0)
+    return out
+
+def generate_parentheses(n):
+    out, path = [], []
+    def bt(opened, closed):
+        if len(path) == 2 * n:
+            out.append("".join(path)); return
+        if opened < n:
+            path.append("("); bt(opened + 1, closed); path.pop()
+        if closed < opened:                 # every prefix remains valid
+            path.append(")"); bt(opened, closed + 1); path.pop()
+    bt(0, 0)
+    return out
+
+def palindrome_partitions(s):
+    out, path = [], []
+    def bt(start):
+        if start == len(s):
+            out.append(path[:]); return
+        for end in range(start + 1, len(s) + 1):
+            piece = s[start:end]
+            if piece == piece[::-1]:        # prune non-palindromic cuts
+                path.append(piece); bt(end); path.pop()
+    bt(0)
+    return out
+`}
+        js={String.raw`
+function generateParenthesis(n) {
+  const out = [], path = [];
+  const bt = (open, close) => {
+    if (path.length === 2 * n) { out.push(path.join("")); return; }
+    if (open < n) { path.push("("); bt(open + 1, close); path.pop(); }
+    if (close < open) { path.push(")"); bt(open, close + 1); path.pop(); }
+  };
+  bt(0, 0);
+  return out;
+}
+`}
+      />
+      <Callout type="interview">
+        For generator problems, exponential time is not automatically a flaw: writing all answers already costs at
+        least their total output size. State the number of possible outputs, multiply by the cost to copy each answer,
+        and explain how the validity rule prunes prefixes that can never become answers.
+      </Callout>
+
       <H2>Handling duplicates</H2>
       <P>
         With repeated values (like <code>[1, 2, 2]</code>), sort first, then skip a choice equal to the previous one{" "}

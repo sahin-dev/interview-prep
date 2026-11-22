@@ -3,11 +3,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, CornerDownLeft } from "lucide-react";
 import { topics, sectionById } from "@/data/curriculum";
+import { dsaTrackItems } from "@/data/dsa-track";
 import { PriorityBadge } from "@/components/badges";
 import { cn } from "@/lib/utils";
 
 const pages = [
   { title: "Master curriculum", href: "/curriculum/", hint: "Fourteen-part knowledge map" },
+  { title: "Complete DSA interview track", href: "/dsa-roadmap/", hint: "Every core pattern and named case study" },
   { title: "All topics", href: "/topics/", hint: "Browse & filter" },
   { title: "Pattern templates", href: "/templates/", hint: "Canonical code + the decisions behind it" },
   { title: "Which technique? flowchart", href: "/flowchart/", hint: "Answer questions, get a pattern" },
@@ -65,7 +67,7 @@ export function SearchPalette() {
     if (!query) {
       return pages.map((p) => ({ key: p.href, title: p.title, href: p.href, hint: p.hint, topic: undefined }));
     }
-    return topics
+    const topicResults = topics
       .map((tp) => {
         const s =
           score(query, tp.title) * 4 +
@@ -84,6 +86,20 @@ export function SearchPalette() {
         hint: sectionById.get(tp.section)!.short,
         topic: tp,
       }));
+    const trackResults = dsaTrackItems
+      .map((entry) => ({ entry, s: score(query, entry.title) * 5 + score(query, entry.group) }))
+      .filter(({ s }) => s > 0)
+      .sort((a, b) => b.s - a.s)
+      .slice(0, 8)
+      .map(({ entry }) => ({
+        key: `dsa-${entry.groupId}-${entry.title}`,
+        title: entry.title,
+        href: `/topics/${entry.lesson}/`,
+        hint: `${entry.group} · complete DSA track`,
+        topic: undefined,
+      }));
+
+    return [...trackResults, ...topicResults].slice(0, 12);
   }, [q]);
 
   if (!open) return null;
