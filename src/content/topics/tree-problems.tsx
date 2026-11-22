@@ -1,311 +1,578 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice } from "@/components/content";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Code, Problems, Quiz, Practice, ExplainBack, Example, Trace } from "@/components/content";
 import { TreeTraversalViz } from "@/components/viz/lazy";
 
 export default function TreeProblems() {
   return (
     <>
       <Lead>
-        A small set of tree questions makes up a huge share of FAANG coding rounds. They all use the same recursive
-        thinking: <strong>decide what each call returns, trust the recursion for the children, and combine</strong>.
-        Below are the patterns, each with a worked solution.
+        The classic binary tree interview problems look different on the surface: measure a tree, flip it, compare two
+        trees, find one tree inside another, rob houses arranged as a tree. Underneath, they&apos;re all the same
+        recursion. Handle the empty tree, trust the two subtrees, combine. What changes is{" "}
+        <strong>what each call returns</strong> and <strong>how many trees it walks at once</strong>. This lesson works
+        through each problem in full and names the pattern it belongs to, so the next unfamiliar tree problem looks like
+        one you&apos;ve already solved.
       </Lead>
 
+      <H2 id="patterns">The patterns behind the classic problems</H2>
+      <P>
+        Every solution below follows the recursive contract from{" "}
+        <a href="/topics/binary-trees/#recursive-thinking">tree fundamentals</a>: define what the function returns for a
+        subtree, answer the empty tree, assume the recursive calls are correct, and design only the combine step.
+        Problems differ along a few axes, and naming the axis is the fastest way to a solution:
+      </P>
+      <Table
+        head={["Pattern", "What a call returns", "Problems in this lesson"]}
+        rows={[
+          ["Return a value up", "a number about the subtree", "Maximum Depth"],
+          ["Modify the tree", "the root of the rebuilt subtree", "Invert Binary Tree, Merge Two Trees"],
+          ["Two trees in lockstep", "whether two subtrees match", "Symmetric Tree, Subtree of Another Tree"],
+          ["Return several values", "a tuple of alternatives", "House Robber III"],
+          ["Serialize subtrees", "a canonical string for the subtree", "Find Duplicate Subtrees, fast Subtree check"],
+          ["Pass state down", "an answer that needs ancestor context", "see DFS on trees"],
+          ["Return one value, record another", "a height, while recording a bent path", "see DFS on trees: Diameter"],
+        ]}
+      />
       <TreeTraversalViz initial="post" />
 
-      <H2>Pattern 1: return a value upward (bottom-up)</H2>
+      <H2 id="max-depth">Maximum depth of a binary tree</H2>
+      <Example
+        title="Maximum Depth of Binary Tree"
+        level="Easy"
+        lc="maximum-depth-of-binary-tree"
+        examples={[
+          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "3" },
+          { input: "root = []", output: "0" },
+        ]}
+        constraints={["0 ≤ n ≤ 10⁴"]}
+      >
+        Return the number of nodes on the longest path from the root down to a leaf.
+      </Example>
+      <P>
+        <strong>The contract.</strong> <code>max_depth(node)</code> returns the depth of the subtree rooted at node,
+        counted in nodes. An empty subtree has depth 0. Otherwise the longest path from node goes through whichever
+        child is deeper, plus node itself: <code>1 + max(left, right)</code>. The node needs both children&apos;s
+        answers before it can compute its own, so the work is post-order.
+      </P>
+      <Trace
+        head={["node (post-order)", "left depth", "right depth", "returns"]}
+        rows={[
+          ["9", "0", "0", "1"],
+          ["15", "0", "0", "1"],
+          ["7", "0", "0", "1"],
+          ["20", "1", "1", "2"],
+          ["3 (root)", "1", "2", "3"],
+        ]}
+        highlight={[4]}
+        caption="root = [3, 9, 20, null, null, 15, 7]. Answers are built from the leaves up; the root sees only two numbers."
+      />
       <Code
         python={String.raw`
-def max_depth(node):
-    if not node:
-        return 0
-    return 1 + max(max_depth(node.left), max_depth(node.right))
-
-def is_balanced(root):
-    def height(node):                  # -1 means "unbalanced", stop early
-        if not node:
-            return 0
-        lh = height(node.left)
-        if lh == -1: return -1
-        rh = height(node.right)
-        if rh == -1 or abs(lh - rh) > 1: return -1
-        return 1 + max(lh, rh)
-    return height(root) != -1
+def max_depth(root):                             # LeetCode 104
+    if root is None:
+        return 0                                 # an empty tree has depth 0
+    return 1 + max(max_depth(root.left), max_depth(root.right))
 `}
         java={String.raw`
-int maxDepth(TreeNode node) {
-    if (node == null) return 0;
-    return 1 + Math.max(maxDepth(node.left), maxDepth(node.right));
-}
-
-int height(TreeNode node) {            // -1 = unbalanced
-    if (node == null) return 0;
-    int lh = height(node.left);
-    if (lh == -1) return -1;
-    int rh = height(node.right);
-    if (rh == -1 || Math.abs(lh - rh) > 1) return -1;
-    return 1 + Math.max(lh, rh);
+int maxDepth(TreeNode root) {
+    if (root == null) return 0;
+    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
 }
 `}
         cpp={String.raw`
-int maxDepth(TreeNode* n) { return n ? 1 + max(maxDepth(n->left), maxDepth(n->right)) : 0; }
-
-int height(TreeNode* n) {
-    if (!n) return 0;
-    int lh = height(n->left);  if (lh < 0) return -1;
-    int rh = height(n->right); if (rh < 0 || abs(lh - rh) > 1) return -1;
-    return 1 + max(lh, rh);
+int maxDepth(TreeNode* root) {
+    if (!root) return 0;
+    return 1 + max(maxDepth(root->left), maxDepth(root->right));
 }
 `}
         js={String.raw`
-const maxDepth = (n) => (n ? 1 + Math.max(maxDepth(n.left), maxDepth(n.right)) : 0);
-
-function height(n) {
-  if (!n) return 0;
-  const lh = height(n.left); if (lh < 0) return -1;
-  const rh = height(n.right); if (rh < 0 || Math.abs(lh - rh) > 1) return -1;
-  return 1 + Math.max(lh, rh);
+function maxDepth(root) {
+  if (!root) return 0;
+  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
 }
 `}
       />
-
-      <H2>Pattern 2: return one thing, track another (global answer)</H2>
+      <H3>Three ways to the same answer</H3>
       <P>
-        The <strong>diameter</strong> (longest path between any two nodes) passes through some node as its
-        &ldquo;top&rdquo;. At that node the path length is left height + right height. But what a node returns to its
-        parent is only its height (one branch). So return the height, and update a global best on the side.
+        The same depth can be computed top-down: pass the current depth to each child and record the largest depth
+        seen at a leaf. Or level by level: run BFS and count how many levels it processes. All three are O(n) time.
+        They differ in space and style:
       </P>
       <Code
         python={String.raw`
-def diameter(root):
+def max_depth_top_down(root):
     best = 0
-    def height(node):
+    def dfs(node, depth):                        # state down: my depth
         nonlocal best
-        if not node:
-            return 0
-        lh, rh = height(node.left), height(node.right)
-        best = max(best, lh + rh)          # path bending at this node
-        return 1 + max(lh, rh)             # what the parent can extend
-    height(root)
+        if node is None:
+            return
+        best = max(best, depth)
+        dfs(node.left, depth + 1)
+        dfs(node.right, depth + 1)
+    dfs(root, 1)
     return best
 
-def max_path_sum(root):                    # values can be negative
-    best = float('-inf')
-    def gain(node):
-        nonlocal best
-        if not node:
-            return 0
-        l = max(gain(node.left), 0)        # drop negative branches
-        r = max(gain(node.right), 0)
-        best = max(best, node.val + l + r)
-        return node.val + max(l, r)
-    gain(root)
-    return best
+from collections import deque
+def max_depth_bfs(root):
+    levels, queue = 0, deque([root] if root else [])
+    while queue:
+        levels += 1
+        for _ in range(len(queue)):              # drain exactly one level
+            node = queue.popleft()
+            if node.left: queue.append(node.left)
+            if node.right: queue.append(node.right)
+    return levels
+`}
+      />
+      <Table
+        head={["Version", "Extra space", "Best when"]}
+        rows={[
+          ["Bottom-up recursion", "O(h) stack", "the default: shortest and clearest"],
+          ["Top-down recursion", "O(h) stack", "the problem also needs ancestor context"],
+          ["BFS by levels", "O(w), the widest level", "the tree may be too deep for recursion"],
+        ]}
+      />
+
+      <H2 id="invert">Invert binary tree</H2>
+      <Example
+        title="Invert Binary Tree"
+        level="Easy"
+        lc="invert-binary-tree"
+        examples={[
+          { input: "root = [4, 2, 7, 1, 3, 6, 9]", output: "[4, 7, 2, 9, 6, 3, 1]" },
+          { input: "root = []", output: "[]" },
+        ]}
+        constraints={["0 ≤ n ≤ 100"]}
+      >
+        Mirror the tree: swap the left and right child of every node. Return the root.
+      </Example>
+      <P>
+        <strong>The contract.</strong> <code>invert(node)</code> mirrors the subtree at node and returns its root. To
+        mirror a tree, mirror both subtrees and then swap them. The returned roots make the swap a single line, and the
+        same root comes back because inversion happens in place.
+      </P>
+      <Code
+        python={String.raw`
+def invert_tree(root):                           # LeetCode 226
+    if root is None:
+        return None
+    root.left, root.right = invert_tree(root.right), invert_tree(root.left)   # mirror, then swap
+    return root
 `}
         java={String.raw`
-int best = 0;
-int diameterOfBinaryTree(TreeNode root) { height(root); return best; }
-int height(TreeNode n) {
-    if (n == null) return 0;
-    int lh = height(n.left), rh = height(n.right);
-    best = Math.max(best, lh + rh);
-    return 1 + Math.max(lh, rh);
+TreeNode invertTree(TreeNode root) {
+    if (root == null) return null;
+    TreeNode left = invertTree(root.left);       // save before overwriting
+    root.left = invertTree(root.right);
+    root.right = left;
+    return root;
+}
+`}
+        cpp={String.raw`
+TreeNode* invertTree(TreeNode* root) {
+    if (!root) return nullptr;
+    TreeNode* left = invertTree(root->left);
+    root->left = invertTree(root->right);
+    root->right = left;
+    return root;
+}
+`}
+        js={String.raw`
+function invertTree(root) {
+  if (!root) return null;
+  [root.left, root.right] = [invertTree(root.right), invertTree(root.left)];
+  return root;
 }
 `}
       />
-      <Callout type="key">
-        This &ldquo;return X, update Y&rdquo; trick solves diameter, max path sum, longest univalue path, and
-        &ldquo;binary tree cameras&rdquo;. If the answer can bend through a node but the parent can only use one side,
-        you need it.
-      </Callout>
+      <P>
+        In Java and C++, save one child before overwriting it. Writing <code>root.left = invert(root.right)</code> and
+        then <code>root.right = invert(root.left)</code> inverts the <em>already-replaced</em> left child, and the
+        original left subtree is lost. Python&apos;s tuple assignment evaluates both right-hand sides first, so it&apos;s
+        safe there.
+      </P>
+      <P>
+        The order doesn&apos;t matter for correctness. Swapping first and recursing after (pre-order) works equally well,
+        as does BFS swapping each node&apos;s children as it&apos;s dequeued, which avoids recursion for deep trees. Each
+        node is touched once: O(n) time, O(h) stack, or O(w) queue for BFS.
+      </P>
 
-      <H2>Pattern 3: two trees at once</H2>
+      <H2 id="symmetric">Symmetric tree: two trees in lockstep</H2>
+      <P>
+        A tree is symmetric if it&apos;s a mirror image of itself. One tree can&apos;t be compared with itself node by
+        node directly, so recurse on <em>two</em> subtrees at once. <code>mirror(a, b)</code> is true when a and b have
+        equal values, a&apos;s left mirrors b&apos;s right, and a&apos;s right mirrors b&apos;s left. Start with the
+        root&apos;s two children. This is Same Tree from{" "}
+        <a href="/topics/binary-trees/#same-tree">tree fundamentals</a> with the children crossed.
+      </P>
       <Code
         python={String.raw`
-def is_same(a, b):
-    if not a or not b:
-        return a is b                       # both None → True
-    return a.val == b.val and is_same(a.left, b.left) and is_same(a.right, b.right)
-
-def is_symmetric(root):
+def is_symmetric(root):                          # LeetCode 101
     def mirror(a, b):
-        if not a or not b:
-            return a is b
-        return a.val == b.val and mirror(a.left, b.right) and mirror(a.right, b.left)
-    return mirror(root.left, root.right) if root else True
-
-def is_subtree(root, sub):
-    if not root:
-        return False
-    return is_same(root, sub) or is_subtree(root.left, sub) or is_subtree(root.right, sub)
+        if a is None and b is None:
+            return True
+        if a is None or b is None or a.val != b.val:
+            return False
+        return mirror(a.left, b.right) and mirror(a.right, b.left)   # outer pair, inner pair
+    return root is None or mirror(root.left, root.right)
+`}
+        js={String.raw`
+function isSymmetric(root) {
+  const mirror = (a, b) => {
+    if (!a && !b) return true;
+    if (!a || !b || a.val !== b.val) return false;
+    return mirror(a.left, b.right) && mirror(a.right, b.left);
+  };
+  return !root || mirror(root.left, root.right);
+}
 `}
       />
 
-      <H2>Pattern 4: modify the tree</H2>
+      <H2 id="subtree">Subtree of another tree</H2>
+      <Example
+        title="Subtree of Another Tree"
+        level="Easy"
+        lc="subtree-of-another-tree"
+        examples={[
+          { input: "root = [3, 4, 5, 1, 2], subRoot = [4, 1, 2]", output: "true" },
+          { input: "root = [3, 4, 5, 1, 2, null, null, null, null, 0], subRoot = [4, 1, 2]", output: "false", note: "The 4 in root has an extra grandchild 0, so its subtree isn't identical." },
+        ]}
+        constraints={["1 ≤ nodes in root ≤ 2000", "1 ≤ nodes in subRoot ≤ 1000"]}
+      >
+        Return true if some node of <code>root</code> is the root of a subtree identical to <code>subRoot</code>: the
+        same structure and values, all the way down to the leaves.
+      </Example>
+      <P>
+        <strong>Breaking it into two recursions.</strong> &ldquo;Is subRoot somewhere in root?&rdquo; means: is it
+        identical to the tree at root itself, or is it inside the left subtree, or inside the right subtree? Identity is
+        Same Tree. So the solution is two functions, each a simple recursion: an outer walk that tries every node as a
+        candidate, and an inner comparison that checks one candidate.
+      </P>
+      <Trace
+        head={["candidate", "same_tree(candidate, subRoot)?", "why"]}
+        rows={[
+          ["3 (root)", "no", "3 ≠ 4"],
+          ["4", "no", "values and children 1 and 2 match, but node 2 has an extra child 0 that subRoot's 2 doesn't"],
+          ["1", "no", "1 ≠ 4"],
+          ["2", "no", "2 ≠ 4"],
+          ["0", "no", "0 ≠ 4"],
+          ["5", "no", "5 ≠ 4"],
+        ]}
+        highlight={[1]}
+        caption="The second example. Only the candidate 4 gets past the first comparison, and the extra node 0 is what rules it out. In the first example the same candidate matches completely."
+      />
       <Code
         python={String.raw`
-def invert(node):
-    if node:
-        node.left, node.right = invert(node.right), invert(node.left)
-    return node
+def is_same_tree(p, q):
+    if p is None and q is None:
+        return True
+    if p is None or q is None or p.val != q.val:
+        return False
+    return is_same_tree(p.left, q.left) and is_same_tree(p.right, q.right)
 
-def merge_trees(a, b):
-    if not a or not b:
-        return a or b
-    a.val += b.val
+def is_subtree(root, sub_root):                  # LeetCode 572
+    if root is None:
+        return False                             # ran out of candidates
+    return (is_same_tree(root, sub_root)         # this node is the match, or ...
+            or is_subtree(root.left, sub_root)   # ... it's somewhere on the left, or ...
+            or is_subtree(root.right, sub_root)) # ... somewhere on the right
+`}
+        java={String.raw`
+boolean isSubtree(TreeNode root, TreeNode subRoot) {
+    if (root == null) return false;
+    return isSameTree(root, subRoot) || isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot);
+}
+boolean isSameTree(TreeNode p, TreeNode q) {
+    if (p == null && q == null) return true;
+    if (p == null || q == null || p.val != q.val) return false;
+    return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+}
+`}
+        cpp={String.raw`
+bool isSameTree(TreeNode* p, TreeNode* q) {
+    if (!p && !q) return true;
+    if (!p || !q || p->val != q->val) return false;
+    return isSameTree(p->left, q->left) && isSameTree(p->right, q->right);
+}
+bool isSubtree(TreeNode* root, TreeNode* subRoot) {
+    if (!root) return false;
+    return isSameTree(root, subRoot) || isSubtree(root->left, subRoot) || isSubtree(root->right, subRoot);
+}
+`}
+        js={String.raw`
+function isSubtree(root, subRoot) {
+  const same = (p, q) => {
+    if (!p && !q) return true;
+    if (!p || !q || p.val !== q.val) return false;
+    return same(p.left, q.left) && same(p.right, q.right);
+  };
+  const walk = (node) => !!node && (same(node, subRoot) || walk(node.left) || walk(node.right));
+  return walk(root);
+}
+`}
+      />
+      <P>
+        <strong>Complexity.</strong> In the worst case every one of root&apos;s m nodes starts a comparison that runs
+        through most of subRoot&apos;s n nodes before failing, so O(m · n). With these constraints that&apos;s at most 2 ×
+        10⁶ steps, fine. In practice most comparisons fail on the first value.
+      </P>
+      <H3>The linear-time version: serialize and search</H3>
+      <P>
+        A tree is identified by its pre-order sequence <em>if null children are written out too</em>. Serialize both
+        trees, and subRoot is a subtree of root exactly when its string appears inside root&apos;s string. A substring
+        search with KMP is O(m + n). The serialization needs a separator <em>before</em> each value as well as null
+        markers. Without them, the single-node tree <code>2</code> would look like it appears inside{" "}
+        <code>12</code>.
+      </P>
+      <Code
+        python={String.raw`
+def is_subtree_linear(root, sub_root):
+    def serialize(node, out):
+        if node is None:
+            out.append(",#")                     # null markers fix the shape
+            return
+        out.append("," + str(node.val))          # the leading comma stops "2" matching inside "12"
+        serialize(node.left, out)
+        serialize(node.right, out)
+    a, b = [], []
+    serialize(root, a)
+    serialize(sub_root, b)
+    return "".join(b) in "".join(a)              # use KMP for a guaranteed O(m + n)
+`}
+      />
+
+      <H2 id="merge-trees">Merge two binary trees: building as you recurse</H2>
+      <P>
+        Merge Two Binary Trees overlays two trees. Where both have a node, the result&apos;s value is their sum. Where
+        only one does, that node, and its whole subtree, is used as is. The recursion walks both trees in lockstep and{" "}
+        <em>returns the root of the merged subtree</em>, so the caller attaches whatever comes back as its child. A
+        null on one side ends the recursion immediately by returning the other side.
+      </P>
+      <Code
+        python={String.raw`
+def merge_trees(a, b):                           # LeetCode 617
+    if a is None:
+        return b                                 # reuse b's subtree as is
+    if b is None:
+        return a
+    a.val += b.val                               # overlay into a
     a.left = merge_trees(a.left, b.left)
     a.right = merge_trees(a.right, b.right)
     return a
 `}
-      />
-
-      <H2>Pattern 5: lowest common ancestor</H2>
-      <P>
-        Search for p and q in both subtrees. If they&apos;re found on different sides, the current node is the LCA. If
-        both are on one side, the LCA is deeper on that side.
-      </P>
-      <Code
-        python={String.raw`
-def lowest_common_ancestor(node, p, q):
-    if not node or node is p or node is q:
-        return node
-    left = lowest_common_ancestor(node.left, p, q)
-    right = lowest_common_ancestor(node.right, p, q)
-    if left and right:
-        return node                  # p and q split here
-    return left or right             # both on one side (or neither)
-`}
-        java={String.raw`
-TreeNode lowestCommonAncestor(TreeNode node, TreeNode p, TreeNode q) {
-    if (node == null || node == p || node == q) return node;
-    TreeNode left = lowestCommonAncestor(node.left, p, q);
-    TreeNode right = lowestCommonAncestor(node.right, p, q);
-    if (left != null && right != null) return node;
-    return left != null ? left : right;
+        js={String.raw`
+function mergeTrees(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  a.val += b.val;
+  a.left = mergeTrees(a.left, b.left);
+  a.right = mergeTrees(a.right, b.right);
+  return a;
 }
 `}
       />
 
-      {/* extra:tree-problems:0 */}
-      <H2>Pattern 6: pass state down (top-down)</H2>
+      <H2 id="multiple-values">Return several values at once: House Robber III</H2>
+      <Example
+        title="House Robber III"
+        level="Medium"
+        lc="house-robber-iii"
+        examples={[
+          { input: "root = [3, 2, 3, null, 3, null, 1]", output: "7", note: "Rob the root 3 and the grandchildren 3 and 1." },
+          { input: "root = [3, 4, 5, 1, 3, null, 1]", output: "9", note: "Rob 4 and 5." },
+        ]}
+        constraints={["1 ≤ n ≤ 10⁴", "0 ≤ value ≤ 10⁴"]}
+      >
+        Houses form a binary tree. Robbing two directly connected houses (a parent and its child) triggers an alarm.
+        Return the most money you can rob.
+      </Example>
       <P>
-        Some answers depend on what&apos;s <em>above</em> a node: the maximum value on the path from the root, the
-        current depth, or the allowed (low, high) range. Pass that state as a parameter.
+        <strong>Why one number isn&apos;t enough.</strong> A parent&apos;s choice depends on its children&apos;s choices.
+        If I rob this house, I can&apos;t rob my children, so I need to know what each child&apos;s subtree is worth{" "}
+        <em>without</em> robbing that child. If I don&apos;t rob this house, each child is free to go either way. A single
+        &ldquo;best for this subtree&rdquo; value loses that distinction. So each call returns a pair:
       </P>
+      <Steps>
+        <div><code>with_node</code> = node.val + left.without + right.without (robbing me rules out my children)</div>
+        <div><code>without_node</code> = max(left) + max(right) (each child takes its better option)</div>
+      </Steps>
       <Code
         python={String.raw`
-def good_nodes(root):
-    """A node is 'good' if no node on the path from the root is greater than it."""
-    def dfs(node, max_so_far):
-        if not node:
-            return 0
-        good = 1 if node.val >= max_so_far else 0
-        m = max(max_so_far, node.val)
-        return good + dfs(node.left, m) + dfs(node.right, m)
-    return dfs(root, float('-inf'))
+def rob(root):                                   # LeetCode 337
+    def best(node):                              # returns (with_node, without_node)
+        if node is None:
+            return (0, 0)
+        left, right = best(node.left), best(node.right)
+        with_node = node.val + left[1] + right[1]
+        without_node = max(left) + max(right)
+        return (with_node, without_node)
+    return max(best(root))                       # O(n): one pass, O(1) work per node
 `}
         js={String.raw`
-function goodNodes(root) {
-  const dfs = (node, maxSoFar) => {
-    if (!node) return 0;
-    const m = Math.max(maxSoFar, node.val);
-    return (node.val >= maxSoFar ? 1 : 0) + dfs(node.left, m) + dfs(node.right, m);
+function rob(root) {
+  const best = (node) => {
+    if (!node) return [0, 0];
+    const [lw, lo] = best(node.left), [rw, ro] = best(node.right);
+    return [node.val + lo + ro, Math.max(lw, lo) + Math.max(rw, ro)];
   };
-  return dfs(root, -Infinity);
+  return Math.max(...best(root));
 }
 `}
       />
-
-      <H2>Pattern 7: return several values at once</H2>
       <P>
-        When a parent needs more than one fact about each child, return a tuple. <strong>House Robber III</strong>{" "}
-        returns (best if this node is robbed, best if it isn&apos;t), which is tree DP in its simplest form.
+        Without the pair, the natural recursion (&ldquo;rob me and my grandchildren, or my children&rdquo;) recomputes
+        the same subtrees several times. Returning both alternatives is dynamic programming on a tree: each subtree is
+        solved once and its answers reused. The technique is developed fully in{" "}
+        <a href="/topics/dp-trees/">tree DP</a>.
+      </P>
+
+      <H2 id="duplicate-subtrees">Serialize subtrees to compare them: Find Duplicate Subtrees</H2>
+      <P>
+        To find every subtree that appears more than once, give each subtree a canonical string, built post-order as{" "}
+        <code>&quot;val,left,right&quot;</code> with <code>#</code> for null, and count the strings in a hash map. When a
+        string&apos;s count reaches 2, record that subtree once. In <code>[1, 2, 3, 4, null, 2, 4, null, null, 4]</code>{" "}
+        the subtrees <code>[4]</code> and <code>[2, 4]</code> each appear more than once.
       </P>
       <Code
         python={String.raw`
-def rob(root):
-    def dfs(node):                         # returns (rob_this, skip_this)
-        if not node:
-            return (0, 0)
-        l_rob, l_skip = dfs(node.left)
-        r_rob, r_skip = dfs(node.right)
-        rob_this = node.val + l_skip + r_skip          # children must be skipped
-        skip_this = max(l_rob, l_skip) + max(r_rob, r_skip)
-        return (rob_this, skip_this)
-    return max(dfs(root))
-`}
-      />
-
-      <H2>Pattern 8: serialize subtrees to compare them</H2>
-      <P>
-        To find duplicate subtrees, build a string signature for every subtree in post-order (for example{" "}
-        <code>&quot;left,val,right&quot;</code> with &ldquo;#&rdquo; for null) and count signatures in a hash map. Two
-        subtrees are identical exactly when their signatures match.
-      </P>
-      <Code
-        python={String.raw`
-from collections import Counter
-
-def find_duplicate_subtrees(root):
-    seen, dupes = Counter(), []
-    def sig(node):
-        if not node:
+def find_duplicate_subtrees(root):               # LeetCode 652
+    count, duplicates = {}, []
+    def serialize(node):
+        if node is None:
             return "#"
-        s = f"{sig(node.left)},{node.val},{sig(node.right)}"
-        seen[s] += 1
-        if seen[s] == 2:
-            dupes.append(node)               # report each duplicate shape once
-        return s
-    sig(root)
-    return dupes
+        key = f"{node.val},{serialize(node.left)},{serialize(node.right)}"   # post-order
+        count[key] = count.get(key, 0) + 1
+        if count[key] == 2:                      # report each duplicate shape once
+            duplicates.append(node)
+        return key
+    serialize(root)
+    return duplicates
 `}
       />
-      <Callout type="note">
-        Building strings makes this O(n²) in the worst case. Assigning each unique signature a small integer id (and
-        hashing triples of ids) brings it down to O(n).
-      </Callout>
-      <Table
-        head={["Question", "Each call returns", "Extra state"]}
+      <P>
+        Building strings makes this O(n²) in the worst case, since a degenerate tree&apos;s keys have total length about
+        n²/2. Replacing each key with a small integer id, by mapping the triple <code>(val, left_id, right_id)</code> to
+        an id, brings it to O(n).
+      </P>
+
+      <H2 id="lca-preview">Lowest common ancestor</H2>
+      <P>
+        Finding the lowest node that has two given nodes as descendants is the most famous return-value tree problem.
+        Each call returns &ldquo;the target I found in my subtree, if any&rdquo;. The node where both sides report a
+        find is the answer. It has enough variations (BST, parent pointers, many queries) to get its own lesson:{" "}
+        <a href="/topics/lca/">lowest common ancestor</a>.
+      </P>
+
+      <H2 id="when-not">When the recursive template needs help</H2>
+      <List>
+        <li>
+          <strong>Very deep trees.</strong> Each technique here is O(h) stack. For degenerate trees with 10⁵ nodes,
+          switch to BFS or an explicit stack, as shown for Maximum Depth.
+        </li>
+        <li>
+          <strong>Questions about levels or nearest nodes.</strong> Right side view, minimum depth and level averages
+          are BFS problems. See <a href="/topics/tree-bfs/">BFS on trees</a>.
+        </li>
+        <li>
+          <strong>BST-specific questions.</strong> If the tree is a BST, ordering lets you skip whole subtrees, turning
+          O(n) into O(h). See <a href="/topics/bst/">binary search trees</a>.
+        </li>
+      </List>
+
+      <H2 id="complexity">Complexity</H2>
+      <P>
+        Every single-tree problem here visits each node once with O(1) work: O(n) time and O(h) space. The two-tree
+        problems walk both trees in lockstep, O(min(m, n)) for a full comparison. The exception is Subtree of Another
+        Tree, which repeats a comparison at every candidate. Serialization turns it into one linear substring search.
+      </P>
+      <Complexity
         rows={[
-          ["Max depth", "height", "—"],
-          ["Balanced?", "height or −1", "—"],
-          ["Diameter", "height", "global best = lh + rh"],
-          ["Max path sum", "best single-branch gain", "global best = val + l + r"],
-          ["Path sum (root-to-leaf)", "bool", "remaining target passed down"],
-          ["Validate BST", "bool", "(low, high) bounds passed down"],
-          ["LCA", "p, q, LCA or null", "—"],
-          ["Count good nodes", "count", "max on the path passed down"],
+          { op: "Maximum Depth, Invert, Symmetric", time: "O(n)", space: "O(h)" },
+          { op: "Merge Two Trees", time: "O(min(m, n))", space: "O(min(h₁, h₂))", note: "stops at the first null on either side" },
+          { op: "Subtree of Another Tree (recursive)", time: "O(m · n)", space: "O(h)" },
+          { op: "Subtree via serialization + KMP", time: "O(m + n)", space: "O(m + n)" },
+          { op: "House Robber III", time: "O(n)", space: "O(h)" },
+          { op: "Find Duplicate Subtrees", time: "O(n²) strings / O(n) ids", space: "O(n²) / O(n)" },
         ]}
       />
 
+      <H2 id="mistakes">Edge cases and common mistakes</H2>
+      <Callout type="warning" title="Overwriting a child before using it">
+        In Invert (Java, C++, JavaScript without destructuring), <code>root.left = invert(root.right); root.right =
+        invert(root.left);</code> inverts the new left child a second time and drops the original left subtree. Save one
+        child first.
+      </Callout>
+      <Callout type="warning" title="Checking only values for subtree identity">
+        A candidate whose values match subRoot&apos;s at every position subRoot has can still have extra nodes below,
+        like the 0 in the second example. Same Tree must require <em>both</em> nodes to be null at the same positions,
+        not just equal values where both exist.
+      </Callout>
+      <Callout type="warning" title="Serializing without separators or null markers">
+        Without null markers, <code>[1, 2]</code> and <code>[1, null, 2]</code> serialize identically. Without a leading
+        separator, the subtree <code>2</code> &ldquo;matches&rdquo; inside the value 12. Use both.
+      </Callout>
+      <Callout type="warning" title="Returning one value when the parent needs two">
+        In House Robber III, a single &ldquo;best&rdquo; per subtree can&apos;t express &ldquo;best without robbing the
+        root&rdquo;. The fix is returning more, not recursing more.
+      </Callout>
+      <P>Edge-case checklist: empty trees (either or both), single nodes, subRoot equal to the whole tree, duplicate values throughout, and negative values.</P>
+
+      <H2 id="interview">Tree problems in an interview</H2>
       <Callout type="interview">
-        Before coding, say the contract out loud: &ldquo;height(node) returns the number of nodes on the longest
-        downward path, and I&apos;ll track the best diameter in an outer variable.&rdquo; Interviewers grade that
-        clarity.
+        <p>
+          Name the pattern first: &ldquo;this is a two-trees-in-lockstep problem&rdquo; or &ldquo;each node needs two
+          values from each child&rdquo;. Then write the contract in one sentence before any code. Most interviewers will
+          accept the O(m · n) subtree solution first, then ask how to do better. Serialization with markers is the
+          expected follow-up.
+        </p>
+        <p className="mt-2">
+          Always mention O(h) space and what h is for balanced versus degenerate trees. Test on an empty tree, a single
+          node and a lopsided tree.
+        </p>
       </Callout>
 
       <Quiz
         questions={[
-          { q: "In max path sum, why take max(gain(child), 0)?", options: ["To avoid recursion", "A negative branch only lowers the sum, so skip it", "To handle null", "For BST order"], answer: 1, explain: "Including a negative subtree can only make the path worse, so treat it as 0 (don't extend into it)." },
-          { q: "LCA: left and right recursion both return non-null. The answer is…", options: ["left", "right", "the current node", "null"], answer: 2, explain: "p is on one side and q on the other, so this node is their lowest common ancestor." },
+          { q: "What does maximum depth return for an empty tree, and why does that make the recursion work?", options: ["1, because every tree has a root", "0, so a leaf gets 1 + max(0, 0) = 1", "−1", "Infinity"], answer: 1, explain: "The base case must make the combine step correct one level up. A leaf's depth is 1, which needs empty subtrees to count 0." },
+          { q: "Symmetric Tree compares which pairs?", options: ["left.left with right.left", "left.left with right.right, and left.right with right.left", "Only the root's children", "Each node with itself"], answer: 1, explain: "A mirror swaps sides at every level, so the outer pair and the inner pair are compared." },
+          { q: "What is the worst-case time of the straightforward Subtree of Another Tree solution?", options: ["O(m + n)", "O(m log n)", "O(m · n)", "O(m²)"], answer: 2, explain: "Each of root's m nodes can start a comparison costing up to O(n). Serialization plus KMP brings it to O(m + n)." },
+          { q: "Why does serialization for subtree matching need a separator before each value?", options: ["To save space", "So a value like 2 can't match inside 12", "To mark the root", "It doesn't"], answer: 1, explain: "Without a leading separator, ',2,#,#' would be found inside ',12,#,#'. Null markers plus separators make the encoding unambiguous." },
+          { q: "In House Robber III, what does each recursive call return?", options: ["The maximum for the subtree", "A pair: best with the node robbed, and best without it", "A list of robbed nodes", "A boolean"], answer: 1, explain: "The parent's choice depends on whether its child was robbed, so each subtree reports both options." },
+          { q: "Invert Binary Tree in Java: what breaks with root.left = invert(root.right); root.right = invert(root.left)?", options: ["Nothing", "The second line inverts the already-replaced left child, and the original left subtree is lost", "It's O(n²)", "It returns null"], answer: 1, explain: "After the first line root.left holds the inverted right subtree. Save the original left child before overwriting it." },
         ]}
       />
 
-      <H2>Solve it in the browser</H2>
-      <Practice ids={["invert-binary-tree", "diameter-binary-tree", "symmetric-tree", "path-sum", "subtree-of-another-tree"]} />
+      <ExplainBack
+        slug="tree-problems"
+        prompts={[
+          "For Maximum Depth, Invert Binary Tree and Subtree of Another Tree, state the recursive contract in one sentence each.",
+          "Why does Subtree of Another Tree need two separate recursions, and how does serialization make it linear?",
+          "When must a recursive call return more than one value? Use House Robber III as the example.",
+        ]}
+        checklist={[
+          "Maximum Depth: returns the subtree's depth; empty is 0; combine is 1 + max(left, right)",
+          "Invert: mirror both subtrees, swap them, return the root; save a child before overwriting in Java/C++",
+          "Subtree: an outer walk over candidates plus an inner Same Tree comparison, O(m · n)",
+          "Serialization with null markers and leading separators identifies a tree; substring search gives O(m + n)",
+          "Two-tree problems (Same, Symmetric, Merge) recurse on pairs of nodes in lockstep",
+          "Return a tuple when the parent's decision depends on the child's choice (House Robber III)",
+        ]}
+      />
 
-      <H2>Practice problems</H2>
+      <H2>Practice</H2>
+      <Practice ids={["invert-binary-tree", "symmetric-tree", "subtree-of-another-tree", "path-sum", "diameter-binary-tree"]} />
       <Problems
         items={[
-          { title: "Maximum Depth of Binary Tree", level: "Easy", lc: "maximum-depth-of-binary-tree", pattern: "Bottom-up", idea: "1 + max of children.", complexity: "O(n)" },
-          { title: "Invert Binary Tree", level: "Easy", lc: "invert-binary-tree", pattern: "Modify", idea: "Swap children recursively.", complexity: "O(n)" },
-          { title: "Same Tree", level: "Easy", lc: "same-tree", pattern: "Two trees", idea: "Compare structure and values.", complexity: "O(n)" },
-          { title: "Symmetric Tree", level: "Easy", lc: "symmetric-tree", pattern: "Mirror", idea: "Outer pairs and inner pairs.", complexity: "O(n)" },
-          { title: "Diameter of Binary Tree", level: "Easy", lc: "diameter-of-binary-tree", pattern: "Return + global", idea: "best = max(lh + rh).", complexity: "O(n)" },
-          { title: "Subtree of Another Tree", level: "Easy", lc: "subtree-of-another-tree", pattern: "Two trees", idea: "isSame at every node (or serialize + string match).", complexity: "O(m·n)" },
-          { title: "Lowest Common Ancestor of a Binary Tree", level: "Medium", lc: "lowest-common-ancestor-of-a-binary-tree", pattern: "Split point", idea: "Both sides non-null → current node.", complexity: "O(n)" },
-          { title: "Count Good Nodes in Binary Tree", level: "Medium", lc: "count-good-nodes-in-binary-tree", pattern: "Top-down max", idea: "Pass the max seen on the path.", complexity: "O(n)" },
-          { title: "House Robber III", level: "Medium", lc: "house-robber-iii", pattern: "Return a pair", idea: "Return (rob this, skip this) for each node.", complexity: "O(n)" },
-          { title: "Binary Tree Maximum Path Sum", level: "Hard", lc: "binary-tree-maximum-path-sum", pattern: "Return + global", idea: "Single-branch gain up, bent path for best.", complexity: "O(n)" },
+          { title: "Maximum Depth of Binary Tree", level: "Easy", lc: "maximum-depth-of-binary-tree", pattern: "Return up", idea: "1 + max(left, right).", complexity: "O(n)" },
+          { title: "Invert Binary Tree", level: "Easy", lc: "invert-binary-tree", pattern: "Modify the tree", idea: "Invert both subtrees, then swap them.", complexity: "O(n)" },
+          { title: "Symmetric Tree", level: "Easy", lc: "symmetric-tree", pattern: "Two trees, mirrored", idea: "Compare outer and inner pairs.", complexity: "O(n)" },
+          { title: "Subtree of Another Tree", level: "Easy", lc: "subtree-of-another-tree", pattern: "Walk + compare", idea: "Same Tree at every candidate; or serialize.", complexity: "O(m · n)" },
+          { title: "Merge Two Binary Trees", level: "Easy", lc: "merge-two-binary-trees", pattern: "Build while recursing", idea: "Return the merged subtree's root.", complexity: "O(min(m, n))" },
+          { title: "Minimum Depth of Binary Tree", level: "Easy", lc: "minimum-depth-of-binary-tree", pattern: "Real leaves only", idea: "A missing child isn't a leaf; or use BFS.", complexity: "O(n)" },
+          { title: "Leaf-Similar Trees", level: "Easy", lc: "leaf-similar-trees", pattern: "Collect leaves", idea: "Compare the left-to-right leaf sequences.", complexity: "O(n + m)" },
+          { title: "House Robber III", level: "Medium", lc: "house-robber-iii", pattern: "Return a pair", idea: "(rob me, skip me) from each child.", complexity: "O(n)" },
+          { title: "Find Duplicate Subtrees", level: "Medium", lc: "find-duplicate-subtrees", pattern: "Serialize subtrees", idea: "Count post-order keys; report at count 2.", complexity: "O(n) with ids" },
+          { title: "Flip Equivalent Binary Trees", level: "Medium", lc: "flip-equivalent-binary-trees", pattern: "Two trees, both pairings", idea: "Match children straight or crossed.", complexity: "O(n)" },
+          { title: "Delete Leaves With a Given Value", level: "Medium", lc: "delete-leaves-with-a-given-value", pattern: "Modify, post-order", idea: "Recurse first; then delete me if I became a matching leaf.", complexity: "O(n)" },
         ]}
       />
     </>

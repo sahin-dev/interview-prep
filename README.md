@@ -75,6 +75,10 @@ Don't run `npm run build` while `npm run dev` is running: both use the `.next` f
 
 ### The pattern-lesson recipe
 
+Every new or rewritten lesson follows [WRITING_STANDARD.md](WRITING_STANDARD.md): the depth floors, the section
+architecture per article type, voice, traces, code, complexity and assessment rules, and a pre-publish checklist.
+The recipe below is the short version for pattern lessons.
+
 Lessons that teach a coding pattern follow the same order, so learners always know where to look:
 
 1. **Intuition:** an analogy, and the brute force the pattern beats.

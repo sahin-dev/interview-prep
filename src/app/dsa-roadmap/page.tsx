@@ -85,7 +85,7 @@ export default function DsaRoadmapPage() {
                 return (
                   <Link
                     key={`${group.id}-${entry.title}`}
-                    href={`/topics/${entry.lesson}/`}
+                    href={`/topics/${entry.lesson}/${entry.anchor ? `#${entry.anchor}` : ""}`}
                     className="group flex items-start gap-3 rounded-xl border border-border bg-surface p-4 hover:border-accent"
                   >
                     <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />

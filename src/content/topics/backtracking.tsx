@@ -1,520 +1,1006 @@
-import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Figure, Formula, Cards, Card, Code, Problems, Quiz, Practice, PatternTemplate, ExplainBack, Trace } from "@/components/content";
-import { NQueensViz, SubsetsTreeViz } from "@/components/viz/lazy";
+import { H2, H3, P, Lead, Callout, List, Steps, Table, Complexity, Code, Problems, Quiz, Practice, PatternTemplate, ExplainBack, Example, Trace } from "@/components/content";
+import { SubsetsTreeViz, NQueensViz } from "@/components/viz/lazy";
 
 export default function Backtracking() {
   return (
     <>
       <Lead>
-        Backtracking explores every possible solution by building it one choice at a time, and{" "}
-        <strong>undoing</strong> the last choice when it leads to a dead end. It generates all subsets, permutations and
-        combinations, and solves constraint puzzles like N-Queens and Sudoku. It&apos;s brute force made systematic,
-        with <em>pruning</em> to skip hopeless branches.
+        Backtracking builds answers one choice at a time and abandons a partial answer the moment it can&apos;t lead
+        anywhere. It&apos;s the standard tool when a problem asks for <strong>every</strong> arrangement: all subsets,
+        all permutations, every way to split a string, every placement of queens. Under the hood it&apos;s depth-first
+        search on a tree of decisions that you never actually store. This lesson builds that idea from the ground up:
+        the state-space tree, the choose / explore / un-choose template, the three questions that design any solution,
+        pruning, extra state, deduplication, and the point where backtracking turns into dynamic programming.
       </Lead>
 
-      <H2>The intuition</H2>
-      <Callout type="analogy">
-        Escaping a maze by always taking the next unexplored corridor. Hit a dead end? Walk back to the last junction
-        and try a different corridor. You leave breadcrumbs (the current path) and pick them up as you retreat.
-      </Callout>
-
-      <SubsetsTreeViz />
-
-      <H2>The universal template</H2>
-      <Code
-        python={String.raw`
-def backtrack(state, choices):
-    if is_solution(state):
-        record(state.copy())        # copy! state keeps changing
-        return
-    for choice in choices:
-        if not valid(state, choice):
-            continue                # prune
-        make(state, choice)         # choose
-        backtrack(state, next_choices)
-        undo(state, choice)         # un-choose (backtrack)
-`}
-      />
-      <Callout type="key" title="Choose → explore → un-choose">
-        Every backtracking solution is these three lines. If your results are wrong, the bug is almost always a missing
-        undo, or recording a reference to the state instead of a copy.
-      </Callout>
-
-      <H2>Design any backtracking solution in three questions</H2>
+      <H2 id="combinatorial-search">Combinatorial search: when the answer is every arrangement</H2>
       <P>
-        Backtracking is a depth-first search over a <strong>state-space tree</strong>. Each node is a partial answer,
-        each edge adds one choice, and the leaves are complete answers or dead ends. Unlike a tree problem, the tree
-        isn&apos;t given to you: you build it as you search. So the first step is always to draw it, by hand, for a tiny
-        input.
+        Some problems don&apos;t ask for one best answer. They ask you to <em>enumerate</em>: list every subset of a set,
+        every ordering of some letters, every combination of coins that makes a total, every valid placement of pieces on
+        a board. These are <em>combinatorial search</em> problems. Their outputs are huge by nature: a set of n items has
+        2ⁿ subsets and n! orderings. No algorithm can be faster than the size of its output, so the goal isn&apos;t to
+        beat exponential time. The goal is to generate each answer exactly once, and to skip work that can&apos;t produce
+        one.
       </P>
-      <Figure caption="State-space tree for choosing k = 2 numbers from 1..4. Each node shows the path so far; edges only go to larger numbers, which is why [2, 1] never appears.">
-        <pre className="text-[12.5px] leading-relaxed">{`[]
-├── [1]
-│   ├── [1,2]   ✓ complete: length k = 2, record a copy
-│   ├── [1,3]   ✓
-│   └── [1,4]   ✓
-├── [2]
-│   ├── [2,3]   ✓
-│   └── [2,4]   ✓
-├── [3]
-│   └── [3,4]   ✓
-└── [4]         ✗ pruned: no larger number is left to add`}</pre>
-      </Figure>
+      <P>
+        The organizing picture is the <strong>state-space tree</strong>. The root is the empty partial answer. Each edge
+        is one choice, and each node is the partial answer made by the choices on the path from the root. The leaves,
+        or the nodes that satisfy the goal, are complete answers. For subsets of [1, 2, 3], the root is [], its
+        children are [1], [2] and [3], [1] has children [1, 2] and [1, 3], and so on.
+      </P>
+      <SubsetsTreeViz />
+      <Callout type="analogy">
+        Getting dressed from a small wardrobe is a state-space tree: pick a shirt, then trousers, then shoes. Each
+        complete path is an outfit. If you notice the shirt and trousers clash, you don&apos;t try every pair of shoes
+        with them. You take the trousers off and try the next pair. That&apos;s backtracking: undo the last choice and try
+        another, and abandon a branch as soon as it&apos;s hopeless.
+      </Callout>
+
+      <H2 id="dfs-with-states">DFS with states: the path is the state</H2>
+      <P>
+        Backtracking is <a href="/topics/tree-dfs/">depth-first search</a>, with one difference: the tree isn&apos;t
+        given to you. You <em>generate</em> it as you go, and it&apos;s far too large to store, since n! nodes for
+        permutations of 12 items is already 479 million. Instead, the current node is represented by a{" "}
+        <strong>state</strong>, most often the list of choices made so far, called <code>path</code>. Moving to a child
+        means making a choice, and returning to the parent means undoing it.
+      </P>
+      <P>
+        Tree DFS passed state down as immutable parameters (the running maximum in Count Good Nodes). Backtracking
+        usually keeps one <em>mutable</em> path shared by every call, because copying the path for each child would cost
+        O(n) per step. The price is discipline: every change made before a recursive call must be undone after it, so
+        the next sibling sees exactly the state its parent had.
+      </P>
+      <Table
+        head={["", "Tree DFS", "Backtracking"]}
+        rows={[
+          ["The tree", "given (nodes in memory)", "implicit: generated by the choices"],
+          ["A node is", "a TreeNode", "a partial answer (the state)"],
+          ["Children", "node.left, node.right", "the choices still available"],
+          ["State handling", "usually parameters (copied per call)", "a shared path: append, recurse, pop"],
+          ["Size", "n nodes", "often 2ⁿ, n!, or C(n, k) nodes"],
+        ]}
+      />
+
+      <H2 id="fundamentals">Backtracking fundamentals: choose, explore, un-choose</H2>
+      <P>Every backtracking solution answers three questions. Once they&apos;re answered, the code nearly writes itself:</P>
       <Steps>
         <div>
-          <strong>When is a path complete?</strong> This is the leaf test. For combinations, it&apos;s{" "}
-          <code>len(path) == k</code>. For permutations, it&apos;s when every element is used. For subsets, every node
-          counts.
+          <strong>Is the current state a complete answer?</strong> If so, record a <em>copy</em> of it. The path will
+          keep changing after this.
         </div>
         <div>
-          <strong>What are the choices from here?</strong> These are the edges. For combinations, they&apos;re the numbers
-          after the last one chosen. For permutations, the unused elements. For N-Queens, the safe columns in the next row.
+          <strong>What choices can extend it?</strong> Loop over them. For each: <em>choose</em> (modify the state),{" "}
+          <em>explore</em> (recurse), <em>un-choose</em> (restore the state).
         </div>
         <div>
-          <strong>When can I stop early?</strong> This is the pruning. A branch that can&apos;t lead to any valid leaf
-          should be cut before you recurse into it.
+          <strong>Can this branch be pruned?</strong> If no completion of the current state can be valid, stop before
+          exploring it. Pruning is the difference between &ldquo;exponential&rdquo; and &ldquo;exponential but
+          fast&rdquo;.
         </div>
       </Steps>
-      <P>Answer the three questions and the template fills itself in:</P>
+      <Callout type="key">
+        <strong>Draw the state-space tree before writing code.</strong> Label each edge with a choice and each node with
+        the state. Doing that for a tiny input answers all three questions and shows where duplicates would come from.
+      </Callout>
+      <P>
+        The template below generates every k-element combination of 1 to n. Choices go <em>forward only</em> (each
+        number is greater than the last one chosen), so each combination is produced once, in increasing order. The
+        prune stops when too few numbers remain to fill the path.
+      </P>
       <PatternTemplate id="backtracking" />
+      <Trace
+        head={["event", "path", "why"]}
+        rows={[
+          ["choose 1", "[1]", "start = 1"],
+          ["choose 2", "[1, 2]", ""],
+          ["record", "[1, 2]", "length k = 2: a complete answer"],
+          ["un-choose 2, choose 3", "[1, 3]", "the next sibling sees [1] again"],
+          ["record", "[1, 3]", ""],
+          ["un-choose 3, 1; choose 2", "[2]", ""],
+          ["choose 3, record", "[2, 3]", ""],
+          ["at [], num = 3: prune", "[]", "0 chosen + 1 number left < k = 2"],
+        ]}
+        highlight={[7]}
+        caption="combine(3, 2) returns [[1, 2], [1, 3], [2, 3]]. Starting from 3 couldn't produce a pair, so the loop breaks instead of exploring it."
+      />
 
-      <H2>The three generators</H2>
-      <H3>Subsets (2ⁿ results)</H3>
-      <P>At each index, either include the element or don&apos;t. Alternatively, every node of the recursion is itself a subset (the &ldquo;start index&rdquo; style below).</P>
+      <H2 id="subsets">Generate subsets</H2>
+      <Example
+        title="Subsets"
+        level="Medium"
+        lc="subsets"
+        examples={[{ input: "nums = [1, 2, 3]", output: "[[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]]" }]}
+        constraints={["1 ≤ n ≤ 10", "elements are distinct", "any order"]}
+      >
+        Return every subset of <code>nums</code>, the power set, with no duplicate subsets.
+      </Example>
+      <P>
+        <strong>The three questions.</strong> Complete? <em>Every</em> node is a subset, so record at every call, not
+        only at leaves. Choices? Any element after the last one chosen. Choosing forward only means [1, 2] and [2, 1] are
+        never both generated. Prune? Nothing to prune: every branch produces answers.
+      </P>
       <Code
         python={String.raw`
-def subsets(nums):
-    res, path = [], []
-    def bt(start):
-        res.append(path[:])                 # every node is a subset
-        for i in range(start, len(nums)):
-            path.append(nums[i])
-            bt(i + 1)                       # only later elements: no duplicates
-            path.pop()
-    bt(0)
-    return res
+def subsets(nums):                               # LeetCode 78
+    results, path = [], []
+    def dfs(start):
+        results.append(path[:])                  # every node is a subset: record a copy
+        for i in range(start, len(nums)):        # choices: elements after the last one picked
+            path.append(nums[i])                 # choose
+            dfs(i + 1)                           # explore
+            path.pop()                           # un-choose
+    dfs(0)
+    return results                               # 2^n subsets, O(n * 2^n) total
 `}
         java={String.raw`
 List<List<Integer>> subsets(int[] nums) {
-    List<List<Integer>> res = new ArrayList<>();
-    bt(nums, 0, new ArrayList<>(), res);
-    return res;
+    List<List<Integer>> results = new ArrayList<>();
+    dfs(nums, 0, new ArrayList<>(), results);
+    return results;
 }
-void bt(int[] nums, int start, List<Integer> path, List<List<Integer>> res) {
-    res.add(new ArrayList<>(path));
+void dfs(int[] nums, int start, List<Integer> path, List<List<Integer>> results) {
+    results.add(new ArrayList<>(path));          // copy
     for (int i = start; i < nums.length; i++) {
         path.add(nums[i]);
-        bt(nums, i + 1, path, res);
+        dfs(nums, i + 1, path, results);
         path.remove(path.size() - 1);
     }
 }
 `}
         cpp={String.raw`
-void bt(vector<int>& nums, int start, vector<int>& path, vector<vector<int>>& res) {
-    res.push_back(path);
+void dfs(const vector<int>& nums, int start, vector<int>& path, vector<vector<int>>& results) {
+    results.push_back(path);                     // copies the vector
     for (int i = start; i < (int)nums.size(); i++) {
         path.push_back(nums[i]);
-        bt(nums, i + 1, path, res);
+        dfs(nums, i + 1, path, results);
         path.pop_back();
     }
+}
+vector<vector<int>> subsets(vector<int>& nums) {
+    vector<vector<int>> results;
+    vector<int> path;
+    dfs(nums, 0, path, results);
+    return results;
 }
 `}
         js={String.raw`
 function subsets(nums) {
-  const res = [], path = [];
-  const bt = (start) => {
-    res.push([...path]);
+  const results = [], path = [];
+  const dfs = (start) => {
+    results.push([...path]);
     for (let i = start; i < nums.length; i++) {
       path.push(nums[i]);
-      bt(i + 1);
+      dfs(i + 1);
       path.pop();
     }
   };
-  bt(0);
-  return res;
+  dfs(0);
+  return results;
 }
 `}
       />
-      <H3>Combinations (choose k)</H3>
-      <P>Same as subsets, but record only when <code>len(path) == k</code>. Prune: stop if there aren&apos;t enough elements left to reach k. It&apos;s the template above.</P>
-      <H3>Permutations (n! results)</H3>
-      <P>Order matters, so every unused element is a candidate at every position. Track usage with a boolean array.</P>
+      <P>
+        An equally valid tree asks one yes/no question per element: <em>include nums[i] or not?</em> That gives a
+        binary tree of depth n whose 2ⁿ leaves are the subsets. Both trees produce the same answers. The loop version
+        records at internal nodes, and the include/exclude version records only at leaves. A third way needs no
+        recursion: each subset corresponds to an n-bit mask, so iterating masks 0 to 2ⁿ − 1 generates them all. That
+        bitmask view reappears in <a href="/topics/dp-bitmask/">bitmask DP</a>.
+      </P>
+
+      <H2 id="permutations">Generate permutations</H2>
+      <Example
+        title="Permutations"
+        level="Medium"
+        lc="permutations"
+        examples={[{ input: "nums = [1, 2, 3]", output: "[[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]]" }]}
+        constraints={["1 ≤ n ≤ 6", "distinct elements"]}
+      >
+        Return every ordering of <code>nums</code>.
+      </Example>
+      <P>
+        <strong>What changes from subsets.</strong> Order matters now, so [1, 2] and [2, 1] are different answers and
+        &ldquo;forward only&rdquo; is wrong. At each position, any element <em>not yet used</em> may go next. That needs
+        one piece of extra state, a <code>used</code> array, which is chosen and un-chosen along with the path. A state
+        is complete when the path holds all n elements. The tree has n choices at the first level, n − 1 at the second,
+        and so on, giving n! leaves.
+      </P>
       <Code
         python={String.raw`
-def permute(nums):
-    res, path, used = [], [], [False] * len(nums)
-    def bt():
+def permute(nums):                               # LeetCode 46
+    results, path = [], []
+    used = [False] * len(nums)                   # extra state: which elements are in path
+    def dfs():
         if len(path) == len(nums):
-            res.append(path[:])
+            results.append(path[:])              # complete: every element placed
             return
         for i in range(len(nums)):
             if used[i]:
-                continue
-            used[i] = True; path.append(nums[i])
-            bt()
-            path.pop(); used[i] = False
-    bt()
-    return res
+                continue                         # already in this permutation
+            used[i] = True
+            path.append(nums[i])
+            dfs()
+            path.pop()                           # undo BOTH pieces of state
+            used[i] = False
+    dfs()
+    return results                               # n! results, O(n * n!) total
+`}
+        java={String.raw`
+List<List<Integer>> permute(int[] nums) {
+    List<List<Integer>> results = new ArrayList<>();
+    dfs(nums, new boolean[nums.length], new ArrayList<>(), results);
+    return results;
+}
+void dfs(int[] nums, boolean[] used, List<Integer> path, List<List<Integer>> results) {
+    if (path.size() == nums.length) { results.add(new ArrayList<>(path)); return; }
+    for (int i = 0; i < nums.length; i++) {
+        if (used[i]) continue;
+        used[i] = true; path.add(nums[i]);
+        dfs(nums, used, path, results);
+        path.remove(path.size() - 1); used[i] = false;
+    }
+}
+`}
+        cpp={String.raw`
+void dfs(const vector<int>& nums, vector<bool>& used, vector<int>& path, vector<vector<int>>& results) {
+    if (path.size() == nums.size()) { results.push_back(path); return; }
+    for (int i = 0; i < (int)nums.size(); i++) {
+        if (used[i]) continue;
+        used[i] = true; path.push_back(nums[i]);
+        dfs(nums, used, path, results);
+        path.pop_back(); used[i] = false;
+    }
+}
+vector<vector<int>> permute(vector<int>& nums) {
+    vector<vector<int>> results;
+    vector<int> path;
+    vector<bool> used(nums.size(), false);
+    dfs(nums, used, path, results);
+    return results;
+}
 `}
         js={String.raw`
 function permute(nums) {
-  const res = [], path = [], used = new Array(nums.length).fill(false);
-  const bt = () => {
-    if (path.length === nums.length) { res.push([...path]); return; }
+  const results = [], path = [], used = new Array(nums.length).fill(false);
+  const dfs = () => {
+    if (path.length === nums.length) { results.push([...path]); return; }
     for (let i = 0; i < nums.length; i++) {
       if (used[i]) continue;
       used[i] = true; path.push(nums[i]);
-      bt();
+      dfs();
       path.pop(); used[i] = false;
     }
   };
-  bt();
-  return res;
+  dfs();
+  return results;
+}
+`}
+      />
+      <Table
+        head={["Generator", "Choices at each step", "Record when", "Count"]}
+        rows={[
+          ["Subsets", "any element after the last chosen", "every node", "2ⁿ"],
+          ["Combinations (choose k)", "any element after the last chosen", "path has k elements", "C(n, k)"],
+          ["Permutations", "any element not used yet", "path has n elements", "n!"],
+        ]}
+      />
+
+      <H2 id="phone-combinations">Generate phone number letter combinations</H2>
+      <Example
+        title="Letter Combinations of a Phone Number"
+        level="Medium"
+        lc="letter-combinations-of-a-phone-number"
+        examples={[
+          { input: "digits = \"23\"", output: "[\"ad\",\"ae\",\"af\",\"bd\",\"be\",\"bf\",\"cd\",\"ce\",\"cf\"]" },
+          { input: "digits = \"\"", output: "[]" },
+        ]}
+        constraints={["0 ≤ digits.length ≤ 4", "digits are 2 to 9"]}
+      >
+        Each digit maps to letters as on a phone keypad (2 = abc, 3 = def, …, 7 = pqrs, 9 = wxyz). Return every string the
+        digits could spell.
+      </Example>
+      <P>
+        Here the tree&apos;s shape is fixed by the input: depth = the number of digits, and the choices at depth i are
+        the letters of digit i. The state is the index of the next digit plus the letters chosen so far. Every path of
+        full length is an answer, and nothing can be pruned. The count is the product of the letter counts: 3 × 3 = 9
+        for &ldquo;23&rdquo;, and 4 × 4 = 16 for &ldquo;79&rdquo;.
+      </P>
+      <Code
+        python={String.raw`
+KEYPAD = {"2": "abc", "3": "def", "4": "ghi", "5": "jkl",
+          "6": "mno", "7": "pqrs", "8": "tuv", "9": "wxyz"}
+
+def letter_combinations(digits):                 # LeetCode 17
+    if not digits:
+        return []                                # no digits: no strings (not [""])
+    results, path = [], []
+    def dfs(i):                                  # i = next digit to spell
+        if i == len(digits):
+            results.append("".join(path))
+            return
+        for letter in KEYPAD[digits[i]]:
+            path.append(letter)
+            dfs(i + 1)
+            path.pop()
+    dfs(0)
+    return results                               # O(4^n * n)
+`}
+        java={String.raw`
+private static final String[] KEYPAD = {"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+
+List<String> letterCombinations(String digits) {
+    List<String> results = new ArrayList<>();
+    if (!digits.isEmpty()) dfs(digits, 0, new StringBuilder(), results);
+    return results;
+}
+void dfs(String digits, int i, StringBuilder path, List<String> results) {
+    if (i == digits.length()) { results.add(path.toString()); return; }
+    for (char letter : KEYPAD[digits.charAt(i) - '0'].toCharArray()) {
+        path.append(letter);
+        dfs(digits, i + 1, path, results);
+        path.deleteCharAt(path.length() - 1);
+    }
+}
+`}
+        js={String.raw`
+function letterCombinations(digits) {
+  if (!digits) return [];
+  const keypad = { 2: "abc", 3: "def", 4: "ghi", 5: "jkl", 6: "mno", 7: "pqrs", 8: "tuv", 9: "wxyz" };
+  const results = [], path = [];
+  const dfs = (i) => {
+    if (i === digits.length) { results.push(path.join("")); return; }
+    for (const letter of keypad[digits[i]]) { path.push(letter); dfs(i + 1); path.pop(); }
+  };
+  dfs(0);
+  return results;
 }
 `}
       />
 
-      <H2>Three high-frequency output patterns</H2>
-      <P>
-        These problems use the same choose â†’ recurse â†’ un-choose skeleton, but each has a different definition of a
-        legal next choice. Say that rule aloud before coding; it is the invariant that prevents invalid leaves.
-      </P>
-      <Table
-        head={["Problem", "State", "Legal next choice", "Output-sensitive cost"]}
-        rows={[
-          ["Phone letter combinations", "digit index + current text", "Any letter mapped by this digit", "O(4â¿ Â· n)"],
-          ["Generate valid parentheses", "open count, close count", "'(' if open < n; ')' if close < open", "O(Catalan(n) Â· n)"],
-          ["Palindrome partitioning", "start index + chosen pieces", "Any palindromic prefix beginning at start", "O(n Â· 2â¿)"],
+      <H2 id="valid-parentheses">Generate valid parentheses</H2>
+      <Example
+        title="Generate Parentheses"
+        level="Medium"
+        lc="generate-parentheses"
+        examples={[
+          { input: "n = 3", output: "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]" },
+          { input: "n = 1", output: "[\"()\"]" },
         ]}
+        constraints={["1 ≤ n ≤ 8"]}
+      >
+        Return every well-formed string of n pairs of parentheses.
+      </Example>
+      <P>
+        <strong>Brute force</strong> would build all 2²ⁿ strings of <code>(</code> and <code>)</code> and filter the
+        valid ones: 65,536 strings for n = 8. <strong>Backtracking</strong> never builds an invalid prefix in the first
+        place. It tracks two extra pieces of state, the number of opens and closes used, and allows a choice only when it
+        keeps the prefix fixable:
+      </P>
+      <List>
+        <li>Add <code>(</code> only if fewer than n opens have been used.</li>
+        <li>
+          Add <code>)</code> only if it would close an open one: <code>close &lt; open</code>. This is the pruning rule.
+          A prefix with more closes than opens can never become valid.
+        </li>
+      </List>
+      <Trace
+        head={["path", "open", "close", "allowed next", "note"]}
+        rows={[
+          ["", "0", "0", "(", "a close here would have nothing to match"],
+          ["(", "1", "0", "( or )", ""],
+          ["((", "2", "0", ")", "open == n: no more opens"],
+          ["(()", "2", "1", ")", ""],
+          ["(())", "2", "2", "", "complete: record"],
+          ["()", "1", "1", "(", "close == open: no close allowed"],
+          ["()()", "2", "2", "", "complete: record"],
+        ]}
+        highlight={[5]}
+        caption="n = 2. Only 8 states are visited, against 31 nodes in the full tree of all strings of length up to 4. For n = 3 it's 22 states instead of 127."
       />
       <Code
-        title="Phone combinations, valid parentheses and palindrome partitioning"
         python={String.raw`
-def letter_combinations(digits):
-    if not digits: return []
-    letters = {"2":"abc", "3":"def", "4":"ghi", "5":"jkl",
-               "6":"mno", "7":"pqrs", "8":"tuv", "9":"wxyz"}
-    out, path = [], []
-    def bt(i):
-        if i == len(digits):
-            out.append("".join(path)); return
-        for ch in letters[digits[i]]:
-            path.append(ch); bt(i + 1); path.pop()
-    bt(0)
-    return out
-
-def generate_parentheses(n):
-    out, path = [], []
-    def bt(opened, closed):
+def generate_parenthesis(n):                     # LeetCode 22
+    results, path = [], []
+    def dfs(open_used, close_used):              # extra state beyond the path
         if len(path) == 2 * n:
-            out.append("".join(path)); return
-        if opened < n:
-            path.append("("); bt(opened + 1, closed); path.pop()
-        if closed < opened:                 # every prefix remains valid
-            path.append(")"); bt(opened, closed + 1); path.pop()
-    bt(0, 0)
-    return out
-
-def palindrome_partitions(s):
-    out, path = [], []
-    def bt(start):
-        if start == len(s):
-            out.append(path[:]); return
-        for end in range(start + 1, len(s) + 1):
-            piece = s[start:end]
-            if piece == piece[::-1]:        # prune non-palindromic cuts
-                path.append(piece); bt(end); path.pop()
-    bt(0)
-    return out
+            results.append("".join(path))
+            return
+        if open_used < n:
+            path.append("(")
+            dfs(open_used + 1, close_used)
+            path.pop()
+        if close_used < open_used:               # prune: never close more than we opened
+            path.append(")")
+            dfs(open_used, close_used + 1)
+            path.pop()
+    dfs(0, 0)
+    return results
+`}
+        java={String.raw`
+List<String> generateParenthesis(int n) {
+    List<String> results = new ArrayList<>();
+    dfs(n, 0, 0, new StringBuilder(), results);
+    return results;
+}
+void dfs(int n, int open, int close, StringBuilder path, List<String> results) {
+    if (path.length() == 2 * n) { results.add(path.toString()); return; }
+    if (open < n) { path.append('('); dfs(n, open + 1, close, path, results); path.deleteCharAt(path.length() - 1); }
+    if (close < open) { path.append(')'); dfs(n, open, close + 1, path, results); path.deleteCharAt(path.length() - 1); }
+}
+`}
+        cpp={String.raw`
+void dfs(int n, int open, int close, string& path, vector<string>& results) {
+    if ((int)path.size() == 2 * n) { results.push_back(path); return; }
+    if (open < n) { path.push_back('('); dfs(n, open + 1, close, path, results); path.pop_back(); }
+    if (close < open) { path.push_back(')'); dfs(n, open, close + 1, path, results); path.pop_back(); }
+}
+vector<string> generateParenthesis(int n) {
+    vector<string> results;
+    string path;
+    dfs(n, 0, 0, path, results);
+    return results;
+}
 `}
         js={String.raw`
 function generateParenthesis(n) {
-  const out = [], path = [];
-  const bt = (open, close) => {
-    if (path.length === 2 * n) { out.push(path.join("")); return; }
-    if (open < n) { path.push("("); bt(open + 1, close); path.pop(); }
-    if (close < open) { path.push(")"); bt(open, close + 1); path.pop(); }
+  const results = [], path = [];
+  const dfs = (open, close) => {
+    if (path.length === 2 * n) { results.push(path.join("")); return; }
+    if (open < n) { path.push("("); dfs(open + 1, close); path.pop(); }
+    if (close < open) { path.push(")"); dfs(open, close + 1); path.pop(); }
   };
-  bt(0, 0);
-  return out;
+  dfs(0, 0);
+  return results;
 }
 `}
       />
-      <Callout type="interview">
-        For generator problems, exponential time is not automatically a flaw: writing all answers already costs at
-        least their total output size. State the number of possible outputs, multiply by the cost to copy each answer,
-        and explain how the validity rule prunes prefixes that can never become answers.
-      </Callout>
-
-      <H2>Handling duplicates</H2>
       <P>
-        With repeated values (like <code>[1, 2, 2]</code>), sort first, then skip a choice equal to the previous one{" "}
-        <em>at the same depth</em>: <code>if i &gt; start and nums[i] == nums[i − 1]: continue</code>. That prevents
-        generating the same subset twice while still allowing <code>[2, 2]</code>.
+        The number of valid strings is the n-th Catalan number: 1, 2, 5, 14, 42, …, about 4ⁿ / (n^1.5 · √π). Because
+        every branch the search keeps leads to at least one answer, the work is proportional to the output.
       </P>
 
-      <H2>Constraint problems and pruning</H2>
-      <P>For N-Queens, place one queen per row. Before placing, check the column and both diagonals in O(1) using sets (a diagonal is identified by <code>r − c</code>, an anti-diagonal by <code>r + c</code>).</P>
+      <H2 id="additional-states">Additional states: tracking more than the path</H2>
+      <P>
+        Generate Parentheses needed two counters, and Permutations needed a <code>used</code> array. Harder problems
+        need richer state: which columns are taken, which values a Sudoku row already holds, which grid cells the
+        current word occupies. The rule doesn&apos;t change. <strong>Every piece of state modified on the way down is
+        restored on the way up</strong>, in reverse order.
+      </P>
+      <P>
+        N-Queens shows how the right state turns an O(n) validity check into O(1). Place one queen per row. A new queen
+        at (row, col) conflicts with an earlier one if they share a column, the same <code>row − col</code> (the ↘
+        diagonal) or the same <code>row + col</code> (the ↙ diagonal). Keep three sets and check membership instead of
+        scanning the board.
+      </P>
       <NQueensViz />
       <Code
         python={String.raw`
-def solve_n_queens(n):
-    res, cols, d1, d2 = [], set(), set(), set()
-    board = [["."] * n for _ in range(n)]
-    def bt(r):
-        if r == n:
-            res.append(["".join(row) for row in board])
-            return
-        for c in range(n):
-            if c in cols or (r - c) in d1 or (r + c) in d2:
-                continue                                   # attacked: prune
-            cols.add(c); d1.add(r - c); d2.add(r + c); board[r][c] = "Q"
-            bt(r + 1)
-            cols.remove(c); d1.remove(r - c); d2.remove(r + c); board[r][c] = "."
-    bt(0)
-    return res
+def total_n_queens(n):                           # LeetCode 52
+    cols, diag, anti = set(), set(), set()       # extra state: what each placed queen attacks
+    def place(row):
+        if row == n:
+            return 1                             # every row has a queen: one solution
+        count = 0
+        for col in range(n):
+            if col in cols or row - col in diag or row + col in anti:
+                continue                         # prune: attacked square
+            cols.add(col); diag.add(row - col); anti.add(row + col)
+            count += place(row + 1)
+            cols.remove(col); diag.remove(row - col); anti.remove(row + col)   # restore
+        return count
+    return place(0)                              # n = 8 -> 92 solutions
+`}
+        js={String.raw`
+function totalNQueens(n) {
+  const cols = new Set(), diag = new Set(), anti = new Set();
+  const place = (row) => {
+    if (row === n) return 1;
+    let count = 0;
+    for (let col = 0; col < n; col++) {
+      if (cols.has(col) || diag.has(row - col) || anti.has(row + col)) continue;
+      cols.add(col); diag.add(row - col); anti.add(row + col);
+      count += place(row + 1);
+      cols.delete(col); diag.delete(row - col); anti.delete(row + col);
+    }
+    return count;
+  };
+  return place(0);
+}
 `}
       />
-      <Callout type="tip">
-        Good pruning makes backtracking practical. Sort candidates so you can <code>break</code> early (Combination Sum:
-        once a candidate exceeds the remaining target, all later ones do too), and check constraints before recursing,
-        not after.
-      </Callout>
+      <P>
+        Placing one queen per row is itself a pruning decision. It removes every arrangement with two queens in one row
+        before the search starts. For n = 8 the search visits 2,057 states to find all 92 solutions, while the board has
+        4.4 billion ways to place 8 queens on 64 squares.
+      </P>
 
-      {/* extra:backtracking:0 */}
-      <H2>Three more classics, fully coded</H2>
-      <H3>Combination Sum (reuse allowed, prune with sorting)</H3>
+      <H2 id="pruning">Pruning: cutting branches that can&apos;t succeed</H2>
+      <P>
+        Pruning means returning from a state as soon as you can prove that no completion of it is valid. It never
+        changes the answers, only how many states are visited, and on hard inputs that&apos;s the difference between
+        milliseconds and minutes. Common prunes:
+      </P>
+      <Table
+        head={["Prune", "Rule", "Example"]}
+        rows={[
+          ["Feasibility", "the state already breaks a constraint", "two queens attack; more ) than ("],
+          ["Not enough left", "the remaining choices can't complete the answer", "combinations: fewer numbers left than slots"],
+          ["Overshoot (sorted input)", "this choice exceeds the target, and every later one is bigger", "Combination Sum: break, don't continue"],
+          ["Bound", "even the best completion can't beat the best answer so far", "branch and bound for optimization"],
+          ["Dead prefix", "the prefix can't start any word", "Word Search II with a trie"],
+        ]}
+      />
+      <P>
+        Sorting the input often makes pruning far stronger. If the candidates are sorted and the current one already
+        overshoots, every later candidate overshoots too, so you can <code>break</code> out of the loop instead of{" "}
+        <code>continue</code>. Combination Sum below shows the effect in numbers.
+      </P>
+
+      <H2 id="combination-sum">Combination Sum</H2>
+      <Example
+        title="Combination Sum"
+        level="Medium"
+        lc="combination-sum"
+        examples={[
+          { input: "candidates = [2, 3, 6, 7], target = 7", output: "[[2, 2, 3], [7]]" },
+          { input: "candidates = [2], target = 1", output: "[]" },
+        ]}
+        constraints={["1 ≤ n ≤ 30", "candidates are distinct and positive", "each candidate may be used any number of times"]}
+      >
+        Return every combination of candidates that sums to target. Combinations differ by how many times each number is
+        used, not by order.
+      </Example>
+      <P>
+        <strong>The three questions.</strong> Complete? When the remaining target is exactly 0. Choices? Any candidate at
+        index ≥ <code>start</code>. Recursing with the <em>same</em> index <code>i</code>, not <code>i + 1</code>, is
+        what allows reuse, and never going below <code>start</code> keeps each combination in non-decreasing order, so
+        [2, 2, 3] is generated but [2, 3, 2] and [3, 2, 2] are not. Prune? Sort first. Once a candidate exceeds what
+        remains, every later candidate does too, so break.
+      </P>
+      <Trace
+        head={["path", "remaining", "event"]}
+        rows={[
+          ["[2, 2, 2]", "1", "next candidate 2 > 1: break (3, 6, 7 never tried)"],
+          ["[2, 2, 3]", "0", "record [2, 2, 3]"],
+          ["[2, 2]", "3", "after 3, candidate 6 > 3: break"],
+          ["[2, 3]", "2", "candidate 3 > 2: break"],
+          ["[2]", "5", "candidate 6 > 5: break"],
+          ["[3, 3]", "1", "break"],
+          ["[3]", "4", "candidate 6 > 4: break"],
+          ["[6]", "1", "break"],
+          ["[7]", "0", "record [7]"],
+        ]}
+        highlight={[1]}
+        caption="candidates [2, 3, 6, 7], target 7. With the sorted break the search visits 10 states. Without it, 28. For target 30, 391 states instead of 646."
+      />
       <Code
         python={String.raw`
-def combination_sum(candidates, target):
-    candidates.sort()
-    res, path = [], []
-    def bt(start, remaining):
+def combination_sum(candidates, target):         # LeetCode 39
+    candidates.sort()                            # enables the break below
+    results, path = [], []
+    def dfs(start, remaining):
         if remaining == 0:
-            res.append(path[:])
+            results.append(path[:])
             return
         for i in range(start, len(candidates)):
-            c = candidates[i]
-            if c > remaining:
-                break                       # sorted: every later candidate is too big too
-            path.append(c)
-            bt(i, remaining - c)            # i, not i + 1: c may be reused
+            if candidates[i] > remaining:
+                break                            # prune: this and every later candidate overshoot
+            path.append(candidates[i])
+            dfs(i, remaining - candidates[i])    # i, not i + 1: the same number may be reused
             path.pop()
-    bt(0, target)
-    return res
+    dfs(0, target)
+    return results
 `}
         java={String.raw`
-List<List<Integer>> combinationSum(int[] cand, int target) {
-    Arrays.sort(cand);
-    List<List<Integer>> res = new ArrayList<>();
-    bt(cand, 0, target, new ArrayList<>(), res);
-    return res;
+List<List<Integer>> combinationSum(int[] candidates, int target) {
+    Arrays.sort(candidates);
+    List<List<Integer>> results = new ArrayList<>();
+    dfs(candidates, 0, target, new ArrayList<>(), results);
+    return results;
 }
-void bt(int[] cand, int start, int rem, List<Integer> path, List<List<Integer>> res) {
-    if (rem == 0) { res.add(new ArrayList<>(path)); return; }
-    for (int i = start; i < cand.length && cand[i] <= rem; i++) {
-        path.add(cand[i]);
-        bt(cand, i, rem - cand[i], path, res);
+void dfs(int[] c, int start, int remaining, List<Integer> path, List<List<Integer>> results) {
+    if (remaining == 0) { results.add(new ArrayList<>(path)); return; }
+    for (int i = start; i < c.length && c[i] <= remaining; i++) {   // sorted: stop at overshoot
+        path.add(c[i]);
+        dfs(c, i, remaining - c[i], path, results);
         path.remove(path.size() - 1);
     }
 }
 `}
-      />
-
-      <H3>Word Search (backtracking on a grid)</H3>
-      <P>Mark a cell as used while it&apos;s on the current path, and unmark it when backtracking, so other paths can use it.</P>
-      <Code
-        python={String.raw`
-def exist(board, word):
-    R, C = len(board), len(board[0])
-    def dfs(r, c, i):
-        if i == len(word):
-            return True
-        if not (0 <= r < R and 0 <= c < C) or board[r][c] != word[i]:
-            return False
-        tmp, board[r][c] = board[r][c], "#"       # choose: mark as used
-        found = (dfs(r + 1, c, i + 1) or dfs(r - 1, c, i + 1) or
-                 dfs(r, c + 1, i + 1) or dfs(r, c - 1, i + 1))
-        board[r][c] = tmp                         # un-choose
-        return found
-    return any(dfs(r, c, 0) for r in range(R) for c in range(C))
+        cpp={String.raw`
+void dfs(const vector<int>& c, int start, int remaining, vector<int>& path, vector<vector<int>>& results) {
+    if (remaining == 0) { results.push_back(path); return; }
+    for (int i = start; i < (int)c.size() && c[i] <= remaining; i++) {
+        path.push_back(c[i]);
+        dfs(c, i, remaining - c[i], path, results);
+        path.pop_back();
+    }
+}
+vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+    sort(candidates.begin(), candidates.end());
+    vector<vector<int>> results;
+    vector<int> path;
+    dfs(candidates, 0, target, path, results);
+    return results;
+}
 `}
         js={String.raw`
-function exist(board, word) {
-  const R = board.length, C = board[0].length;
-  const dfs = (r, c, i) => {
-    if (i === word.length) return true;
-    if (r < 0 || c < 0 || r >= R || c >= C || board[r][c] !== word[i]) return false;
-    const tmp = board[r][c];
-    board[r][c] = "#";
-    const found = dfs(r + 1, c, i + 1) || dfs(r - 1, c, i + 1) || dfs(r, c + 1, i + 1) || dfs(r, c - 1, i + 1);
-    board[r][c] = tmp;
-    return found;
+function combinationSum(candidates, target) {
+  candidates.sort((a, b) => a - b);
+  const results = [], path = [];
+  const dfs = (start, remaining) => {
+    if (remaining === 0) { results.push([...path]); return; }
+    for (let i = start; i < candidates.length && candidates[i] <= remaining; i++) {
+      path.push(candidates[i]);
+      dfs(i, remaining - candidates[i]);
+      path.pop();
+    }
   };
-  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) if (dfs(r, c, 0)) return true;
-  return false;
+  dfs(0, target);
+  return results;
 }
 `}
       />
+      <Table
+        head={["Variant", "What changes"]}
+        rows={[
+          ["Combination Sum (reuse allowed)", "recurse with i"],
+          ["Combination Sum II (each element once, input has duplicates)", "recurse with i + 1, and skip equal siblings (next section)"],
+          ["Combination Sum III (k numbers from 1–9)", "also stop when the path has k numbers"],
+          ["Combination Sum IV (count orderings)", "order matters and only the count is needed: dynamic programming, not backtracking"],
+        ]}
+      />
 
-      <H3>Sudoku solver (constraint sets)</H3>
+      <H2 id="deduplication">Deduplication: when the input has repeats</H2>
+      <P>
+        If the input contains equal values, the generators above produce duplicate answers. Subsets of [1, 2, 2] would
+        include [1, 2] twice, once with each 2. Filtering duplicates afterward with a set works, but it wastes the
+        search and costs extra memory. The clean fix is to <strong>sort, then skip a choice equal to the previous
+        sibling</strong>:
+      </P>
       <Code
         python={String.raw`
-def solve_sudoku(board):
-    rows = [set() for _ in range(9)]
-    cols = [set() for _ in range(9)]
-    boxes = [set() for _ in range(9)]
-    empty = []
-    for r in range(9):
-        for c in range(9):
-            v = board[r][c]
-            if v == ".":
-                empty.append((r, c))
-            else:
-                rows[r].add(v); cols[c].add(v); boxes[r // 3 * 3 + c // 3].add(v)
-
-    def bt(k):
-        if k == len(empty):
-            return True
-        r, c = empty[k]
-        b = r // 3 * 3 + c // 3
-        for d in "123456789":
-            if d in rows[r] or d in cols[c] or d in boxes[b]:
-                continue                                   # prune
-            board[r][c] = d
-            rows[r].add(d); cols[c].add(d); boxes[b].add(d)
-            if bt(k + 1):
-                return True
-            rows[r].remove(d); cols[c].remove(d); boxes[b].remove(d)
-            board[r][c] = "."
-        return False
-
-    bt(0)
+def subsets_with_dup(nums):                      # LeetCode 90
+    nums.sort()                                  # equal values become neighbors
+    results, path = [], []
+    def dfs(start):
+        results.append(path[:])
+        for i in range(start, len(nums)):
+            if i > start and nums[i] == nums[i - 1]:
+                continue                         # same value as the previous SIBLING: same subtree
+            path.append(nums[i])
+            dfs(i + 1)
+            path.pop()
+    dfs(0)
+    return results                               # [1,2,2] -> [], [1], [1,2], [1,2,2], [2], [2,2]
+`}
+        js={String.raw`
+function subsetsWithDup(nums) {
+  nums.sort((a, b) => a - b);
+  const results = [], path = [];
+  const dfs = (start) => {
+    results.push([...path]);
+    for (let i = start; i < nums.length; i++) {
+      if (i > start && nums[i] === nums[i - 1]) continue;
+      path.push(nums[i]);
+      dfs(i + 1);
+      path.pop();
+    }
+  };
+  dfs(0);
+  return results;
+}
 `}
       />
-      <Callout type="tip">
-        A big speed-up for constraint problems: always fill the cell with the <strong>fewest legal options</strong>{" "}
-        first (the &ldquo;most constrained variable&rdquo; heuristic). Dead ends are discovered much earlier.
-      </Callout>
-
-      <H2>Estimating backtracking complexity</H2>
       <P>
-        Picture the decision tree: <strong>time ≈ (number of nodes) × (work per node)</strong>. With branching factor b
-        and depth d there are at most bᵈ leaves. Word Search: 4 directions, but you can&apos;t go back, so about{" "}
-        <code>R·C·3^L</code> for a word of length L. Generating all valid parentheses for n pairs yields the n-th
-        Catalan number of results, roughly 4ⁿ / n^1.5. Pruning doesn&apos;t change the worst-case bound but often makes
-        real inputs fast.
+        <strong>Why <code>i &gt; start</code> and not <code>i &gt; 0</code>?</strong> The rule is about siblings, the
+        choices at <em>one</em> level of the tree. Picking the second 2 at the same level as the first would grow an
+        identical subtree, so it&apos;s skipped. But going <em>deeper</em> with the second 2 after the first one (the
+        path [2, 2]) is a genuinely new subset. <code>i &gt; start</code> skips only siblings. With{" "}
+        <code>i &gt; 0</code>, [1, 2, 2] loses [1, 2, 2] and [2, 2], and returns only{" "}
+        <code>[[], [1], [1, 2], [2]]</code>.
+      </P>
+      <P>
+        Permutations of input with repeats use the same idea through the <code>used</code> array. Skip{" "}
+        <code>nums[i]</code> if it equals <code>nums[i − 1]</code> and <code>nums[i − 1]</code> is <em>not</em> currently
+        used. That forces equal values to be placed in their original order, so each distinct ordering appears once:
+        [1, 1, 2] gives exactly 3 permutations, not 6.
+      </P>
+      <Code
+        python={String.raw`
+def permute_unique(nums):                        # LeetCode 47
+    nums.sort()
+    results, path, used = [], [], [False] * len(nums)
+    def dfs():
+        if len(path) == len(nums):
+            results.append(path[:])
+            return
+        for i in range(len(nums)):
+            if used[i]:
+                continue
+            if i > 0 and nums[i] == nums[i - 1] and not used[i - 1]:
+                continue                         # equal values must be used left to right
+            used[i] = True
+            path.append(nums[i])
+            dfs()
+            path.pop()
+            used[i] = False
+    dfs()
+    return results
+`}
+      />
+
+      <H2 id="palindrome-partitioning">Palindrome partitioning</H2>
+      <Example
+        title="Palindrome Partitioning"
+        level="Medium"
+        lc="palindrome-partitioning"
+        examples={[
+          { input: "s = \"aab\"", output: "[[\"a\",\"a\",\"b\"], [\"aa\",\"b\"]]" },
+          { input: "s = \"a\"", output: "[[\"a\"]]" },
+        ]}
+        constraints={["1 ≤ s.length ≤ 16"]}
+      >
+        Split <code>s</code> into pieces that are all palindromes, and return every such split.
+      </Example>
+      <P>
+        <strong>The choice is where the next piece ends.</strong> The state is <code>start</code>, the index where the
+        unsplit remainder begins, plus the pieces chosen so far. The choices are every <code>end</code> after{" "}
+        <code>start</code>: the next piece is <code>s[start:end]</code>. Prune any piece that isn&apos;t a palindrome,
+        because no later choice can repair it. A state is complete when <code>start</code> reaches the end of the
+        string.
+      </P>
+      <Code
+        python={String.raw`
+def partition(s):                                # LeetCode 131
+    n = len(s)
+    is_pal = [[False] * n for _ in range(n)]     # is_pal[i][j]: is s[i..j] a palindrome?
+    for i in range(n - 1, -1, -1):
+        for j in range(i, n):
+            is_pal[i][j] = s[i] == s[j] and (j - i < 2 or is_pal[i + 1][j - 1])
+    results, path = [], []
+    def dfs(start):
+        if start == n:
+            results.append(path[:])              # the whole string is split
+            return
+        for end in range(start, n):              # next piece is s[start..end]
+            if not is_pal[start][end]:
+                continue                         # prune: can't be fixed later
+            path.append(s[start:end + 1])
+            dfs(end + 1)
+            path.pop()
+    dfs(0)
+    return results
+`}
+        java={String.raw`
+List<List<String>> partition(String s) {
+    int n = s.length();
+    boolean[][] pal = new boolean[n][n];
+    for (int i = n - 1; i >= 0; i--)
+        for (int j = i; j < n; j++)
+            pal[i][j] = s.charAt(i) == s.charAt(j) && (j - i < 2 || pal[i + 1][j - 1]);
+    List<List<String>> results = new ArrayList<>();
+    dfs(s, 0, pal, new ArrayList<>(), results);
+    return results;
+}
+void dfs(String s, int start, boolean[][] pal, List<String> path, List<List<String>> results) {
+    if (start == s.length()) { results.add(new ArrayList<>(path)); return; }
+    for (int end = start; end < s.length(); end++) {
+        if (!pal[start][end]) continue;
+        path.add(s.substring(start, end + 1));
+        dfs(s, end + 1, pal, path, results);
+        path.remove(path.size() - 1);
+    }
+}
+`}
+        js={String.raw`
+function partition(s) {
+  const n = s.length;
+  const pal = Array.from({ length: n }, () => new Array(n).fill(false));
+  for (let i = n - 1; i >= 0; i--)
+    for (let j = i; j < n; j++) pal[i][j] = s[i] === s[j] && (j - i < 2 || pal[i + 1][j - 1]);
+  const results = [], path = [];
+  const dfs = (start) => {
+    if (start === n) { results.push([...path]); return; }
+    for (let end = start; end < n; end++) {
+      if (!pal[start][end]) continue;
+      path.push(s.slice(start, end + 1));
+      dfs(end + 1);
+      path.pop();
+    }
+  };
+  dfs(0);
+  return results;
+}
+`}
+      />
+      <P>
+        The <code>is_pal</code> table is a small piece of dynamic programming that makes each palindrome check O(1)
+        instead of O(n). A string of length n has 2ⁿ⁻¹ ways to be cut, so the worst case (&ldquo;aaaa…a&rdquo;, where
+        every cut is valid) is O(n · 2ⁿ), and that&apos;s also the size of the output.
       </P>
 
-      <H2>The ladder: from backtracking to dynamic programming</H2>
+      <H2 id="word-search">Backtracking on a grid: Word Search</H2>
       <P>
-        One skeleton grows into a whole family of techniques. Each rung changes a single thing. Recognizing which rung a
-        problem needs is most of the work.
+        Word Search asks whether a word can be traced through adjacent grid cells without reusing a cell. The state is
+        the current cell, the index into the word, and which cells are already on the path. Mark a cell before
+        recursing and unmark it after. That&apos;s choose and un-choose on a grid. The prune is immediate: stop as soon
+        as a cell doesn&apos;t match the next letter.
+      </P>
+      <Code
+        python={String.raw`
+def exist(board, word):                          # LeetCode 79
+    rows, cols = len(board), len(board[0])
+    def dfs(r, c, i):                            # can word[i:] be traced starting at (r, c)?
+        if i == len(word):
+            return True
+        if r < 0 or r >= rows or c < 0 or c >= cols or board[r][c] != word[i]:
+            return False                         # prune: off the grid, used, or wrong letter
+        saved, board[r][c] = board[r][c], "#"   # choose: mark as used
+        found = (dfs(r + 1, c, i + 1) or dfs(r - 1, c, i + 1)
+                 or dfs(r, c + 1, i + 1) or dfs(r, c - 1, i + 1))
+        board[r][c] = saved                      # un-choose: restore the letter
+        return found
+    return any(dfs(r, c, 0) for r in range(rows) for c in range(cols))
+`}
+      />
+
+      <H2 id="to-memoization">From backtracking to memoization</H2>
+      <P>
+        Backtracking explores a tree. But sometimes different paths lead to the <em>same</em> state. In Word Break, after
+        matching &ldquo;cat&rdquo; + &ldquo;sand&rdquo; or &ldquo;cats&rdquo; + &ldquo;and&rdquo; on
+        &ldquo;catsanddog&rdquo;, the remaining question is identical: can &ldquo;dog&rdquo; be split? If the problem only
+        asks whether an answer exists, or how many there are, you can stop collecting paths and have each call return a
+        value for its state. Then cache those values.
+      </P>
+      <Steps>
+        <div><strong>Collect:</strong> record every complete path. Necessary when the output is the list of answers.</div>
+        <div>
+          <strong>Aggregate:</strong> return a count, a boolean or a best value from each call, and combine the
+          children&apos;s results. Paths are no longer stored.
+        </div>
+        <div>
+          <strong>Memoize:</strong> when the returned value depends only on a small state (an index, a remaining
+          amount), cache it. Each state is now solved once, and exponential becomes polynomial. That&apos;s dynamic
+          programming.
+        </div>
+      </Steps>
+      <PatternTemplate id="backtracking-aggregation" />
+      <P>
+        Target Sum above makes 2ⁿ calls. Caching on the pair <code>(i, total)</code> turns it into O(n · range of
+        totals). The full treatment of this ladder is in{" "}
+        <a href="/topics/dp-fundamentals/#memoization">memoization</a>, and Word Break, the canonical example, is worked
+        through in <a href="/topics/dp-1d/#word-break">1D dynamic programming</a>.
+      </P>
+
+      <H2 id="complexity">Estimating backtracking complexity</H2>
+      <P>
+        The cost of a backtracking search is (number of states visited) × (work per state). A safe upper bound for the
+        state count is the size of the full tree, the branching factor raised to the depth. Recording each answer also
+        costs its length, because of the copy. Pruning lowers the real count, sometimes by orders of magnitude, but
+        worst-case bounds usually quote the unpruned tree or the output size:
       </P>
       <Table
-        head={["Rung", "What changes", "Example", "Typical cost"]}
+        head={["Problem", "States / outputs", "Time", "Space (besides output)"]}
         rows={[
-          ["1. Collect", "Record a copy of the path at each complete leaf", "Subsets, combinations", "O(#answers × length)"],
-          ["2. Prune", "Skip choices that can't lead to a valid leaf", "Combination Sum, N-Queens", "Same worst case, much faster in practice"],
-          ["3. Extra state", "Track more than the path: used flags, sets, a running sum", "Permutations, Sudoku", "Same, plus O(1) checks"],
-          ["4. Aggregate", "Return a count, min or bool instead of collecting paths", "Target Sum (brute force)", "O(branchesᵈᵉᵖᵗʰ)"],
-          ["5. Memoize", "Cache the return value for each state", "Target Sum, Word Break, Coin Change", "O(#states × work per state)"],
+          ["Subsets", "2ⁿ", "O(n · 2ⁿ)", "O(n)"],
+          ["Combinations C(n, k)", "C(n, k) outputs", "O(k · C(n, k))", "O(k)"],
+          ["Permutations", "n! outputs", "O(n · n!)", "O(n)"],
+          ["Letter combinations", "up to 4ⁿ", "O(n · 4ⁿ)", "O(n)"],
+          ["Generate parentheses", "Catalan(n) ≈ 4ⁿ / n^1.5", "O(4ⁿ / √n)", "O(n)"],
+          ["N-Queens", "far fewer than n!", "O(n!) bound", "O(n)"],
+          ["Word Search", "R · C starts × 3^(L − 1) paths", "O(R · C · 3^L)", "O(L)"],
+          ["Palindrome partitioning", "2ⁿ⁻¹ splits", "O(n · 2ⁿ)", "O(n²) for the table"],
         ]}
       />
-      <H3>Rung 4: aggregate instead of collect</H3>
       <P>
-        If the question asks <em>how many</em> answers exist, or which one is best, you don&apos;t need the answers
-        themselves. Let the DFS <strong>return</strong> a value for its subtree and combine the children&apos;s values.
-        With the state passed as parameters, you no longer need a shared path or an undo step.
+        The input limits tell you what&apos;s intended. n ≤ 10 for permutations (10! ≈ 3.6 million), n ≤ 16 to 20 for
+        subsets (2²⁰ ≈ 10⁶) and n ≤ 9 for N-Queens are all signals that exponential search is expected.
       </P>
-      <PatternTemplate id="backtracking-aggregation" showSignals={false} />
-      <H3>Rung 5: notice repeated states, then memoize</H3>
-      <P>
-        Draw the tree for <code>nums = [1, 1, 1, 1, 1]</code>, target 3. The state is <code>(i, total)</code>, and many
-        different paths lead to the same state: <code>+1 −1</code> and <code>−1 +1</code> both reach{" "}
-        <code>(2, 0)</code>, and everything below that state gets computed twice. With more elements, the same state is
-        reached exponentially many times.
-      </P>
-      <Trace
-        head={["Version", "Subproblems solved, n = 5", "n = 20", "Why"]}
-        rows={[
-          ["Brute-force aggregation", "63", "2,097,151", "Every path is explored: 2ⁿ⁺¹ − 1 calls, repeats included"],
-          ["Memoized on (i, total)", "21", "231", "Each distinct state is solved once, (n+1)(n+2)/2 of them; repeats are cache hits"],
-        ]}
-        caption="Target Sum with all ones. Memoization doesn't change the recurrence; it just refuses to solve the same state twice."
-      />
-      <PatternTemplate id="dp-memo" showSignals={false} />
-      <Callout type="key" title="Backtracking + memoization = dynamic programming">
-        If a problem asks for <strong>all</strong> solutions, you must enumerate them: stay on rungs 1–3. If it asks for
-        the <strong>count</strong>, the <strong>best</strong> one, or <strong>whether one exists</strong>, climb to rung 4,
-        then check whether states repeat. If they do, rung 5 is{" "}
-        <a href="/topics/dp-fundamentals/">dynamic programming</a>. The memo can then be converted into a bottom-up table.
-      </Callout>
 
-      <H2>Complexity</H2>
-      <Table
-        head={["Problem", "Number of results", "Typical time"]}
-        rows={[
-          ["Subsets", "2ⁿ", "O(n · 2ⁿ)"],
-          ["Permutations", "n!", "O(n · n!)"],
-          ["Combinations C(n, k)", "n! / (k!(n−k)!)", "O(k · C(n, k))"],
-          ["N-Queens", "varies", "O(n!) upper bound, far less with pruning"],
-        ]}
-      />
+      <H2 id="when-not">When backtracking is the wrong tool</H2>
+      <List>
+        <li>
+          <strong>Counting or optimizing with overlapping states.</strong> &ldquo;How many ways&rdquo; or &ldquo;the
+          minimum number of coins&rdquo; usually repeats subproblems. Memoize, or use{" "}
+          <a href="/topics/dp-fundamentals/">dynamic programming</a> directly.
+        </li>
+        <li>
+          <strong>A single answer with an efficient greedy or graph algorithm.</strong> Shortest paths, interval
+          scheduling and matching don&apos;t need enumeration.
+        </li>
+        <li>
+          <strong>Large n with no pruning.</strong> Subsets of 40 items is 10¹² states. Look for meet-in-the-middle,
+          DP over sums, or a smarter formulation.
+        </li>
+      </List>
+
+      <H2 id="mistakes">Edge cases and common mistakes</H2>
+      <Callout type="warning" title="Recording the path itself instead of a copy">
+        <code>results.append(path)</code> stores a reference to the one shared list. When backtracking finishes,
+        it&apos;s empty, so every recorded answer shows up as <code>[]</code>. Append <code>path[:]</code>,{" "}
+        <code>new ArrayList&lt;&gt;(path)</code> or <code>[...path]</code>.
+      </Callout>
+      <Callout type="warning" title="Forgetting to undo every piece of state">
+        Popping the path but leaving <code>used[i] = True</code> means a permutation search sees elements as used that
+        aren&apos;t. On [1, 2, 3] it returns only [[1, 2, 3]]. Every change before the recursive call needs a matching
+        undo after it.
+      </Callout>
+      <Callout type="warning" title="i > 0 instead of i > start when deduplicating">
+        On [1, 2, 2], <code>i &gt; 0</code> skips the second 2 even when it extends [1, 2], losing [1, 2, 2] and [2, 2].
+        Skip only <em>siblings</em>: <code>i &gt; start</code>.
+      </Callout>
+      <Callout type="warning" title="continue where break would do, or break on unsorted input">
+        With sorted candidates, <code>continue</code> after an overshoot still tries every larger candidate, so the
+        search is correct but slower. <code>break</code> without sorting is wrong: on [7, 2] with target 2 it gives up
+        at 7 and never tries 2.
+      </Callout>
+      <Callout type="warning" title="Recursing with i + 1 when reuse is allowed">
+        In Combination Sum, <code>dfs(i + 1, …)</code> forbids reusing a candidate, so [2, 2, 3] is never found. Reuse
+        means <code>dfs(i, …)</code>.
+      </Callout>
+      <P>Edge-case checklist: an empty input (is the answer <code>[[]]</code> or <code>[]</code>?), a single element, all-equal elements (deduplication), a target no combination reaches, and the maximum n the constraints allow (state count).</P>
+
+      <H2 id="interview">Backtracking in an interview</H2>
       <Callout type="interview">
-        Backtracking is exponential, and that&apos;s expected. State it confidently and point to the constraints (n ≤ 10
-        to 20 signals exponential is intended). If subproblems repeat, mention that memoization turns it into DP.
-      </Callout>
-
-      <H2>Common mistakes</H2>
-      <Callout type="warning">
-        <ul>
-          <li>Appending <code>path</code> instead of <code>path[:]</code> / <code>new ArrayList&lt;&gt;(path)</code>: every result ends up empty.</li>
-          <li>Forgetting the undo step, so state leaks between branches.</li>
-          <li>Using <code>i</code> vs <code>i + 1</code> wrong in the recursive call (reuse allowed vs not).</li>
-          <li>Skipping duplicates with <code>i &gt; 0</code> instead of <code>i &gt; start</code>.</li>
-        </ul>
+        <p>
+          Signals: &ldquo;all&rdquo;, &ldquo;every&rdquo;, &ldquo;list all&rdquo;, &ldquo;generate&rdquo;, &ldquo;each
+          possible&rdquo;, and small limits (n ≤ 10 to 20). Draw the state-space tree for a tiny input first, then say the
+          three answers out loud: what makes a state complete, what the choices are, and how you&apos;ll prune.
+        </p>
+        <p className="mt-2">
+          Interviewers watch for three things: the copy when recording, the undo after the recursive call, and correct
+          duplicate handling. Give the complexity as states × work per state, and if the question only needs a count or
+          a yes/no, say that memoization could turn it into DP.
+        </p>
       </Callout>
 
       <Quiz
         questions={[
-          { q: "How many subsets does a set of 10 elements have?", options: ["10", "100", "1,024", "3,628,800"], answer: 2, explain: "2¹⁰ = 1,024. (3,628,800 is 10!, the number of permutations.)" },
-          { q: "In Combination Sum (reuse allowed), the recursive call uses…", options: ["bt(i + 1)", "bt(i)", "bt(0)", "bt(start + 1)"], answer: 1, explain: "Passing i lets the same element be chosen again; i + 1 would forbid reuse." },
-          { q: "In N-Queens, cells on the same diagonal share the same…", options: ["r + c", "r − c", "r × c", "c"], answer: 1, explain: "Moving down-right adds 1 to both r and c, so r − c stays constant. Anti-diagonals share r + c." },
+          { q: "What does results.append(path) (without copying) produce at the end of a subsets search?", options: ["The correct subsets", "A list of empty lists, all referencing the same path", "A crash", "Only the last subset"], answer: 1, explain: "Every entry is the same list object, which is empty again once backtracking unwinds. Record path[:]." },
+          { q: "Why does the subsets generator choose only elements after `start`?", options: ["For speed only", "So each subset is generated once, in index order: [1, 2] but never [2, 1]", "Because of recursion limits", "To sort the output"], answer: 1, explain: "Forward-only choices give every subset one canonical order, which eliminates permuted duplicates." },
+          { q: "In Generate Parentheses, when may ')' be added?", options: ["Always", "When close < open", "When open == n", "When the path is empty"], answer: 1, explain: "A close must match an earlier open. close < open is exactly the condition that keeps the prefix fixable." },
+          { q: "In Combination Sum, why recurse with dfs(i, …) instead of dfs(i + 1, …)?", options: ["To avoid duplicates", "Because each candidate may be reused", "For pruning", "It's a typo either way"], answer: 1, explain: "Staying at i allows choosing the same number again. Never going below start keeps combinations in non-decreasing order." },
+          { q: "When deduplicating subsets of sorted input, the skip condition is…", options: ["i > 0 and nums[i] == nums[i − 1]", "i > start and nums[i] == nums[i − 1]", "nums[i] in path", "used[i]"], answer: 1, explain: "Only siblings at the same level produce identical subtrees. Going deeper with an equal value is a new answer." },
+          { q: "Word Break only asks whether a split exists. What's the better approach than collecting all splits?", options: ["Sort the dictionary", "Return a boolean per start index and memoize it", "Use a heap", "BFS over characters"], answer: 1, explain: "Many paths reach the same start index. Caching the answer per index turns exponential backtracking into O(n²) DP." },
         ]}
       />
 
       <ExplainBack
         slug="backtracking"
         prompts={[
-          "What is the state-space tree for Permutations of [1, 2, 3]? What's in a node, and what's an edge?",
-          "What are the three questions you answer before writing any backtracking code?",
-          "When does a backtracking problem become a dynamic programming problem?",
+          "What is a state-space tree, and what are the three questions that design any backtracking solution?",
+          "Explain choose / explore / un-choose, and why the path is copied when recorded.",
+          "How do pruning and deduplication work, and when should backtracking become memoization?",
         ]}
         checklist={[
-          "A node is a partial answer (the path); an edge adds one choice; leaves are complete answers",
-          "Q1: when is a path complete; Q2: what are the choices from here; Q3: when to prune",
-          "Choose → explore → un-choose, and record a copy at the leaf",
-          "Extra state (used flags, sets) must be undone exactly like the path",
-          "Count, best or exists → return values instead of collecting (aggregation)",
-          "Repeated (i, …) states → memoize → DP",
+          "Each node is a partial answer (the state); edges are choices; complete states are recorded",
+          "Three questions: is it complete? what are the choices? can I prune?",
+          "Mutate shared state, recurse, undo exactly what you changed; record a copy of the path",
+          "Subsets and combinations choose forward from start; permutations use a used[] array",
+          "Prune with feasibility, not-enough-left, and sorted breaks; dedup with sort + skip equal siblings (i > start)",
+          "If only a count, boolean or best value is needed and states repeat, return values and memoize (DP)",
         ]}
       />
 
       <H2>Practice</H2>
-      <Practice ids={["subsets", "permutations", "combination-sum", "generate-parentheses", "word-search", "n-queens-ii"]} />
+      <Practice ids={["subsets", "permutations", "generate-parentheses", "combination-sum", "word-search", "n-queens-ii"]} />
       <Problems
         items={[
-          { title: "Subsets", level: "Medium", lc: "subsets", pattern: "Include/exclude", idea: "Record at every node with a start index.", complexity: "O(n · 2ⁿ)" },
-          { title: "Subsets II", level: "Medium", lc: "subsets-ii", pattern: "Skip duplicates", idea: "Sort; skip nums[i] == nums[i − 1] when i > start.", complexity: "O(n · 2ⁿ)" },
-          { title: "Permutations", level: "Medium", lc: "permutations", pattern: "Used array", idea: "Try every unused element at each position.", complexity: "O(n · n!)" },
-          { title: "Combinations", level: "Medium", lc: "combinations", pattern: "Choose k", idea: "Start index; prune when not enough numbers remain.", complexity: "O(k · C(n, k))" },
-          { title: "Combination Sum", level: "Medium", lc: "combination-sum", pattern: "Reuse allowed", idea: "Recurse with i (not i + 1); sort and break when the candidate exceeds the remainder.", complexity: "Exponential" },
-          { title: "Letter Combinations of a Phone Number", level: "Medium", lc: "letter-combinations-of-a-phone-number", pattern: "Product", idea: "One recursion level per digit.", complexity: "O(4ⁿ · n)" },
-          { title: "Generate Parentheses", level: "Medium", lc: "generate-parentheses", pattern: "Counted choices", idea: "Add '(' if open < n; add ')' if close < open.", complexity: "O(Catalan(n))" },
-          { title: "Word Search", level: "Medium", lc: "word-search", pattern: "Grid DFS + undo", idea: "Mark the cell visited, explore 4 directions, unmark.", complexity: "O(R·C·4^L)" },
-          { title: "Palindrome Partitioning", level: "Medium", lc: "palindrome-partitioning", pattern: "Cut positions", idea: "Try every palindromic prefix, recurse on the rest.", complexity: "O(n · 2ⁿ)" },
-          { title: "N-Queens", level: "Hard", lc: "n-queens", pattern: "Constraint sets", idea: "Column and diagonal sets for O(1) checks.", complexity: "O(n!)" },
-          { title: "Sudoku Solver", level: "Hard", lc: "sudoku-solver", pattern: "Constraint + pruning", idea: "Row/column/box sets; try digits in empty cells (pick the most constrained cell for speed).", complexity: "Exponential (small board)" },
+          { title: "Letter Case Permutation", level: "Medium", lc: "letter-case-permutation", pattern: "Two choices per letter", idea: "Lower or upper at each letter; digits have one choice.", complexity: "O(n · 2ⁿ)" },
+          { title: "Subsets", level: "Medium", lc: "subsets", pattern: "Record every node", idea: "Choose forward from start.", complexity: "O(n · 2ⁿ)" },
+          { title: "Combinations", level: "Medium", lc: "combinations", pattern: "Choose k", idea: "Prune when too few numbers remain.", complexity: "O(k · C(n, k))" },
+          { title: "Permutations", level: "Medium", lc: "permutations", pattern: "used[] state", idea: "Any unused element next.", complexity: "O(n · n!)" },
+          { title: "Letter Combinations of a Phone Number", level: "Medium", lc: "letter-combinations-of-a-phone-number", pattern: "Fixed depth", idea: "One digit per level; its letters are the choices.", complexity: "O(n · 4ⁿ)" },
+          { title: "Generate Parentheses", level: "Medium", lc: "generate-parentheses", pattern: "Counters as state", idea: "Open if open < n; close if close < open.", complexity: "O(4ⁿ / √n)" },
+          { title: "Combination Sum", level: "Medium", lc: "combination-sum", pattern: "Reuse + sorted break", idea: "Recurse with i; break on overshoot.", complexity: "exponential" },
+          { title: "Subsets II", level: "Medium", lc: "subsets-ii", pattern: "Dedup siblings", idea: "Sort; skip i > start equal to the previous.", complexity: "O(n · 2ⁿ)" },
+          { title: "Permutations II", level: "Medium", lc: "permutations-ii", pattern: "Dedup with used[]", idea: "Skip an equal value whose twin isn't used.", complexity: "O(n · n!)" },
+          { title: "Combination Sum II", level: "Medium", lc: "combination-sum-ii", pattern: "Dedup + no reuse", idea: "Recurse with i + 1; skip equal siblings.", complexity: "exponential" },
+          { title: "Palindrome Partitioning", level: "Medium", lc: "palindrome-partitioning", pattern: "Choose the cut", idea: "Next piece ends at end; prune non-palindromes.", complexity: "O(n · 2ⁿ)" },
+          { title: "Word Search", level: "Medium", lc: "word-search", pattern: "Grid backtracking", idea: "Mark the cell, recurse into 4 neighbors, unmark.", complexity: "O(R·C·3^L)" },
+          { title: "N-Queens II", level: "Hard", lc: "n-queens-ii", pattern: "Constraint sets", idea: "Columns, row − col and row + col sets.", complexity: "O(n!)" },
+          { title: "Sudoku Solver", level: "Hard", lc: "sudoku-solver", pattern: "Constraint sets", idea: "Row, column and box sets; try digits in empty cells.", complexity: "exponential" },
+          { title: "Word Search II", level: "Hard", lc: "word-search-ii", pattern: "Backtracking + trie", idea: "Walk the trie with the grid; prune dead prefixes.", complexity: "O(R·C·4^L)" },
         ]}
       />
     </>

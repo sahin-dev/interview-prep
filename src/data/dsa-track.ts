@@ -8,6 +8,8 @@
 export interface DsaTrackItem {
   title: string;
   lesson: string;
+  /** Section id inside the lesson (an H2 id), so the roadmap links straight to it. */
+  anchor?: string;
 }
 
 export interface DsaTrackGroup {
@@ -18,7 +20,7 @@ export interface DsaTrackGroup {
   items: DsaTrackItem[];
 }
 
-const item = (title: string, lesson: string): DsaTrackItem => ({ title, lesson });
+const item = (title: string, lesson: string, anchor?: string): DsaTrackItem => ({ title, lesson, anchor });
 
 export const dsaTrack: DsaTrackGroup[] = [
   {
@@ -46,15 +48,15 @@ export const dsaTrack: DsaTrackGroup[] = [
     level: "Core",
     description: "Turn a sorted domain or monotonic yes/no predicate into a logarithmic search.",
     items: [
-      item("Binary search introduction", "binary-search"),
-      item("First True template", "binary-search"),
-      item("Monotonic functions and predicates", "binary-search"),
-      item("First element not smaller than target (lower bound)", "binary-search"),
-      item("First occurrence", "binary-search"),
-      item("Square-root estimation", "binary-search"),
-      item("Minimum in a rotated sorted array", "binary-search"),
-      item("Peak of a mountain array", "binary-search"),
-      item("Binary search on the answer", "binary-search"),
+      item("Binary search introduction", "binary-search", "introduction"),
+      item("First True template", "binary-search", "first-true"),
+      item("Monotonic functions and predicates", "binary-search", "monotonic-functions"),
+      item("First element not smaller than target (lower bound)", "binary-search", "lower-bound"),
+      item("First occurrence", "binary-search", "first-occurrence"),
+      item("Square-root estimation", "binary-search", "square-root"),
+      item("Minimum in a rotated sorted array", "binary-search", "rotated-minimum"),
+      item("Peak of a mountain array", "binary-search", "mountain-peak"),
+      item("Binary search on the answer", "binary-search", "on-the-answer"),
     ],
   },
   {
@@ -63,23 +65,23 @@ export const dsaTrack: DsaTrackGroup[] = [
     level: "Core",
     description: "Replace nested scans by maintaining a precise invariant while boundaries move.",
     items: [
-      item("Two pointers introduction", "two-pointers"),
-      item("Understanding invariants", "two-pointers"),
-      item("Same-direction pointers", "two-pointers"),
-      item("Opposite-direction pointers", "two-pointers"),
-      item("Remove duplicates from a sorted array", "two-pointers"),
-      item("Middle of a linked list", "linked-lists"),
-      item("Move zeroes", "two-pointers"),
-      item("Two Sum in a sorted array", "two-pointers"),
-      item("Valid palindrome", "two-pointers"),
-      item("Container With Most Water", "two-pointers"),
-      item("Sliding-window introduction", "sliding-window"),
-      item("Fixed sliding window", "sliding-window"),
-      item("Variable sliding window", "sliding-window"),
-      item("Minimum Window Substring", "sliding-window"),
-      item("Prefix sums", "prefix-sums"),
-      item("Fast and slow pointers", "linked-lists"),
-      item("Cycle detection", "cycle-detection"),
+      item("Two pointers introduction", "two-pointers", "introduction"),
+      item("Understanding invariants", "two-pointers", "invariants"),
+      item("Same-direction pointers", "two-pointers", "same-direction"),
+      item("Opposite-direction pointers", "two-pointers", "opposite-direction"),
+      item("Remove duplicates from a sorted array", "two-pointers", "remove-duplicates"),
+      item("Middle of a linked list", "linked-lists", "middle"),
+      item("Move zeroes", "two-pointers", "move-zeroes"),
+      item("Two Sum in a sorted array", "two-pointers", "two-sum-sorted"),
+      item("Valid palindrome", "two-pointers", "valid-palindrome"),
+      item("Container With Most Water", "two-pointers", "container"),
+      item("Sliding-window introduction", "sliding-window", "introduction"),
+      item("Fixed sliding window", "sliding-window", "fixed-window"),
+      item("Variable sliding window", "sliding-window", "variable-window"),
+      item("Minimum Window Substring", "sliding-window", "minimum-window"),
+      item("Prefix sums", "prefix-sums", "introduction"),
+      item("Fast and slow pointers", "linked-lists", "fast-slow"),
+      item("Cycle detection", "cycle-detection", "floyd"),
     ],
   },
   {
@@ -88,21 +90,21 @@ export const dsaTrack: DsaTrackGroup[] = [
     level: "Core",
     description: "Design recursive tree solutions by deciding what state flows down and what answer returns up.",
     items: [
-      item("Recursion introduction", "recursion"),
-      item("Tree fundamentals", "binary-trees"),
-      item("DFS introduction", "dfs"),
-      item("DFS on trees", "tree-dfs"),
-      item("Maximum depth of a binary tree", "tree-problems"),
-      item("Visible tree nodes / good nodes", "tree-dfs"),
-      item("Balanced binary tree", "tree-dfs"),
-      item("Subtree of Another Tree", "tree-problems"),
-      item("Invert Binary Tree", "tree-problems"),
-      item("Binary search trees", "bst"),
-      item("Validate a BST", "bst"),
-      item("Insert into a BST", "bst"),
-      item("Lowest common ancestor", "lca"),
-      item("Tree reconstruction", "tree-construction"),
-      item("Tree serialization and deserialization", "tree-construction"),
+      item("Recursion introduction", "recursion", "introduction"),
+      item("Tree fundamentals", "binary-trees", "introduction"),
+      item("DFS introduction", "dfs", "introduction"),
+      item("DFS on trees", "tree-dfs", "dfs-on-trees"),
+      item("Maximum depth of a binary tree", "tree-problems", "max-depth"),
+      item("Visible tree nodes / good nodes", "tree-dfs", "good-nodes"),
+      item("Balanced binary tree", "tree-dfs", "balanced"),
+      item("Subtree of Another Tree", "tree-problems", "subtree"),
+      item("Invert Binary Tree", "tree-problems", "invert"),
+      item("Binary search trees", "bst", "introduction"),
+      item("Validate a BST", "bst", "validate"),
+      item("Insert into a BST", "bst", "insert"),
+      item("Lowest common ancestor", "lca", "introduction"),
+      item("Tree reconstruction", "tree-construction", "reconstruction"),
+      item("Tree serialization and deserialization", "tree-construction", "serialization"),
     ],
   },
   {
@@ -152,14 +154,14 @@ export const dsaTrack: DsaTrackGroup[] = [
       item("Graph fundamentals", "graph-representations"),
       item("Graph representation", "graph-representations"),
       item("BFS on graphs", "bfs"),
-      item("DFS on graphs", "dfs"),
+      item("DFS on graphs", "dfs", "dfs-on-graphs"),
       item("BFS vs DFS", "bfs"),
       item("A matrix as a graph", "matrix"),
-      item("Flood Fill", "dfs"),
-      item("Number of Islands", "dfs"),
+      item("Flood Fill", "dfs", "flood-fill"),
+      item("Number of Islands", "dfs", "number-of-islands"),
       item("Knight minimum moves", "bfs"),
       item("Walls and Gates", "bfs"),
-      item("Pacific Atlantic Water Flow", "dfs"),
+      item("Pacific Atlantic Water Flow", "dfs", "pacific-atlantic"),
       item("Implicit graphs", "bfs"),
       item("Word Ladder", "bfs"),
       item("Open the Lock", "bfs"),
