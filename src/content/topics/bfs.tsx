@@ -151,7 +151,8 @@ int shortestPathBinaryMatrix(vector<vector<int>>& grid) {
     queue<pair<int, int>> q;
     q.push({0, 0});
     while (!q.empty()) {
-        auto [r, c] = q.front(); q.pop();
+        int r = q.front().first, c = q.front().second;
+        q.pop();
         if (r == n - 1 && c == n - 1) return dist[r][c];
         for (int dr = -1; dr <= 1; dr++)
             for (int dc = -1; dc <= 1; dc++) {
